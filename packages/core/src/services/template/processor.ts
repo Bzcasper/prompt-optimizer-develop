@@ -163,19 +163,9 @@ export class TemplateProcessor {
     }
 
     return messages.map(msg => {
-      // 使用CSP安全处理器替换变量
-      let processedContent = msg.content;
-      
-      // 替换变量
-      processedContent = processedContent.replace(/\{\{([^}]+)\}\}/g, (match, variableName) => {
-        const trimmedName = variableName.trim();
-        const value = variables[trimmedName];
-        return value !== undefined ? String(value) : match; // 保留未找到的变量
-      });
-
       return {
         role: msg.role,
-        content: processedContent
+        content: Mustache.render(msg.content, variables)
       };
     });
   }
