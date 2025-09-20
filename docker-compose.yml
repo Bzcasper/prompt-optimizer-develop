@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  prompt-optimizer:
+    image: linshen/prompt-optimizer:latest
+    container_name: prompt-optimizer
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    env_file:
+      - .env.local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - NGINX_PORT=80
+      - VITE_OPENAI_API_KEY=${VITE_OPENAI_API_KEY}
+      - VITE_GEMINI_API_KEY=${VITE_GEMINI_API_KEY}
+      - VITE_ZHIPU_API_KEY=${VITE_ZHIPU_API_KEY}
+      - ENABLE_CONTENT_GENERATION=${ENABLE_CONTENT_GENERATION:-true}
+      - CONTENT_GENERATION_TIMEOUT=${CONTENT_GENERATION_TIMEOUT:-120000}
+      - MAX_CONTENT_ITERATIONS=${MAX_CONTENT_ITERATIONS:-10}
+      - CONTENT_TEMPLATE_CACHE_SIZE=${CONTENT_TEMPLATE_CACHE_SIZE:-50}
+      - ENABLE_MULTI_AGENT=${ENABLE_MULTI_AGENT:-true}
+      - MAX_CONCURRENT_AGENTS=${MAX_CONCURRENT_AGENTS:-5}
+      - AGENT_TIMEOUT=${AGENT_TIMEOUT:-300000}
+      - AGENT_MEMORY_SIZE=${AGENT_MEMORY_SIZE:-20000}
+      - ENABLE_ADVANCED_TOOLS=${ENABLE_ADVANCED_TOOLS:-true}
+      - TOOL_TIMEOUT=${TOOL_TIMEOUT:-60000}
+      - MAX_TOOL_CONCURRENCY=${MAX_TOOL_CONCURRENCY:-10}
+      - ENABLE_VIDEO_PROCESSING=${ENABLE_VIDEO_PROCESSING:-true}
+      - VIDEO_PROCESSING_TIMEOUT=${VIDEO_PROCESSING_TIMEOUT:-120000}
+      - ENABLE_SPEECH_RECOGNITION=${ENABLE_SPEECH_RECOGNITION:-true}
+      - SPEECH_RECOGNITION_MODEL=${SPEECH_RECOGNITION_MODEL:-whisper-large}
+      - ENABLE_ML_MODEL_TRAINING=${ENABLE_ML_MODEL_TRAINING:-true}
+      - ML_TRAINING_TIMEOUT=${ML_TRAINING_TIMEOUT:-3600000}
+      - ENABLE_DATA_VISUALIZATION=${ENABLE_DATA_VISUALIZATION:-true}
+      - ENABLE_UX_UI_DESIGN=${ENABLE_UX_UI_DESIGN:-true}
+      - ENABLE_PROJECT_MANAGEMENT=${ENABLE_PROJECT_MANAGEMENT:-true}
+      - ACCESS_USERNAME=${ACCESS_USERNAME:-admin}
+      - ACCESS_PASSWORD=${ACCESS_PASSWORD:-}
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./data/prompts:/app/data/prompts
+      - ./data/models:/app/data/models
+      - ./data/visualizations:/app/data/visualizations
+      - ./logs:/app/logs
+    depends_on:
+      - mcp-server
+
+  mcp-server:
+    image: linshen/prompt-optimizer:latest
+    container_name: prompt-optimizer-mcp
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.mcp
+    command: ["node", "-r", "./preload-env.js", "dist/start.js", "--transport=http", "--port=3000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - MCP_HTTP_PORT=3000
+      - MCP_LOG_LEVEL=${MCP_LOG_LEVEL:-info}
+      - MCP_DEFAULT_LANGUAGE=${MCP_DEFAULT_LANGUAGE:-zh}
+      - MCP_DEFAULT_MODEL_PROVIDER=${MCP_DEFAULT_MODEL_PROVIDER:-openai}
+      - MCP_OPENAI_API_KEY=${MCP_OPENAI_API_KEY}
+      - MCP_GEMINI_API_KEY=${MCP_GEMINI_API_KEY}
+      - MCP_ZHIPU_API_KEY=${MCP_ZHIPU_API_KEY}
+      - ENABLE_CONTENT_GENERATION=${ENABLE_CONTENT_GENERATION:-true}
+      - ENABLE_MULTI_AGENT=${ENABLE_MULTI_AGENT:-true}
+      - ENABLE_ADVANCED_TOOLS=${ENABLE_ADVANCED_TOOLS:-true}
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./data/prompts:/app/data/prompts:ro
+      - ./data/models:/app/data/models:ro
+      - ./logs/mcp:/app/logs
+    working_dir: /app/mcp-server

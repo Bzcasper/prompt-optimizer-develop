@@ -1,0 +1,89 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+env:
+   # Docker Hub configuration
+   DOCKERHUB_REGISTRY: docker.io
+   DOCKERHUB_IMAGE_NAME: linshen/prompt-optimizer
+
+   # Alibaba Cloud Container Registry configuration
+   ALIYUN_REGISTRY: registry.cn-guangzhou.aliyuncs.com
+   ALIYUN_IMAGE_NAME: prompt-optimizer/prompt-optimizer
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Install pnpm
+         uses: pnpm/action-setup@v2
+         with:
+           version: 10.5.2
+           run_install: false
+
+       - name: Setup Node.js environment
+         uses: actions/setup-node@v4
+         with:
+           node-version: '22'
+           cache: 'pnpm'
+
+       - name: Install dependencies
+         run: pnpm install
+
+       - name: Run build
+         run: pnpm build
+
+       - name: Run tests
+         run: pnpm test
+
+       - name: Get package.json version number
+         id: version
+         run: |
+           VERSION=$(grep -m1 '"version":' package.json | cut -d'"' -f4)
+           echo "version=$VERSION" >> $GITHUB_OUTPUT
+           echo "Version from package.json: $VERSION"
+
+       - name: Login to Docker Hub
+         uses: docker/login-action@v3
+         with:
+           username: ${{ secrets.DOCKERHUB_USERNAME }}
+           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+       - name: Login to Alibaba Cloud Container Registry
+         uses: docker/login-action@v3
+         with:
+           registry: ${{ env.ALIYUN_REGISTRY }}
+           username: ${{ secrets.ALIYUN_USERNAME }}
+           password: ${{ secrets.ALIYUN_PASSWORD }}
+
+       - name: Set up QEMU
+         uses: docker/setup-qemu-action@v3
+
+       - name: Setup Docker Buildx
+         uses: docker/setup-buildx-action@v3
+
+       - name: Build and push Docker image
+         uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:${{ steps.version.outputs.version }}
+            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:latest
+            ${{ env.ALIYUN_REGISTRY }}/${{ env.ALIYUN_IMAGE_NAME }}:${{ steps.version.outputs.version }}
+            ${{ env.ALIYUN_REGISTRY }}/${{ env.ALIYUN_IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

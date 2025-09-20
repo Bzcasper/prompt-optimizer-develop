@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=PromptOptimizer
+Comment=Desktop application for Prompt Optimizer
+Exec=/home/bobby/Downloads/prompt-optimizer-develop/packages/desktop/dist/PromptOptimizer-2.0.0-linux-x86_64.AppImage
+Icon=/home/bobby/Downloads/prompt-optimizer-develop/packages/desktop/icons/512x512.png
+Terminal=false
+Type=Application
+Categories=Utility;Development;
+StartupNotify=true

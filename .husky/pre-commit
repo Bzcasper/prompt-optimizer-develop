@@ -1,0 +1,21 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Check if package-lock.json or yarn.lock files exist
+if [ -f "package-lock.json" ]; then
+  echo "Error: package-lock.json file detected."
+  echo "This project mandates pnpm as the package manager. Please delete package-lock.json and use pnpm install to install dependencies."
+  exit 1
+fi
+
+if [ -f "yarn.lock" ]; then
+  echo "Error: yarn.lock file detected."
+  echo "This project mandates pnpm as the package manager. Please delete yarn.lock and use pnpm install to install dependencies."
+  exit 1
+fi
+
+# Ensure pnpm-lock.yaml exists
+if [ ! -f "pnpm-lock.yaml" ]; then
+  echo "Warning: pnpm-lock.yaml file not detected."
+  echo "Please ensure you use pnpm install to install dependencies."
+fi
