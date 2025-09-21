@@ -9,7 +9,7 @@ import {
   AgentExecutionContext,
   AgentExecutionResult,
   AgentCapabilities
-} from '../agent-registry';
+} from '../agent/types';
 import {
   GoogleADKAgentHandler,
   GoogleADKConfig,

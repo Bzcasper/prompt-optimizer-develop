@@ -3,7 +3,7 @@
  * Foundation for integrating Google's Agent Development Kit capabilities
  */
 
-import { AgentDefinition, AgentHandler, AgentExecutionContext, AgentExecutionResult, AgentCapabilities } from '../agent-registry';
+import { AgentDefinition, AgentHandler, AgentExecutionContext, AgentExecutionResult, AgentCapabilities } from '../agent/types';
 
 /**
  * Google ADK Configuration Interface

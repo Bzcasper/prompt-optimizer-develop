@@ -5,7 +5,7 @@
 
 import { createRegistryOrchestrator, createBasicOrchestrator } from './registry-orchestrator';
 import { ToolRegistry } from './tool-registry';
-import { AgentRegistry } from './agent-registry';
+import { AgentRegistry } from './agent/registry';
 import { BuiltInTools } from './built-in-tools';
 import { BuiltInAgents } from './built-in-agents';
 
