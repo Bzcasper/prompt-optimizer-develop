@@ -1,0 +1,125 @@
+{
+  "evaluation_metrics": {
+    "existing_metrics": [
+      {
+        "id": "clarity",
+        "name": "Clarity",
+        "weight": 0.2,
+        "measurement": {
+          "method": "human_rating",
+          "scale": [1, 5]
+        }
+      },
+      {
+        "id": "relevance",
+        "name": "Relevance",
+        "weight": 0.3,
+        "measurement": {
+          "method": "human_rating",
+          "scale": [1, 5]
+        }
+      },
+      {
+        "id": "completeness",
+        "name": "Completeness",
+        "weight": 0.25,
+        "measurement": {
+          "method": "human_rating",
+          "scale": [1, 5]
+        }
+      },
+      {
+        "id": "fact_accuracy",
+        "name": "Factual Accuracy",
+        "weight": 0.25,
+        "measurement": {
+          "method": "automated_fact_checker",
+          "api": "http://fact-checker.example.com/api/check"
+        }
+      }
+    ],
+    "new_metrics_proposal_1": [
+      {
+        "id": "seo_relevance",
+        "name": "SEO Relevance",
+        "weight": 0.25,
+        "measurement": {
+          "method": "keyword_matching",
+          "parameters": {
+            "primary_keywords": ["keyword1", "keyword2"],
+            "secondary_keywords": ["keyword3", "keyword4"]
+          }
+        }
+      },
+      {
+        "id": "readability",
+        "name": "Readability",
+        "weight": 0.15,
+        "measurement": {
+          "method": "flesch_reading_ease",
+          "target_score": 60
+        }
+      },
+      {
+        "id": "output_consistency",
+        "name": "Output Consistency",
+        "weight": 0.3,
+        "measurement": {
+          "method": "contradiction_detection",
+          "api": "http://consistency-checker.example.com/api/check"
+        }
+      },
+      {
+        "id": "cost_speed",
+        "name": "Cost/Speed",
+        "weight": 0.3,
+        "measurement": {
+          "method": "token_count_and_response_time",
+          "parameters": {
+            "max_tokens": 500,
+            "max_response_time_ms": 2000
+          }
+        }
+      }
+    ],
+    "new_metrics_proposal_2": [
+      {
+        "id": "seo_relevance",
+        "name": "SEO Relevance",
+        "weight": 0.25,
+        "measurement": {
+          "method": "api_call",
+          "endpoint": "http://seo-checker.example.com/api/check",
+          "parameters": ["output_text", "keyword_set"]
+        }
+      },
+      {
+        "id": "readability",
+        "name": "Readability",
+        "weight": 0.15,
+        "measurement": {
+          "method": "api_call",
+          "endpoint": "http://readability-checker.example.com/api/check",
+          "parameters": ["output_text", "scale"]
+        }
+      },
+      {
+        "id": "output_consistency",
+        "name": "Output Consistency",
+        "weight": 0.3,
+        "measurement": {
+          "method": "internal_consistency_check"
+        }
+      },
+      {
+        "id": "cost_speed",
+        "name": "Cost/Speed",
+        "weight": 0.3,
+        "measurement": {
+          "method": "resource_usage_monitor",
+          "parameters": ["token_usage", "response_time"]
+        }
+      }
+    ]
+  }
+}
