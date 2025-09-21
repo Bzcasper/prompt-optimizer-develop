@@ -1,0 +1,22 @@
+metadata:
+  name: task-agent
+  version: 0.1.0
+  author: bzcasper
+manifestVersion: '1.0'
+capabilities:
+  - classify
+  - generate_seo
+  - create_listing
+intentPatterns:
+  - "classify the image at *"
+  - "generate seo keywords for *"
+  - "create a product listing for *"
+tools:
+  - image_classifier:v1
+  - seo_generator:v1
+modelPreset: balanced
+concurrency: 2
+promptsPath: ./prompt_templates/task-agent/
+health:
+  probe: /health
+  interval_s: 30
