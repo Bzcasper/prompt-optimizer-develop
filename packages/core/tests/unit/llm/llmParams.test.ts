@@ -348,147 +348,155 @@ describe('LLM Parameters (llmParams) Functionality', () => {
     const geminiConfig = getGeminiConfig();
 
     // Temperature parameter tests
-    describe('Temperature Parameter', () => {
-      // Test for all OpenAI compatible providers
-      openaiCompatibleConfigs.forEach((config) => {
-        it(`should accept valid temperature for ${config.provider} provider`, async () => {
-          const storage = new LocalStorageProvider();
-          const modelManager = new ModelManager(storage);
-          await modelManager.ensureInitialized();
-          const llmService = createLLMService(modelManager);
+    if (openaiCompatibleConfigs.length > 0) {
+      describe('Temperature Parameter', () => {
+        // Test for all OpenAI compatible providers
+        openaiCompatibleConfigs.forEach((config) => {
+          it(`should accept valid temperature for ${config.provider} provider`, async () => {
+            const storage = new LocalStorageProvider();
+            const modelManager = new ModelManager(storage);
+            await modelManager.ensureInitialized();
+            const llmService = createLLMService(modelManager);
 
-          await modelManager.updateModel(config.key, {
-            name: `Test ${config.provider} Temperature`,
-            apiKey: config.apiKey,
-            baseURL: config.baseURL,
-            defaultModel: config.defaultModel,
-            enabled: true,
-            provider: config.provider,
-            models: [config.defaultModel],
-            llmParams: {
-              temperature: 0.3
-            }
-          });
+            await modelManager.updateModel(config.key, {
+              name: `Test ${config.provider} Temperature`,
+              apiKey: config.apiKey,
+              baseURL: config.baseURL,
+              defaultModel: config.defaultModel,
+              enabled: true,
+              provider: config.provider,
+              models: [config.defaultModel],
+              llmParams: {
+                temperature: 0.3
+              }
+            });
 
-          const messages = [{ role: 'user' as const, content: 'Hello' }];
+            const messages = [{ role: 'user' as const, content: 'Hello' }];
 
-          const response = await llmService.sendMessage(messages, config.key);
-            expect(response).toBeDefined();
-            expect(typeof response).toBe('string');
-            expect(response.length).toBeGreaterThan(0);
-        }, 30000);
+            const response = await llmService.sendMessage(messages, config.key);
+              expect(response).toBeDefined();
+              expect(typeof response).toBe('string');
+              expect(response.length).toBeGreaterThan(0);
+          }, 30000);
+        });
       });
-    });
+    }
 
     // Top P parameter tests
-    describe('Top P Parameter', () => {
-      // Test for all OpenAI compatible providers
-      openaiCompatibleConfigs.forEach((config) => {
-        it(`should accept valid top_p for ${config.provider} provider`, async () => {
-          const storage = new LocalStorageProvider();
-          const modelManager = new ModelManager(storage);
-          await modelManager.ensureInitialized();
-          const llmService = createLLMService(modelManager);
+    if (openaiCompatibleConfigs.length > 0) {
+      describe('Top P Parameter', () => {
+        // Test for all OpenAI compatible providers
+        openaiCompatibleConfigs.forEach((config) => {
+          it(`should accept valid top_p for ${config.provider} provider`, async () => {
+            const storage = new LocalStorageProvider();
+            const modelManager = new ModelManager(storage);
+            await modelManager.ensureInitialized();
+            const llmService = createLLMService(modelManager);
 
-          await modelManager.updateModel(config.key, {
-            name: `Test ${config.provider} Top P`,
-            apiKey: config.apiKey,
-            baseURL: config.baseURL,
-            defaultModel: config.defaultModel,
-            enabled: true,
-            provider: config.provider,
-            models: [config.defaultModel],
-            llmParams: {
-              top_p: 0.9
-            }
-          });
+            await modelManager.updateModel(config.key, {
+              name: `Test ${config.provider} Top P`,
+              apiKey: config.apiKey,
+              baseURL: config.baseURL,
+              defaultModel: config.defaultModel,
+              enabled: true,
+              provider: config.provider,
+              models: [config.defaultModel],
+              llmParams: {
+                top_p: 0.9
+              }
+            });
 
-          const messages = [{ role: 'user' as const, content: 'Hello' }];
+            const messages = [{ role: 'user' as const, content: 'Hello' }];
 
-          const response = await llmService.sendMessage(messages, config.key);
-            expect(response).toBeDefined();
-            expect(typeof response).toBe('string');
-            expect(response.length).toBeGreaterThan(0);
-        }, 30000);
+            const response = await llmService.sendMessage(messages, config.key);
+              expect(response).toBeDefined();
+              expect(typeof response).toBe('string');
+              expect(response.length).toBeGreaterThan(0);
+          }, 30000);
+        });
       });
-    });
+    }
 
     // Max Tokens parameter tests (OpenAI compatible)
-    describe('Max Tokens Parameter', () => {
-      // Test for all OpenAI compatible providers
-      openaiCompatibleConfigs.forEach((config) => {
-        it(`should accept valid max_tokens for ${config.provider} provider`, async () => {
-          const storage = new LocalStorageProvider();
-          const modelManager = new ModelManager(storage);
-          await modelManager.ensureInitialized();
-          const llmService = createLLMService(modelManager);
+    if (openaiCompatibleConfigs.length > 0) {
+      describe('Max Tokens Parameter', () => {
+        // Test for all OpenAI compatible providers
+        openaiCompatibleConfigs.forEach((config) => {
+          it(`should accept valid max_tokens for ${config.provider} provider`, async () => {
+            const storage = new LocalStorageProvider();
+            const modelManager = new ModelManager(storage);
+            await modelManager.ensureInitialized();
+            const llmService = createLLMService(modelManager);
 
-          await modelManager.updateModel(config.key, {
-            name: `Test ${config.provider} Max Tokens`,
-            apiKey: config.apiKey,
-            baseURL: config.baseURL,
-            defaultModel: config.defaultModel,
-            enabled: true,
-            provider: config.provider,
-            models: [config.defaultModel],
-            llmParams: {
-              max_tokens: 100
-            }
-          });
+            await modelManager.updateModel(config.key, {
+              name: `Test ${config.provider} Max Tokens`,
+              apiKey: config.apiKey,
+              baseURL: config.baseURL,
+              defaultModel: config.defaultModel,
+              enabled: true,
+              provider: config.provider,
+              models: [config.defaultModel],
+              llmParams: {
+                max_tokens: 100
+              }
+            });
 
-          const messages = [{ role: 'user' as const, content: 'Tell me a short fact' }];
+            const messages = [{ role: 'user' as const, content: 'Tell me a short fact' }];
 
-          const response = await llmService.sendMessage(messages, config.key);
-            expect(response).toBeDefined();
-            expect(typeof response).toBe('string');
-            expect(response.length).toBeGreaterThan(0);
-        }, 30000);
+            const response = await llmService.sendMessage(messages, config.key);
+              expect(response).toBeDefined();
+              expect(typeof response).toBe('string');
+              expect(response.length).toBeGreaterThan(0);
+          }, 30000);
+        });
       });
-    });
+    }
 
     // Frequency Penalty parameter tests
-    describe('Frequency Penalty Parameter', () => {
-      // Test for all OpenAI compatible providers
-      openaiCompatibleConfigs.forEach((config) => {
-        it(`should accept valid frequency_penalty for ${config.provider} provider`, async () => {
-          const storage = new LocalStorageProvider();
-          const modelManager = new ModelManager(storage);
-          await modelManager.ensureInitialized();
-          const llmService = createLLMService(modelManager);
+    if (openaiCompatibleConfigs.length > 0) {
+      describe('Frequency Penalty Parameter', () => {
+        // Test for all OpenAI compatible providers
+        openaiCompatibleConfigs.forEach((config) => {
+          it(`should accept valid frequency_penalty for ${config.provider} provider`, async () => {
+            const storage = new LocalStorageProvider();
+            const modelManager = new ModelManager(storage);
+            await modelManager.ensureInitialized();
+            const llmService = createLLMService(modelManager);
 
-          await modelManager.updateModel(config.key, {
-            name: `Test ${config.provider} Frequency Penalty`,
-            apiKey: config.apiKey,
-            baseURL: config.baseURL,
-            defaultModel: config.defaultModel,
-            enabled: true,
-            provider: config.provider,
-            models: [config.defaultModel],
-            llmParams: {
-              frequency_penalty: 0.3
-            }
-          });
+            await modelManager.updateModel(config.key, {
+              name: `Test ${config.provider} Frequency Penalty`,
+              apiKey: config.apiKey,
+              baseURL: config.baseURL,
+              defaultModel: config.defaultModel,
+              enabled: true,
+              provider: config.provider,
+              models: [config.defaultModel],
+              llmParams: {
+                frequency_penalty: 0.3
+              }
+            });
 
-          const messages = [{ role: 'user' as const, content: 'Hello' }];
+            const messages = [{ role: 'user' as const, content: 'Hello' }];
 
-          const response = await llmService.sendMessage(messages, config.key);
-            expect(response).toBeDefined();
-            expect(typeof response).toBe('string');
-            expect(response.length).toBeGreaterThan(0);
-        }, 60000);
+            const response = await llmService.sendMessage(messages, config.key);
+              expect(response).toBeDefined();
+              expect(typeof response).toBe('string');
+              expect(response.length).toBeGreaterThan(0);
+          }, 60000);
+        });
       });
-    });
+    }
 
     // Gemini specific parameters
-    describe('Gemini Specific Parameters', () => {
-      beforeEach(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10000)); // 等待 10 秒
-      });
+    if (hasGeminiKey && geminiConfig) {
+      describe('Gemini Specific Parameters', () => {
+        beforeEach(async () => {
+          await new Promise(resolve => setTimeout(resolve, 10000)); // 等待 10 秒
+        });
 
-      if (hasGeminiKey && geminiConfig) {
         it('should accept valid maxOutputTokens for Gemini provider', async () => {
           // 添加间隔，避免频率限制，先等10秒
-          await new Promise(resolve => setTimeout(resolve, 10000)); 
+          await new Promise(resolve => setTimeout(resolve, 10000));
           const storage = new LocalStorageProvider();
           const modelManager = new ModelManager(storage);
           await modelManager.ensureInitialized();
@@ -516,7 +524,7 @@ describe('LLM Parameters (llmParams) Functionality', () => {
         }, 60000);
         it('should accept valid candidateCount for Gemini provider', async () => {
           // 添加间隔，避免频率限制，先等10秒
-          await new Promise(resolve => setTimeout(resolve, 10000)); 
+          await new Promise(resolve => setTimeout(resolve, 10000));
           const storage = new LocalStorageProvider();
           const modelManager = new ModelManager(storage);
           await modelManager.ensureInitialized();
@@ -542,55 +550,59 @@ describe('LLM Parameters (llmParams) Functionality', () => {
             expect(typeof response).toBe('string');
             expect(response.length).toBeGreaterThan(0);
         }, 60000);
-      } else {
+      });
+    } else {
+      describe.skip('Gemini Specific Parameters', () => {
         it('should skip Gemini tests when API key is not available', () => {
           expect(true).toBe(true); // 占位测试，确保套件不为空
         });
-      }
-    });
+      });
+    }
 
     // Combined parameters tests
-    describe('Combined Parameters', () => {
-      // Test for all OpenAI compatible providers
-      openaiCompatibleConfigs.forEach((config) => {
-        it(`should handle multiple parameters for ${config.provider} provider`, async () => {
-          const storage = new LocalStorageProvider();
-          const modelManager = new ModelManager(storage);
-          await modelManager.ensureInitialized();
-          const llmService = createLLMService(modelManager);
+    if (openaiCompatibleConfigs.length > 0) {
+      describe('Combined Parameters', () => {
+        // Test for all OpenAI compatible providers
+        openaiCompatibleConfigs.forEach((config) => {
+          it(`should handle multiple parameters for ${config.provider} provider`, async () => {
+            const storage = new LocalStorageProvider();
+            const modelManager = new ModelManager(storage);
+            await modelManager.ensureInitialized();
+            const llmService = createLLMService(modelManager);
 
-          await modelManager.updateModel(config.key, {
-            name: `Test ${config.provider} Combined`,
-            apiKey: config.apiKey,
-            baseURL: config.baseURL,
-            defaultModel: config.defaultModel,
-            enabled: true,
-            provider: config.provider,
-            models: [config.defaultModel],
-            llmParams: {
-              temperature: 0.6,
-              max_tokens: 50, // 减少token数量以加快响应
-              top_p: 0.9,
-              presence_penalty: 0.2,
-              frequency_penalty: 0.1,
-              timeout: 20000 // 减少超时时间
-            }
-          });
+            await modelManager.updateModel(config.key, {
+              name: `Test ${config.provider} Combined`,
+              apiKey: config.apiKey,
+              baseURL: config.baseURL,
+              defaultModel: config.defaultModel,
+              enabled: true,
+              provider: config.provider,
+              models: [config.defaultModel],
+              llmParams: {
+                temperature: 0.6,
+                max_tokens: 50, // 减少token数量以加快响应
+                top_p: 0.9,
+                presence_penalty: 0.2,
+                frequency_penalty: 0.1,
+                timeout: 20000 // 减少超时时间
+              }
+            });
 
-          const messages = [{ role: 'user' as const, content: 'Say hello' }]; // 简化请求
+            const messages = [{ role: 'user' as const, content: 'Say hello' }]; // 简化请求
 
-          const response = await llmService.sendMessage(messages, config.key);
-            expect(response).toBeDefined();
-            expect(typeof response).toBe('string');
-            expect(response.length).toBeGreaterThan(0);
-        }, 45000); // 增加测试超时时间
+            const response = await llmService.sendMessage(messages, config.key);
+              expect(response).toBeDefined();
+              expect(typeof response).toBe('string');
+              expect(response.length).toBeGreaterThan(0);
+          }, 45000); // 增加测试超时时间
+        });
       });
-    });
+    }
   });
 
   describe('Edge Cases', () => {
     const openaiCompatibleConfigs = getAvailableOpenAICompatibleConfigs();
-    
+
     it('should handle missing llmParams gracefully', () => {
       const result = validateLLMParams(undefined, 'openai');
       expect(result.isValid).toBe(true);
@@ -606,35 +618,37 @@ describe('LLM Parameters (llmParams) Functionality', () => {
     });
 
     // Test that no default values are set when parameters are not provided
-    describe('No Default Values', () => {
-      // Test for all OpenAI compatible providers
-      openaiCompatibleConfigs.forEach((config) => {
-        it(`should not set default values when not provided for ${config.provider}`, async () => {
-          const storage = new LocalStorageProvider();
-          const modelManager = new ModelManager(storage);
-          await modelManager.ensureInitialized();
-          const llmService = createLLMService(modelManager);
+    if (openaiCompatibleConfigs.length > 0) {
+      describe('No Default Values', () => {
+        // Test for all OpenAI compatible providers
+        openaiCompatibleConfigs.forEach((config) => {
+          it(`should not set default values when not provided for ${config.provider}`, async () => {
+            const storage = new LocalStorageProvider();
+            const modelManager = new ModelManager(storage);
+            await modelManager.ensureInitialized();
+            const llmService = createLLMService(modelManager);
 
-          await modelManager.updateModel(config.key, {
-            name: `Test ${config.provider} No Defaults`,
-            apiKey: config.apiKey,
-            baseURL: config.baseURL,
-            defaultModel: config.defaultModel,
-            enabled: true,
-            provider: config.provider,
-            models: [config.defaultModel],
-            // No llmParams provided - testing parameter transparency
-          });
+            await modelManager.updateModel(config.key, {
+              name: `Test ${config.provider} No Defaults`,
+              apiKey: config.apiKey,
+              baseURL: config.baseURL,
+              defaultModel: config.defaultModel,
+              enabled: true,
+              provider: config.provider,
+              models: [config.defaultModel],
+              // No llmParams provided - testing parameter transparency
+            });
 
-          const messages = [{ role: 'user' as const, content: 'Hello' }];
+            const messages = [{ role: 'user' as const, content: 'Hello' }];
 
-          const response = await llmService.sendMessage(messages, config.key);
-            expect(response).toBeDefined();
-            expect(typeof response).toBe('string');
-            expect(response.length).toBeGreaterThan(0);
-            // Should work fine without any default values being set
-        }, 30000);
+            const response = await llmService.sendMessage(messages, config.key);
+              expect(response).toBeDefined();
+              expect(typeof response).toBe('string');
+              expect(response.length).toBeGreaterThan(0);
+              // Should work fine without any default values being set
+          }, 30000);
+        });
       });
-    });
+    }
   });
 }); 

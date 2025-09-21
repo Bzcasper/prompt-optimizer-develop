@@ -406,18 +406,6 @@ export class AgentRegistry {
     return Object.fromEntries(instance.state.memory);
   }
 
-  /**
-   * Update agent memory
-   */
-  updateAgentMemory(agentId: string, key: string, value: any): void {
-    const instance = this.agents.get(agentId);
-    if (!instance) return;
-
-    instance.state.memory.set(key, value);
-
-    // Clean up old memory based on retention policy
-    this.cleanupAgentMemory(instance);
-  }
 
   /**
    * Get agent statistics

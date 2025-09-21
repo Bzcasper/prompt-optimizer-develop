@@ -14,8 +14,9 @@ const openaiCompatibleKeys = [
 const hasOpenaiCompatibleKey = openaiCompatibleKeys.some(k => !!process.env[k]);
 if (!hasOpenaiCompatibleKey) {
   console.warn('Skipping OpenAI-compatible integration tests: no compatible API key found in environment');
-  describe.skip('OpenAI API 真实连接测试 (skipped - no API key)', () => {});
-  throw new Error('skip-suite');
+  describe.skip('OpenAI API 真实连接测试 (skipped - no API key)', () => {
+    it.skip('noop', () => {});
+  });
 }
 
 // 加载环境变量
