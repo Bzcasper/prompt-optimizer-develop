@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  agent-orchestrator:
+    image: linshen/prompt-optimizer:latest
+    container_name: agent-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    env_file:
+      - .env.multi-agent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - NGINX_PORT=80
+      - VITE_AGENT_PRIMARY_ROLE=orchestrator
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./agents:/app/agents
+      - ./tools:/app/tools
+      - ./logs:/app/logs
+
+  agent-runner-task:
+    image: linshen/prompt-optimizer:latest
+    container_name: agent-runner-task
+    restart: unless-stopped
+    env_file:
+      - .env.multi-agent
+    depends_on:
+      - agent-orchestrator
+    command: ["node", "-r", "./preload-env.js", "dist/start.js", "--agent-role=task"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - VITE_AGENT_ROLE=content-creator # Example role
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./agents:/app/agents
+      - ./tools:/app/tools
+      - ./logs/agent-runner-task:/app/logs
+
+  agent-runner-tool:
+    image: linshen/prompt-optimizer:latest
+    container_name: agent-runner-tool
+    restart: unless-stopped
+    env_file:
+      - .env.multi-agent
+    depends_on:
+      - agent-orchestrator
+    command: ["node", "-r", "./preload-env.js", "dist/start.js", "--agent-role=tool"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - VITE_AGENT_ROLE=code-reviewer # Example role
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./agents:/app/agents
+      - ./tools:/app/tools
+      - ./logs/agent-runner-tool:/app/logs
+
+  monitor:
+    image: prom/node-exporter:v1.3.1
+    container_name: prometheus-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9100/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
