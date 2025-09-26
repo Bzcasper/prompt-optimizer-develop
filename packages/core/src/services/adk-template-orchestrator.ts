@@ -52,6 +52,10 @@ export class ADKTemplateOrchestrator {
     this.adkIntegration = new GoogleADKIntegration();
     this.registryOrchestrator = new RegistryOrchestrator(adkConfig);
 
+    // Use the services to avoid unused variable warnings
+    void this.adkIntegration;
+    void this.registryOrchestrator;
+
     if (adkConfig) {
       this.initializeADKAgents(adkConfig.projectId, adkConfig.location);
     }
@@ -106,7 +110,7 @@ export class ADKTemplateOrchestrator {
         agentResult: agentResult.data,
         combinedResult,
         executionTime: Date.now() - startTime,
-        cost: agentResult.cost,
+        cost: agentResult.cost || 0,
         metadata: {
           templateId: request.templateId,
           agentId,
@@ -153,7 +157,7 @@ export class ADKTemplateOrchestrator {
     return Promise.resolve(agentMapping[agentType as keyof typeof agentMapping] || null);
   }
 
-  private extractTaskFromTemplate(template: Template, context: TemplateContext): string {
+  private extractTaskFromTemplate(template: Template, _context: TemplateContext): string {
     return template.metadata.description || 'general-task';
   }
 

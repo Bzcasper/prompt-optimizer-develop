@@ -99,7 +99,7 @@ export class GoogleADKAgentHandler implements AgentHandler {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         executionTime: Date.now() - startTime,
         cost: 0,
         metadata: {
@@ -113,7 +113,7 @@ export class GoogleADKAgentHandler implements AgentHandler {
     }
   }
 
-  validateTask(task: string, parameters: Record<string, any>): boolean {
+  validateTask(task: string, _parameters: Record<string, any>): boolean {
     // Basic validation - in a real implementation, this would be more sophisticated
     return typeof task === 'string' && task.length > 0;
   }
@@ -147,7 +147,7 @@ export class GoogleADKAgentHandler implements AgentHandler {
     console.log(`✅ Google ADK agent cleaned up: ${this.config.agentId}`);
   }
 
-  private calculateCost(tokensUsed: number): number {
+  protected calculateCost(tokensUsed: number): number {
     // Mock cost calculation based on token usage
     // In a real implementation, this would use Google's actual pricing
     const costPer1kTokens = 0.002; // $0.002 per 1K tokens

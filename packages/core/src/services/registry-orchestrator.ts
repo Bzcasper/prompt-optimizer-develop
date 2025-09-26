@@ -213,8 +213,8 @@ export class RegistryOrchestrator {
    */
   async executeWorkflow(
     workflowName: string,
-    context: any,
-    userId?: string
+    _context: any,
+    _userId?: string
   ): Promise<OrchestrationResult> {
     // This would integrate with the MultiAgentOrchestrator
     // For now, return a placeholder implementation
