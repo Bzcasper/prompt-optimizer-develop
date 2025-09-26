@@ -259,11 +259,9 @@ import { useI18n } from 'vue-i18n'
 import { NModal, NButton, NSpace, NTag, NDataTable, NGrid, NGridItem, NInput, NCard, NRadioGroup, NRadioButton, NText, NEmpty, NDivider, NIcon, type DataTableColumns } from 'naive-ui'
 import { useResponsive } from '../composables/useResponsive'
 import { useClipboard } from '../composables/useClipboard'
-import type { 
-  VariableManagerModalProps, 
-  VariableManagerModalEvents,
-  VariableExportData,
-  VariableImportOptions 
+import type {
+  VariableManagerModalProps,
+  VariableManagerModalEvents
 } from '../types/components'
 import type { Variable } from '../types/variable'
 import type { VariableManagerHooks } from '../composables/useVariableManager'
@@ -544,9 +542,6 @@ const copyVariableName = async (name: string) => {
 }
 
 // 事件处理
-const close = () => {
-  localVisible.value = false
-}
 
 const showAddVariable = () => {
   editingVariable.value = null
@@ -790,19 +785,21 @@ const getExportPreview = (): string => {
   }, {} as Record<string, string>)
   
   switch (exportFormat.value) {
-    case 'csv':
+    case 'csv': {
       const csvLines = ['name,value']
       for (const [name, value] of Object.entries(customVarsObject)) {
         csvLines.push(`"${name}","${value.replace(/"/g, '""')}"`)
       }
       return csvLines.join('\n')
-      
-    case 'txt':
+    }
+
+    case 'txt': {
       const txtLines: string[] = []
       for (const [name, value] of Object.entries(customVarsObject)) {
         txtLines.push(`${name}=${value}`)
       }
       return txtLines.join('\n')
+    }
       
     default:
       return ''

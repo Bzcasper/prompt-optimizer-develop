@@ -182,8 +182,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
-import { useMessage } from 'naive-ui'
 import {
+  useMessage,
   NCard,
   NSpace,
   NFormItem,
