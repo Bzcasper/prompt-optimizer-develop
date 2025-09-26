@@ -3603,23 +3603,39 @@ export class BuiltInAgents {
         name: "Security Agent",
         description:
           "Performs vulnerability scans, security audits, compliance checks, and threat analysis",
-        type: AGENT_TYPES.SPECIALIZED,
+        type: AGENT_TYPES.SPECIALIST,
         specializations: [AGENT_SPECIALIZATIONS.SECURITY],
         version: "1.0.0",
-        capabilities: {
-          supportsMultiStep: true,
-          supportsCollaboration: true,
-          supportsToolUse: true,
-          maxSteps: 12,
-          supportedTaskTypes: [
-            "vulnerability-scan",
-            "security-audit",
-            "compliance-check",
-            "threat-analysis",
-          ],
-          requiresSetup: false,
-          supportsMemory: true,
-        },
+        capabilities: [
+          {
+            name: "vulnerability-scan",
+            description: "Scan code and infrastructure for security vulnerabilities",
+            parameters: { depth: "comprehensive", tools: ["static", "dynamic"] },
+            cooldown: 3000,
+            cost: 0.05,
+          },
+          {
+            name: "security-audit",
+            description: "Comprehensive security audit and assessment",
+            parameters: { scope: "full", compliance: "standard" },
+            cooldown: 5000,
+            cost: 0.08,
+          },
+          {
+            name: "compliance-check",
+            description: "Check compliance with security standards",
+            parameters: { standards: ["OWASP", "NIST", "SOC2"] },
+            cooldown: 2000,
+            cost: 0.03,
+          },
+          {
+            name: "threat-analysis",
+            description: "Analyze potential security threats and risks",
+            parameters: { methods: ["threat-modeling", "risk-assessment"] },
+            cooldown: 4000,
+            cost: 0.06,
+          }
+        ],
         model: {
           provider: "openai",
           model: "gpt-4",
@@ -3686,23 +3702,39 @@ export class BuiltInAgents {
         name: "Documentation Agent",
         description:
           "Creates API documentation, user guides, technical specifications, and README files",
-        type: AGENT_TYPES.SPECIALIZED,
+        type: AGENT_TYPES.SPECIALIST,
         specializations: [AGENT_SPECIALIZATIONS.DOCUMENTATION],
         version: "1.0.0",
-        capabilities: {
-          supportsMultiStep: true,
-          supportsCollaboration: false,
-          supportsToolUse: true,
-          maxSteps: 8,
-          supportedTaskTypes: [
-            "api-docs",
-            "user-guide",
-            "technical-specs",
-            "readme-generation",
-          ],
-          requiresSetup: false,
-          supportsMemory: true,
-        },
+        capabilities: [
+          {
+            name: "api-docs",
+            description: "Generate comprehensive API documentation",
+            parameters: { format: "openapi", detail: "comprehensive" },
+            cooldown: 2000,
+            cost: 0.04,
+          },
+          {
+            name: "user-guide",
+            description: "Create user guides and tutorials",
+            parameters: { style: "tutorial", level: "beginner-advanced" },
+            cooldown: 3000,
+            cost: 0.05,
+          },
+          {
+            name: "technical-specs",
+            description: "Write technical specifications and design documents",
+            parameters: { format: "structured", depth: "detailed" },
+            cooldown: 4000,
+            cost: 0.06,
+          },
+          {
+            name: "readme-generation",
+            description: "Generate README files and project documentation",
+            parameters: { template: "standard", sections: "complete" },
+            cooldown: 1000,
+            cost: 0.02,
+          }
+        ],
         model: {
           provider: "openai",
           model: "gpt-4",

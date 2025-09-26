@@ -7,7 +7,7 @@ import { ToolRegistry } from './tool-registry';
 import { AgentRegistry } from './agent/registry';
 import { BuiltInTools } from './built-in-tools';
 import { BuiltInAgents } from './built-in-agents';
-import { AdvancedTools } from './advanced-tools';
+// import { AdvancedTools } from './advanced-tools';
 import { SpecializedGoogleADKAgents } from './google-adk-agents';
 
 export interface OrchestrationRequest {
@@ -72,7 +72,8 @@ export class RegistryOrchestrator {
       BuiltInAgents.registerAllBuiltInAgents(this.agentRegistry);
 
       // Register advanced tools
-      AdvancedTools.registerAllAdvancedTools(this.toolRegistry);
+      // TODO: Fix advanced tools registration - temporarily disabled
+      // AdvancedTools.registerAllAdvancedTools(this.toolRegistry);
 
       // Register specialized Google ADK agents if configuration is provided
       if (this.googleADKProjectId && this.googleADKLocation) {
