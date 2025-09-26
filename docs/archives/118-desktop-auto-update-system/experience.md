@@ -1,261 +1,261 @@
-# 桌面端应用发布与智能更新系统 - 开发经验总结
+# Desktop Application Release and Intelligent Update System - Development Experience Summary
 
-**项目**: 桌面端应用发布与智能更新系统  
-**技术栈**: Electron + Vue 3 + electron-updater
+**Project**: Desktop Application Release and Intelligent Update System  
+**Tech Stack**: Electron + Vue 3 + electron-updater
 
-## 技术经验
+## Technical Experience
 
-### 多形态产品架构设计
-- **环境检测**: 使用isRunningInElectron()进行运行时环境检测
-- **条件渲染**: UI组件需要根据环境条件渲染，确保功能隔离
-- **服务代理模式**: Electron环境使用代理服务，Web环境使用真实服务
-- **API一致性**: 不同环境下保持相同的API接口，内部实现可以不同
+### Multi-Form Product Architecture Design
+- **Environment Detection**: Use isRunningInElectron() for runtime environment detection.
+- **Conditional Rendering**: UI components need to render based on environmental conditions to ensure functional isolation.
+- **Service Proxy Pattern**: Use proxy services in Electron environment and real services in Web environment.
+- **API Consistency**: Maintain the same API interfaces across different environments, while internal implementations can differ.
 
-### Electron自动更新最佳实践
-- **数据存储**: 必须使用`app.getPath('userData')`而非便携模式，确保更新兼容性
-- **构建配置**: 同时提供安装包和便携包，满足不同用户需求
-- **安全考虑**: 外部链接打开需要协议限制，仅允许http/https
-- **IPC设计**: 更新相关API需要完整的错误处理和状态通知机制
+### Best Practices for Electron Auto-Update
+- **Data Storage**: Must use `app.getPath('userData')` instead of portable mode to ensure update compatibility.
+- **Build Configuration**: Provide both installation packages and portable packages to meet different user needs.
+- **Security Considerations**: External links must have protocol restrictions, allowing only http/https.
+- **IPC Design**: Update-related APIs require complete error handling and status notification mechanisms.
 
-### 🚨 关键架构陷阱
-- **事件监听器生命周期**: autoUpdater事件监听器必须在应用启动时注册一次，绝不能在IPC处理器内重复注册
-- **内存泄漏风险**: 每次用户操作都注册新监听器会导致严重的内存泄漏和行为错乱
-- **API设计一致性**: 避免在preload.js中创建功能重复的API，保持接口的单一性和清晰性
-- **测试覆盖盲区**: "能用"的快乐路径测试无法发现重复操作导致的问题，需要压力测试
+### 🚨 Key Architectural Pitfalls
+- **Event Listener Lifecycle**: The autoUpdater event listener must be registered once at application startup and must not be registered repeatedly within IPC handlers.
+- **Memory Leak Risks**: Registering new listeners for every user action can lead to severe memory leaks and behavioral inconsistencies.
+- **API Design Consistency**: Avoid creating functionally redundant APIs in preload.js to maintain interface singularity and clarity.
+- **Testing Coverage Blind Spots**: "Working" happy path tests cannot detect issues caused by repeated operations; stress testing is necessary.
 
-### 🔧 并发检查问题解决经验
-- **electron-updater 不支持并发**: 同一实例不能同时检查多个版本，会导致状态冲突
-- **主进程统一管理**: 采用主进程串行检查模式，避免前端并发调用导致的状态冲突
-- **状态冲突需要延迟**: 连续调用需要1秒延迟让内部状态重置
-- **偏好设置需要恢复**: 检查完成后必须恢复用户原始设置，使用try-finally保护
+### 🔧 Concurrency Check Problem Solving Experience
+- **electron-updater does not support concurrency**: The same instance cannot check multiple versions simultaneously, leading to state conflicts.
+- **Unified Management in Main Process**: Adopt a serial check mode in the main process to avoid state conflicts caused by concurrent calls from the frontend.
+- **State Conflicts Require Delay**: Continuous calls need a 1-second delay to allow internal states to reset.
+- **Preferences Need Restoration**: User original settings must be restored after checks, using try-finally for protection.
 
-### 🎯 更新UI流程设计经验
-- **electron-updater不会自动安装**: 下载完成后需要手动调用quitAndInstall()
-- **用户需要明确的操作指导**: 下载完成状态需要提供明确的"安装并重启"按钮
-- **quitAndInstall()是原子操作**: 会立即关闭应用并启动新版本
-- **更新安装死循环防护**: 使用isUpdaterQuitting标志跳过更新时的数据保存逻辑
+### 🎯 Update UI Process Design Experience
+- **electron-updater does not install automatically**: After download completion, quitAndInstall() must be called manually.
+- **Users Need Clear Operational Guidance**: A clear "Install and Restart" button should be provided for download completion status.
+- **quitAndInstall() is an atomic operation**: It will immediately close the application and start the new version.
+- **Update Installation Dead Loop Protection**: Use the isUpdaterQuitting flag to skip data saving logic during updates.
 
-### 多环境测试策略
-- **Web环境**: 使用浏览器工具验证功能不显示
-- **Desktop环境**: 使用circuit-electron工具进行深度交互测试
-- **构建验证**: 必须测试打包后的应用，开发模式可能掩盖问题
-- **文本点击**: 在Electron测试中，`click_by_text`比CSS选择器更可靠
+### Multi-Environment Testing Strategy
+- **Web Environment**: Use browser tools to verify that functions do not display.
+- **Desktop Environment**: Use circuit-electron tools for in-depth interactive testing.
+- **Build Verification**: Must test the packaged application, as development mode may mask issues.
+- **Text Click**: In Electron testing, `click_by_text` is more reliable than CSS selectors.
 
-## 架构设计经验
+## Architectural Design Experience
 
-### 状态管理设计
-- **智能状态重置**: 根据用户操作上下文决定状态重置策略
-- **并发控制**: 使用状态锁防止用户快速操作导致的竞争条件
-- **错误恢复**: 任何错误都要重置到可操作状态，保持用户体验连续性
-- **状态一致性**: 前端状态始终反映真实情况
+### State Management Design
+- **Intelligent State Reset**: Determine state reset strategy based on user operation context.
+- **Concurrency Control**: Use state locks to prevent race conditions caused by rapid user actions.
+- **Error Recovery**: Any error must reset to an operable state to maintain user experience continuity.
+- **State Consistency**: Frontend state should always reflect the real situation.
 
-### 配置化设计原则
-- **单一数据源**: 所有配置信息在一个地方定义
-- **动态读取**: 从package.json等标准位置动态获取信息
-- **环境变量支持**: 支持环境变量覆盖，便于CI/CD配置
-- **版本号验证**: 对所有外部输入进行格式验证
+### Configuration Design Principles
+- **Single Data Source**: All configuration information is defined in one place.
+- **Dynamic Reading**: Dynamically obtain information from standard locations like package.json.
+- **Environment Variable Support**: Support environment variable overrides for easy CI/CD configuration.
+- **Version Number Validation**: Validate the format of all external inputs.
 
-### 错误处理策略
-- **错误边界**: 在关键操作周围设置完整的错误边界
-- **降级处理**: 服务异常时使用安全默认值继续运行
-- **用户通知**: 即使出错也要给用户明确的反馈
-- **状态重置**: 错误时重置相关状态，确保用户可以重试
+### Error Handling Strategy
+- **Error Boundaries**: Set complete error boundaries around critical operations.
+- **Degradation Handling**: Use safe default values to continue running during service exceptions.
+- **User Notification**: Provide clear feedback to users even when errors occur.
+- **State Reset**: Reset related states on error to ensure users can retry.
 
-### 🔧 系统重构经验
+### 🔧 System Refactoring Experience
 
-#### 组件架构设计原则
-- **单一职责**: 每个组件只负责一个明确的功能，避免职责混乱
-- **独立性**: 组件应该能够独立使用，不依赖特定的父组件
-- **可复用性**: 避免紧密耦合，提高代码复用性
-- **智能vs哑组件**: 智能组件管理状态和逻辑，哑组件只负责展示
+#### Component Architecture Design Principles
+- **Single Responsibility**: Each component is responsible for one clear function to avoid role confusion.
+- **Independence**: Components should be usable independently without relying on specific parent components.
+- **Reusability**: Avoid tight coupling to improve code reusability.
+- **Smart vs. Dumb Components**: Smart components manage state and logic, while dumb components are solely responsible for display.
 
-#### 错误处理最佳实践
-- **信息保真**: 确保错误信息在传递过程中不丢失关键诊断信息
-- **详细诊断**: 提供足够的上下文信息（HTTP状态码、URL、堆栈跟踪等）
-- **用户友好**: 区分技术错误和用户提示，适当国际化
-- **环境感知**: 开发环境和生产环境的错误处理应有所区别
+#### Best Practices for Error Handling
+- **Information Fidelity**: Ensure that error messages do not lose key diagnostic information during transmission.
+- **Detailed Diagnosis**: Provide sufficient contextual information (HTTP status codes, URLs, stack traces, etc.).
+- **User-Friendly**: Distinguish between technical errors and user prompts, with appropriate internationalization.
+- **Environment Awareness**: Error handling should differ between development and production environments.
 
-#### 开发环境处理策略
-- **环境感知**: 代码应该能够智能识别运行环境
-- **优雅降级**: 开发环境的限制应该有友好的提示，不应显示误导信息
-- **可选配置**: 提供开发环境的可选配置方案（如dev-app-update.yml）
-- **调试友好**: 开发环境应提供详细的调试信息
+#### Development Environment Handling Strategy
+- **Environment Awareness**: Code should intelligently recognize the running environment.
+- **Graceful Degradation**: Limitations in the development environment should have friendly prompts and not display misleading information.
+- **Optional Configuration**: Provide optional configuration schemes for the development environment (e.g., dev-app-update.yml).
+- **Debugging Friendly**: The development environment should provide detailed debugging information.
 
-## 开发流程经验
+## Development Process Experience
 
-### 代码质量保障
-- **多轮审查**: 通过多轮代码审查发现和修复潜在问题
-- **系统性分析**: 从架构层面识别问题，考虑根本原因
-- **渐进式修复**: 优先修复严重问题，避免引入新复杂性
-- **经验沉淀**: 及时记录问题发现和修复过程
+### Code Quality Assurance
+- **Multiple Rounds of Review**: Identify and fix potential issues through multiple rounds of code review.
+- **Systematic Analysis**: Identify problems from an architectural level, considering root causes.
+- **Incremental Fixes**: Prioritize fixing severe issues to avoid introducing new complexities.
+- **Experience Accumulation**: Timely document the process of discovering and fixing issues.
 
-### 测试驱动开发
-- **边缘情况**: 重点测试用户快速操作和网络异常场景
-- **多环境验证**: 确保功能在目标环境正常，非目标环境透明
-- **压力测试**: 测试重复操作和并发场景
-- **回归测试**: 修复问题后验证不会引入新问题
+### Test-Driven Development
+- **Edge Cases**: Focus on testing rapid user actions and network anomaly scenarios.
+- **Multi-Environment Validation**: Ensure functionality operates normally in target environments, with non-target environments being transparent.
+- **Stress Testing**: Test repeated operations and concurrency scenarios.
+- **Regression Testing**: Validate that fixes do not introduce new issues.
 
-### 文档驱动开发
-- **设计先行**: 先设计技术方案，再进行实施
-- **过程记录**: 详细记录开发过程和关键决策
-- **经验总结**: 及时总结技术经验和避坑指南
-- **知识沉淀**: 为未来项目提供可复用的参考资料
+### Documentation-Driven Development
+- **Design First**: Design technical solutions before implementation.
+- **Process Documentation**: Record the development process and key decisions in detail.
+- **Experience Summarization**: Timely summarize technical experiences and pitfalls.
+- **Knowledge Accumulation**: Provide reusable reference materials for future projects.
 
-## 避坑指南
+## Pitfall Guide
 
-### 避免功能泄漏
-- **不要**: 在非目标环境中暴露特定功能的UI或API
-- **要做**: 始终进行环境检测，确保功能隔离
-- **验证**: 在所有环境中测试，确保不相关功能不可见
+### Avoid Function Leakage
+- **Do Not**: Expose specific features' UI or APIs in non-target environments.
+- **Do**: Always perform environment detection to ensure functional isolation.
+- **Validation**: Test in all environments to ensure unrelated features are not visible.
 
-### Electron自动更新实施要点
-- **数据存储**: 必须使用`app.getPath('userData')`而非便携模式，确保更新兼容性
-- **构建配置**: 同时提供安装包和便携包，满足不同用户需求
-- **安全考虑**: 外部链接打开需要协议限制，仅允许http/https
-- **IPC设计**: 更新相关API需要完整的错误处理和状态通知机制
+### Key Points for Implementing Electron Auto-Update
+- **Data Storage**: Must use `app.getPath('userData')` instead of portable mode to ensure update compatibility.
+- **Build Configuration**: Provide both installation packages and portable packages to meet different user needs.
+- **Security Considerations**: External links must have protocol restrictions, allowing only http/https.
+- **IPC Design**: Update-related APIs require complete error handling and status notification mechanisms.
 
-### 🚨 关键架构陷阱
-- **事件监听器生命周期**: autoUpdater事件监听器必须在应用启动时注册一次，绝不能在IPC处理器内重复注册
-- **内存泄漏风险**: 每次用户操作都注册新监听器会导致严重的内存泄漏和行为错乱
-- **API设计一致性**: 避免在preload.js中创建功能重复的API，保持接口的单一性和清晰性
-- **测试覆盖盲区**: "能用"的快乐路径测试无法发现重复操作导致的问题，需要压力测试
+### 🚨 Key Architectural Pitfalls
+- **Event Listener Lifecycle**: The autoUpdater event listener must be registered once at application startup and must not be registered repeatedly within IPC handlers.
+- **Memory Leak Risks**: Registering new listeners for every user action can lead to severe memory leaks and behavioral inconsistencies.
+- **API Design Consistency**: Avoid creating functionally redundant APIs in preload.js to maintain interface singularity and clarity.
+- **Testing Coverage Blind Spots**: "Working" happy path tests cannot detect issues caused by repeated operations; stress testing is necessary.
 
-### 多环境测试策略
-- **Web环境**: 使用浏览器工具验证功能不显示
-- **Desktop环境**: 使用circuit-electron工具进行深度交互测试
-- **构建验证**: 必须测试打包后的应用，开发模式可能掩盖问题
-- **文本点击**: 在Electron测试中，`click_by_text`比CSS选择器更可靠
+### Multi-Environment Testing Strategy
+- **Web Environment**: Use browser tools to verify that functions do not display.
+- **Desktop Environment**: Use circuit-electron tools for in-depth interactive testing.
+- **Build Verification**: Must test the packaged application, as development mode may mask issues.
+- **Text Click**: In Electron testing, `click_by_text` is more reliable than CSS selectors.
 
-## 性能优化经验
+## Performance Optimization Experience
 
-### 事件监听器优化
-- **生命周期管理**: 在正确的时机注册和清理监听器
-- **避免重复注册**: 确保监听器只注册一次
-- **内存泄漏防护**: 组件卸载时正确清理所有监听器
-- **事件委托**: 在可能的情况下使用事件委托减少监听器数量
+### Event Listener Optimization
+- **Lifecycle Management**: Register and clean up listeners at the correct times.
+- **Avoid Duplicate Registration**: Ensure listeners are registered only once.
+- **Memory Leak Protection**: Properly clean up all listeners when components are unmounted.
+- **Event Delegation**: Use event delegation to reduce the number of listeners where possible.
 
-### 状态更新优化
-- **批量更新**: 合并相关的状态更新操作
-- **条件更新**: 只在状态真正改变时触发更新
-- **异步处理**: 使用异步操作避免阻塞UI
-- **智能缓存**: 缓存计算结果，避免重复计算
+### State Update Optimization
+- **Batch Updates**: Merge related state update operations.
+- **Conditional Updates**: Trigger updates only when states actually change.
+- **Asynchronous Processing**: Use asynchronous operations to avoid blocking the UI.
+- **Smart Caching**: Cache computed results to avoid redundant calculations.
 
-## 安全最佳实践
+## Security Best Practices
 
-### 输入验证
-- **版本号验证**: 使用正则表达式验证版本号格式
-- **URL验证**: 限制外部链接的协议类型
-- **参数检查**: 对所有外部输入进行类型和格式检查
-- **边界检查**: 验证数值参数的范围
+### Input Validation
+- **Version Number Validation**: Use regular expressions to validate version number formats.
+- **URL Validation**: Restrict the protocol types of external links.
+- **Parameter Checks**: Perform type and format checks on all external inputs.
+- **Boundary Checks**: Validate the range of numerical parameters.
 
-### 配置安全
-- **避免硬编码**: 敏感信息不要硬编码在代码中
-- **动态配置**: 从配置文件或环境变量读取配置
-- **权限最小化**: 只授予必要的权限
-- **安全默认值**: 使用保守的安全默认配置
+### Configuration Security
+- **Avoid Hardcoding**: Do not hardcode sensitive information in the code.
+- **Dynamic Configuration**: Read configurations from configuration files or environment variables.
+- **Minimal Permissions**: Grant only necessary permissions.
+- **Safe Default Values**: Use conservative safe default configurations.
 
-## 工程实践总结
+## Engineering Practice Summary
 
-### 代码组织
-- **模块化设计**: 按功能模块组织代码
-- **单一职责**: 每个模块只负责一个功能
-- **依赖注入**: 使用依赖注入提高可测试性
-- **接口抽象**: 定义清晰的接口边界
+### Code Organization
+- **Modular Design**: Organize code by functional modules.
+- **Single Responsibility**: Each module should be responsible for one function.
+- **Dependency Injection**: Use dependency injection to improve testability.
+- **Interface Abstraction**: Define clear interface boundaries.
 
-### 质量保证
-- **静态分析**: 使用TypeScript进行类型检查
-- **代码审查**: 多人审查代码质量
-- **自动化测试**: 建立完整的测试体系
-- **持续集成**: 使用CI/CD保证代码质量
+### Quality Assurance
+- **Static Analysis**: Use TypeScript for type checking.
+- **Code Review**: Multiple people review code quality.
+- **Automated Testing**: Establish a complete testing system.
+- **Continuous Integration**: Use CI/CD to ensure code quality.
 
-### 文档管理
-- **API文档**: 详细记录所有API接口
-- **架构文档**: 说明系统架构和设计决策
-- **操作手册**: 提供详细的操作指南
-- **故障排除**: 记录常见问题和解决方案
+### Documentation Management
+- **API Documentation**: Document all API interfaces in detail.
+- **Architecture Documentation**: Explain system architecture and design decisions.
+- **Operation Manuals**: Provide detailed operation guides.
+- **Troubleshooting**: Document common issues and solutions.
 
-## 未来改进方向
+## Future Improvement Directions
 
-### 功能增强
-- **增量更新**: 支持增量更新减少下载时间
-- **回滚机制**: 支持更新失败时的自动回滚
-- **多渠道支持**: 支持不同的更新渠道
-- **用户反馈**: 收集用户对更新体验的反馈
+### Feature Enhancements
+- **Incremental Updates**: Support incremental updates to reduce download time.
+- **Rollback Mechanism**: Support automatic rollback in case of update failures.
+- **Multi-Channel Support**: Support different update channels.
+- **User Feedback**: Collect user feedback on the update experience.
 
-### 性能优化
-- **并行下载**: 支持多线程并行下载
-- **断点续传**: 支持下载中断后的续传
-- **压缩优化**: 优化更新包的压缩算法
-- **缓存策略**: 实现智能的缓存策略
+### Performance Optimization
+- **Parallel Downloads**: Support multi-threaded parallel downloads.
+- **Resume Support**: Support resuming downloads after interruptions.
+- **Compression Optimization**: Optimize the compression algorithm for update packages.
+- **Caching Strategy**: Implement intelligent caching strategies.
 
-### 监控改进
-- **成功率监控**: 监控更新操作的成功率
-- **性能监控**: 监控更新过程的性能指标
-- **错误追踪**: 详细追踪和分析错误信息
-- **用户行为**: 分析用户的更新行为模式
+### Monitoring Improvements
+- **Success Rate Monitoring**: Monitor the success rate of update operations.
+- **Performance Monitoring**: Monitor performance metrics during the update process.
+- **Error Tracking**: Track and analyze error information in detail.
+- **User Behavior**: Analyze user update behavior patterns.
 
-## 💡 深度重构经验教训
+## 💡 In-Depth Refactoring Lessons Learned
 
-### 问题诊断方法论
-- **表面问题往往不是根本问题**: 最初的"检查更新失败"实际涉及架构、错误处理、环境检测等多个层面
-- **系统性思考**: 需要从数据流、组件职责、用户体验等多个角度分析问题
-- **详细日志的价值**: 完善的日志系统是快速定位问题的关键
-- **用户反馈的重要性**: 用户的质疑和建议往往能发现设计盲点
+### Problem Diagnosis Methodology
+- **Surface Problems Are Often Not Root Problems**: The initial "update check failed" actually involves multiple layers such as architecture, error handling, and environment detection.
+- **Systematic Thinking**: Analyze problems from multiple perspectives including data flow, component responsibilities, and user experience.
+- **Value of Detailed Logs**: A robust logging system is key to quickly pinpointing issues.
+- **Importance of User Feedback**: User inquiries and suggestions often reveal design blind spots.
 
-### 渐进式改进策略
-- **分步骤解决问题**: 从错误处理到架构重构，逐步深入
-- **保持功能完整性**: 在重构过程中确保功能不丢失
-- **验证每个步骤**: 每次改动都要验证效果，避免引入新问题
-- **文档化过程**: 记录每个改进步骤，便于回溯和学习
+### Incremental Improvement Strategy
+- **Step-by-Step Problem Solving**: Gradually delve from error handling to architecture refactoring.
+- **Maintain Functional Integrity**: Ensure that functionality is not lost during refactoring.
+- **Validate Each Step**: Validate the effects of each change to avoid introducing new problems.
+- **Document the Process**: Record each improvement step for easy reference and learning.
 
-### 状态管理复杂性
-- **明确状态定义**: 每个状态都应该有明确的含义和对应的UI表现
-- **状态转换逻辑**: 确保状态转换逻辑清晰合理，避免逻辑冲突
-- **初始状态设计**: 避免误导性的初始状态显示
-- **错误状态处理**: 区分真正的错误和环境限制
+### Complexity of State Management
+- **Clear State Definitions**: Each state should have a clear meaning and corresponding UI representation.
+- **State Transition Logic**: Ensure that state transition logic is clear and reasonable to avoid logical conflicts.
+- **Initial State Design**: Avoid misleading initial state displays.
+- **Error State Handling**: Distinguish between true errors and environmental limitations.
 
-### 数据流设计重要性
-- **信息保真**: 确保关键信息在传递过程中不丢失
-- **格式一致性**: 前后端对数据格式的期望要一致
-- **错误传播**: 错误信息要能够完整地传播到用户界面
-- **调试友好**: 设计便于调试的数据流结构
+### Importance of Data Flow Design
+- **Information Fidelity**: Ensure that key information is not lost during transmission.
+- **Format Consistency**: Ensure that both frontend and backend have consistent expectations regarding data formats.
+- **Error Propagation**: Error messages should be able to propagate completely to the user interface.
+- **Debugging Friendly**: Design data flow structures that are easy to debug.
 
-这些经验总结为未来类似项目提供了宝贵的参考，特别是在进行复杂系统重构时，可以帮助避免常见陷阱，提高开发效率和代码质量。
+These experience summaries provide valuable references for future similar projects, especially in complex system refactoring, helping to avoid common pitfalls and improve development efficiency and code quality.
 
-## 🔧 具体问题修复经验
+## 🔧 Specific Problem Fixing Experience
 
-### 开发环境状态冲突修复
-**问题**: 开发环境显示"已是最新版本"同时显示"No stable version available"
-**根本原因**: 前端只在catch块中处理开发环境，但主进程返回的是成功响应
-**解决方案**: 在成功响应中也检查开发环境标识，避免状态覆盖
-**经验**: 开发环境是正常的成功响应，只是没有版本信息，需要特殊处理
+### Development Environment State Conflict Fix
+**Problem**: Development environment shows "Already up to date" while also displaying "No stable version available".  
+**Root Cause**: The frontend only handles the development environment in the catch block, but the main process returns a success response.  
+**Solution**: Check the development environment flag in the success response to avoid state overrides.  
+**Experience**: The development environment is a normal success response, just lacking version information, requiring special handling.
 
-### UI组件重复问题修复
-**问题**: 界面中出现重复的按钮和功能
-**根本原因**: 在迭代开发中没有及时清理旧代码
-**解决方案**: 建立UI组件清理检查清单，定期审查重复功能
-**经验**: 快速迭代时要特别注意代码清理，避免功能重复
+### UI Component Duplication Fix
+**Problem**: Duplicate buttons and functions appear in the interface.  
+**Root Cause**: Old code was not cleaned up in a timely manner during iterative development.  
+**Solution**: Establish a UI component cleanup checklist and regularly review for duplicate functions.  
+**Experience**: Pay special attention to code cleanup during rapid iterations to avoid functional duplication.
 
-### 链接错误处理修复
-**问题**: 链接能正常打开但报错"Open URL failed: undefined"
-**根本原因**: electron API返回格式在不同版本中不一致
-**解决方案**: 只在确实失败时记录错误，兼容不同返回格式
-**经验**: 跨版本兼容性需要考虑API返回格式的变化
+### Link Error Handling Fix
+**Problem**: Links open normally but report "Open URL failed: undefined".  
+**Root Cause**: The electron API returns inconsistent formats across different versions.  
+**Solution**: Only log errors when there is a definite failure, ensuring compatibility with different return formats.  
+**Experience**: Cross-version compatibility needs to consider changes in API return formats.
 
-### 依赖版本冲突修复
-**问题**: electron-updater版本与Electron版本不兼容
-**根本原因**: 依赖版本管理不当，没有及时更新
-**解决方案**: 建立依赖版本兼容性检查机制
-**经验**: 主要依赖的版本更新需要同步检查相关依赖的兼容性
+### Dependency Version Conflict Fix
+**Problem**: The version of electron-updater is incompatible with the Electron version.  
+**Root Cause**: Poor dependency version management and failure to update in a timely manner.  
+**Solution**: Establish a dependency version compatibility checking mechanism.  
+**Experience**: Major dependency version updates need to be checked for compatibility with related dependencies.
 
-### 预览版切换机制优化
-**问题**: 预览版切换逻辑复杂，用户体验不佳
-**根本原因**: 试图在一个界面中处理多种模式
-**解决方案**: 简化为双版本同时显示，让用户自主选择
-**经验**: 复杂的模式切换不如直观的并列显示
+### Preview Version Switching Mechanism Optimization
+**Problem**: The logic for switching preview versions is complex, leading to poor user experience.  
+**Root Cause**: Attempting to handle multiple modes within a single interface.  
+**Solution**: Simplify to display two versions side by side, allowing users to choose.  
+**Experience**: Complex mode switching is less effective than intuitive side-by-side displays.
 
-### 版本比较逻辑修复
-**问题**: 版本比较逻辑在特殊情况下出错
-**根本原因**: 没有考虑预发布版本的特殊格式
-**解决方案**: 使用标准的semver库进行版本比较
-**经验**: 版本比较看似简单，实际有很多边界情况需要考虑
+### Version Comparison Logic Fix
+**Problem**: Version comparison logic fails under special circumstances.  
+**Root Cause**: Did not consider the special format of pre-release versions.  
+**Solution**: Use the standard semver library for version comparisons.  
+**Experience**: Version comparisons seem simple, but many edge cases need to be considered.

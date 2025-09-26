@@ -1,161 +1,161 @@
-# Context Editor Refactor - 技术实施
+# Context Editor Refactor - Technical Implementation
 
-## 实施步骤记录
+## Implementation Steps Record
 
-### 阶段1: 废弃组件识别和移除
+### Phase 1: Identification and Removal of Deprecated Components
 
-#### 1.1 组件分析
-通过spec工作流系统分析，识别出以下废弃组件：
-- `ConversationMessageEditor.vue` - 功能已内联到ConversationManager
-- `ConversationSection.vue` - 已被ConversationManager替代
+#### 1.1 Component Analysis
+Through the spec workflow system analysis, the following deprecated components were identified:
+- `ConversationMessageEditor.vue` - Functionality has been inlined into ConversationManager
+- `ConversationSection.vue` - Replaced by ConversationManager
 
-#### 1.2 文件系统清理
+#### 1.2 File System Cleanup
 ```bash
-# 移除的文件
+# Removed files
 rm packages/ui/src/components/ConversationMessageEditor.vue
 rm packages/ui/src/components/ConversationSection.vue
 ```
 
-#### 1.3 导出声明清理
-在 `packages/ui/src/index.ts` 中移除：
+#### 1.3 Export Declaration Cleanup
+Removed from `packages/ui/src/index.ts`:
 ```typescript
-// 移除的导出
+// Removed exports
 export { default as ConversationMessageEditor } from './components/ConversationMessageEditor.vue'
 export { default as ConversationSection } from './components/ConversationSection.vue'
 ```
 
-#### 1.4 类型定义清理
-在 `packages/ui/src/types/index.ts` 中移除：
+#### 1.4 Type Definition Cleanup
+Removed from `packages/ui/src/types/index.ts`:
 ```typescript
-// 移除的类型导出
+// Removed type exports
 ConversationSectionProps,
 ConversationSectionEmits,
 ```
 
-### 阶段2: 测试代码清理
+### Phase 2: Test Code Cleanup
 
-#### 2.1 测试文件更新
-更新了以下测试文件以移除对废弃组件的引用：
+#### 2.1 Test File Updates
+Updated the following test files to remove references to deprecated components:
 - `tests/unit/components/TestAreaPanel.spec.ts`
 - `tests/unit/components/test-area-e2e.spec.ts`
 - `tests/unit/components/test-area-integration.spec.ts`
 
-#### 2.2 Mock清理
-移除了ConversationSection相关的mock代码：
+#### 2.2 Mock Cleanup
+Removed mock code related to ConversationSection:
 ```javascript
-// 移除的mock
+// Removed mock
 vi.mock('../../../src/components/ConversationSection.vue', () => ({
-  // mock内容
+  // mock content
 }))
 ```
 
-### 阶段3: API优化
+### Phase 3: API Optimization
 
-#### 3.1 ConversationManager Props分析
-通过代码分析发现以下未使用的props：
-- `:is-predefined-variable` - 只在默认值中定义，未实际使用
-- `:replace-variables` - 只在默认值中定义，未实际使用
+#### 3.1 ConversationManager Props Analysis
+Through code analysis, the following unused props were found:
+- `:is-predefined-variable` - Defined only in default value, not actually used
+- `:replace-variables` - Defined only in default value, not actually used
 
-#### 3.2 ContextEditor Props分析
-发现并移除：
-- `:is-predefined-variable` - 在ContextEditor中未使用
+#### 3.2 ContextEditor Props Analysis
+Identified and removed:
+- `:is-predefined-variable` - Not used in ContextEditor
 
-#### 3.3 App.vue优化
-在 `packages/web/src/App.vue` 中移除未使用的props传递：
+#### 3.3 App.vue Optimization
+Removed unused prop passing in `packages/web/src/App.vue`:
 
-**ConversationManager (行155-165):**
+**ConversationManager (lines 155-165):**
 ```vue
-<!-- 移除前 -->
+<!-- Before removal -->
 <ConversationManager
   :is-predefined-variable="(name) => variableManager?.variableManager.value?.isPredefinedVariable(name) || false"
   :replace-variables="(content, vars) => variableManager?.variableManager.value?.replaceVariables(content, vars) || content"
-  <!-- 其他props -->
+  <!-- Other props -->
 />
 
-<!-- 移除后 -->
+<!-- After removal -->
 <ConversationManager
-  <!-- 只保留实际使用的props -->
+  <!-- Only keep actually used props -->
 />
 ```
 
-**ContextEditor (行296-308):**
+**ContextEditor (lines 296-308):**
 ```vue
-<!-- 移除前 -->
+<!-- Before removal -->
 <ContextEditor
   :is-predefined-variable="(name) => variableManager?.variableManager.value?.isPredefinedVariable(name) || false"
-  <!-- 其他props -->
+  <!-- Other props -->
 />
 
-<!-- 移除后 -->
+<!-- After removal -->
 <ContextEditor
-  <!-- 保留scan-variables和replace-variables，因为ContextEditor中实际使用了这些 -->
+  <!-- Keep scan-variables and replace-variables, as these are actually used in ContextEditor -->
 />
 ```
 
-## 技术发现
+## Technical Discoveries
 
-### Vue Props命名机制
-发现Vue 3的自动命名转换机制：
-- `:available-variables` 自动映射到 `availableVariables`
-- `@open-variable-manager` 自动映射到 `openVariableManager`
-- 这种机制确保了向后兼容性，之前的"错误"也能正常工作
+### Vue Props Naming Mechanism
+Discovered the automatic naming conversion mechanism in Vue 3:
+- `:available-variables` automatically maps to `availableVariables`
+- `@open-variable-manager` automatically maps to `openVariableManager`
+- This mechanism ensures backward compatibility, allowing previously "incorrect" usages to work properly
 
-### 组件使用情况分析方法
-使用以下方法分析props实际使用情况：
+### Component Usage Analysis Method
+Used the following methods to analyze actual prop usage:
 ```bash
-# 查找props使用
+# Find prop usage
 grep -n "props\." ComponentName.vue
 
-# 查找emit调用
+# Find emit calls
 grep -n "emit(" ComponentName.vue
 ```
 
-### 构建验证策略
-采用了以下验证策略：
-1. TypeScript编译检查
-2. 开发服务器启动验证
-3. 浏览器自动化功能测试
+### Build Verification Strategy
+Adopted the following verification strategies:
+1. TypeScript compilation checks
+2. Development server startup verification
+3. Browser automation functional testing
 
-## 性能影响
+## Performance Impact
 
-### 正面影响
-- **减少props传递**: 移除未使用的props减少了不必要的数据传递
-- **减少组件数量**: 移除废弃组件减少了包体积
-- **简化依赖关系**: 清理后的依赖关系更加清晰
+### Positive Impact
+- **Reduced Prop Passing**: Removing unused props decreased unnecessary data passing
+- **Reduced Component Count**: Removing deprecated components reduced package size
+- **Simplified Dependencies**: The cleaned-up dependencies are clearer
 
-### 性能测试结果
+### Performance Test Results
 ```
-- 构建时间: 无明显变化
-- 包体积: UI包大小略有减小
-- 运行时性能: 无明显差异
-- 内存使用: 组件数量减少，理论上内存占用略有优化
+- Build Time: No significant change
+- Package Size: UI package size slightly reduced
+- Runtime Performance: No significant difference
+- Memory Usage: Reduced component count, theoretically optimizing memory usage slightly
 ```
 
-## 回滚策略
+## Rollback Strategy
 
-如果需要回滚，可以按以下步骤进行：
-1. 恢复被删除的组件文件
-2. 恢复导出声明和类型定义
-3. 恢复测试文件中的相关代码
-4. 恢复App.vue中的props传递
+If a rollback is needed, follow these steps:
+1. Restore the deleted component files
+2. Restore export declarations and type definitions
+3. Restore relevant code in test files
+4. Restore prop passing in App.vue
 
-备注：由于移除的都是废弃功能，实际上不太需要回滚。
+Note: Since all removals were of deprecated functionality, a rollback is generally not necessary.
 
-## 代码质量指标
+## Code Quality Metrics
 
-### 重构前
-- 组件文件数: 70+
-- 未使用导出: 2个
-- 冗余props传递: 4个
-- 过期测试代码: 多处
+### Before Refactoring
+- Component File Count: 70+
+- Unused Exports: 2
+- Redundant Prop Passing: 4
+- Expired Test Code: Multiple instances
 
-### 重构后
-- 组件文件数: 68
-- 未使用导出: 0个
-- 冗余props传递: 0个
-- 过期测试代码: 已清理
+### After Refactoring
+- Component File Count: 68
+- Unused Exports: 0
+- Redundant Prop Passing: 0
+- Expired Test Code: Cleared
 
 ---
-**技术栈**: Vue 3 + TypeScript + Vite
-**工具**: Spec Workflow + Playwright Browser Automation
-**验证方式**: 功能测试 + 构建验证 + 开发服务器测试
+**Tech Stack**: Vue 3 + TypeScript + Vite  
+**Tools**: Spec Workflow + Playwright Browser Automation  
+**Verification Method**: Functional Testing + Build Verification + Development Server Testing

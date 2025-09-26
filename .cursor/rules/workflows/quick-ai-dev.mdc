@@ -1,285 +1,145 @@
 ---
-description: 分析当前任务阶段，并跳转到对应工作流程
+description: Analyze current task stage and jump to corresponding workflow
 alwaysApply: false
 ---
-# 工作流程快速参考
+# Workflow Quick Reference
 
-## 🚀 流程选择决策树
+## 🚀 Process Selection Decision Tree
 
 ```
-用户提出新需求/任务
-├─ workspace是模板状态? 
-│  ├─ 是 → 使用流程1：任务初始化
-│  └─ 否 → 先执行流程3归档，再执行流程1
+User proposes new requirement/task
+├─ Is workspace in template state?
+│  ├─ Yes → Use Process 1: Task Initialization
+│  └─ No → Execute Process 3 archiving first, then execute Process 1
 │
-├─ 任务正在进行中?
-│  └─ 是 → 使用流程2：任务执行
+├─ Is task in progress?
+│  └─ Yes → Use Process 2: Task Execution
 │
-├─ 任务基本完成 OR workspace太乱 OR 有重要经验?
-│  └─ 是 → 使用流程3：任务归档
+├─ Is task basically completed OR workspace too messy OR important experience?
+│  └─ Yes → Use Process 3: Task Archiving
 │
-└─ 不确定 → 询问用户意图，使用mcp-feedback-enhanced
+└─ Uncertain → Ask user intent, use mcp-feedback-enhanced
 ```
 
-## 📋 关键反馈时机
+## 📋 Key Feedback Timings
 
-### 🔴 必须反馈（每次都要）
-- **流程1**：需求确认、任务设置
-- **流程2**：开始新步骤、遇到问题、计划调整
-- **流程3**：归档决策、重要任务转移、workspace重置
+### 🔴 Must Feedback (Every time)
+- **Process 1**: Requirement confirmation, task setup
+- **Process 2**: Start new step, encounter problems, plan adjustments
+- **Process 3**: Archiving decisions, important task transfers, workspace reset
 
-### 🟡 条件反馈（满足条件时）
-- **流程1**：重大技术决策、多方案选择
-- **流程2**：重要里程碑、超时50%
-- **流程3**：重要功能归档、未完成任务多
+### 🟡 Conditional Feedback (When conditions met)
+- **Process 1**: Major technical decisions, multiple solution choices
+- **Process 2**: Important milestones, over 50% timeout
+- **Process 3**: Important feature archiving, many unfinished tasks
 
-## 🛠️ 常用命令速查
+## 🛠️ Common Command Quick Reference
 
-### Workspace状态检查
+### Workspace Status Check
 ```bash
-# 应该只有3个文件，内容为模板格式
+# Should only have 3 files, content in template format
 ls docs/workspace/
-# 检查内容是否包含占位符如 [任务名称]、[日期] 等
+# Check if content contains placeholders like [任务名称], [日期], etc.
 ```
 
-### Workspace重置
+### Workspace Reset
 ```batch
 del docs\workspace\*.md
 copy docs\workspace-template\*.md docs\workspace\
 ren docs\workspace\scratchpad-template.md scratchpad.md
-ren docs\workspace\todo-template.md todo.md  
+ren docs\workspace\todo-template.md todo.md
 ren docs\workspace\experience-template.md experience.md
 ```
 
-### 创建新归档
+### Create New Archive
 ```batch
-# 先查看 docs/archives/README.md 确定下一个编号
+# First check docs/archives/README.md to determine next number
 mkdir "docs\archives\[编号]-[功能名称]"
 ```
 
-## 📝 文档模板速查
+## 📝 Document Template Quick Reference
 
-### scratchpad.md任务设置
+### scratchpad.md Task Setup
 ```markdown
-### [具体功能名称] - [开始日期]
-**目标**: [明确的目标描述]
-**状态**: 进行中
+### [Specific Feature Name] - [Start Date]
+**Goal**: [Clear goal description]
+**Status**: In Progress
 
-#### 计划步骤
-[ ] 1. [具体步骤1]
-    - 预期结果：[描述]
-    - 风险评估：[风险点]
+#### Planned Steps
+[ ] 1. [Specific step 1]
+    - Expected Result: [Description]
+    - Risk Assessment: [Risk points]
 ```
 
-### 问题记录格式
+### Problem Recording Format
 ```markdown
-### [问题标题] - [发现日期]
-**问题描述**: [详细描述]
-**原因分析**: [根本原因]  
-**解决方案**: [采用的解决方法]
-**经验总结**: [避坑要点]
+### [Problem Title] - [Discovery Date]
+**Problem Description**: [Detailed description]
+**Cause Analysis**: [Root cause]
+**Solution**: [Adopted solution method]
+**Experience Summary**: [Pitfall avoidance points]
 ```
 
-### mcp-feedback-enhanced调用
+### mcp-feedback-enhanced Call
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "[简洁的总结，说明当前状态和需要确认的内容]",
+  summary: "[Concise summary explaining current status and content needing confirmation]",
   project_directory: "."
 })
 ```
 
-## ✅ 质量检查清单
+## ✅ Quality Check List
 
-### 流程1完成检查
-- [ ] workspace包含具体任务（非模板）
-- [ ] 技术方案经用户确认
-- [ ] 至少完成2次反馈
+### Process 1 Completion Check
+- [ ] workspace contains specific tasks (not template)
+- [ ] Technical solutions confirmed by user
+- [ ] At least 2 feedback sessions completed
 
-### 流程2执行检查  
-- [ ] 每个步骤状态明确
-- [ ] 重要发现已记录
-- [ ] 问题和解决方案完整
+### Process 2 Execution Check
+- [ ] Each step status is clear
+- [ ] Important discoveries recorded
+- [ ] Problems and solutions complete
 
-### 流程3归档检查
-- [ ] archives包含完整文档
-- [ ] 重要任务已转移
-- [ ] workspace恢复模板状态
+### Process 3 Archiving Check
+- [ ] archives contain complete documentation
+- [ ] Important tasks transferred
+- [ ] workspace restored to template state
 
-## 🚨 常见问题快速解决
+## 🚨 Common Problem Quick Solutions
 
-### workspace状态混乱
-**问题**：不确定是否应该归档
-**解决**：评估4问题→反馈决策→执行对应流程
+### workspace Status Confusion
+**Problem**: Uncertain whether to archive
+**Solution**: Assess 4 questions → Feedback decision → Execute corresponding process
 
-### 任务范围不清楚
-**问题**：不知道要做什么
-**解决**：立即反馈寻求澄清→不要基于假设继续
+### Unclear Task Scope
+**Problem**: Don't know what to do
+**Solution**: Immediate feedback to seek clarification → Don't continue based on assumptions
 
-### 技术方案有多种选择
-**问题**：不知道选哪个
-**解决**：列出方案优缺点→反馈请用户选择
+### Multiple Technical Solution Choices
+**Problem**: Don't know which to choose
+**Solution**: List pros and cons of solutions → Feedback for user selection
 
-### 遇到阻塞问题
-**问题**：无法继续执行
-**解决**：分析原因→提供解决方案→反馈寻求指导
+### Encounter Blocking Problems
+**Problem**: Cannot continue execution
+**Solution**: Analyze cause → Provide solutions → Feedback for guidance
 
-## 🎯 成功要素
+## 🎯 Success Elements
 
-### 沟通方面
-- **主动反馈** - 不等用户询问
-- **明确描述** - 避免模糊表达
-- **提供选择** - 给出具体的方案选项
+### Communication Aspects
+- **Active Feedback** - Don't wait for user questions
+- **Clear Description** - Avoid vague expressions
+- **Provide Options** - Give specific solution options
 
-### 记录方面  
-- **实时更新** - 即时记录进展
-- **分类清晰** - 问题、发现、任务分开
-- **便于查找** - 使用清晰的标题和格式
+### Recording Aspects
+- **Real-time Updates** - Record progress immediately
+- **Clear Classification** - Separate problems, discoveries, tasks
+- **Easy to Find** - Use clear titles and formats
 
-### 执行方面
-- **遵循流程** - 不要跳过关键步骤
-- **质量保证** - 每个阶段都有检查标准
-- **持续改进** - 总结经验优化流程
-
----
-
-**记住**：工作流程的目的是提高效率和质量，不是增加负担。灵活运用，重点关注沟通和记录。 # 工作流程快速参考
-
-## 🚀 流程选择决策树
-
-```
-用户提出新需求/任务
-├─ workspace是模板状态? 
-│  ├─ 是 → 使用流程1：任务初始化
-│  └─ 否 → 先执行流程3归档，再执行流程1
-│
-├─ 任务正在进行中?
-│  └─ 是 → 使用流程2：任务执行
-│
-├─ 任务基本完成 OR workspace太乱 OR 有重要经验?
-│  └─ 是 → 使用流程3：任务归档
-│
-└─ 不确定 → 询问用户意图，使用mcp-feedback-enhanced
-```
-
-## 📋 关键反馈时机
-
-### 🔴 必须反馈（每次都要）
-- **流程1**：需求确认、任务设置
-- **流程2**：开始新步骤、遇到问题、计划调整
-- **流程3**：归档决策、重要任务转移、workspace重置
-
-### 🟡 条件反馈（满足条件时）
-- **流程1**：重大技术决策、多方案选择
-- **流程2**：重要里程碑、超时50%
-- **流程3**：重要功能归档、未完成任务多
-
-## 🛠️ 常用命令速查
-
-### Workspace状态检查
-```bash
-# 应该只有3个文件，内容为模板格式
-ls docs/workspace/
-# 检查内容是否包含占位符如 [任务名称]、[日期] 等
-```
-
-### Workspace重置
-```batch
-del docs\workspace\*.md
-copy docs\workspace-template\*.md docs\workspace\
-ren docs\workspace\scratchpad-template.md scratchpad.md
-ren docs\workspace\todo-template.md todo.md  
-ren docs\workspace\experience-template.md experience.md
-```
-
-### 创建新归档
-```batch
-# 先查看 docs/archives/README.md 确定下一个编号
-mkdir "docs\archives\[编号]-[功能名称]"
-```
-
-## 📝 文档模板速查
-
-### scratchpad.md任务设置
-```markdown
-### [具体功能名称] - [开始日期]
-**目标**: [明确的目标描述]
-**状态**: 进行中
-
-#### 计划步骤
-[ ] 1. [具体步骤1]
-    - 预期结果：[描述]
-    - 风险评估：[风险点]
-```
-
-### 问题记录格式
-```markdown
-### [问题标题] - [发现日期]
-**问题描述**: [详细描述]
-**原因分析**: [根本原因]  
-**解决方案**: [采用的解决方法]
-**经验总结**: [避坑要点]
-```
-
-### mcp-feedback-enhanced调用
-```typescript
-await mcp_feedback_enhanced({
-  summary: "[简洁的总结，说明当前状态和需要确认的内容]",
-  project_directory: "."
-})
-```
-
-## ✅ 质量检查清单
-
-### 流程1完成检查
-- [ ] workspace包含具体任务（非模板）
-- [ ] 技术方案经用户确认
-- [ ] 至少完成2次反馈
-
-### 流程2执行检查  
-- [ ] 每个步骤状态明确
-- [ ] 重要发现已记录
-- [ ] 问题和解决方案完整
-
-### 流程3归档检查
-- [ ] archives包含完整文档
-- [ ] 重要任务已转移
-- [ ] workspace恢复模板状态
-
-## 🚨 常见问题快速解决
-
-### workspace状态混乱
-**问题**：不确定是否应该归档
-**解决**：评估4问题→反馈决策→执行对应流程
-
-### 任务范围不清楚
-**问题**：不知道要做什么
-**解决**：立即反馈寻求澄清→不要基于假设继续
-
-### 技术方案有多种选择
-**问题**：不知道选哪个
-**解决**：列出方案优缺点→反馈请用户选择
-
-### 遇到阻塞问题
-**问题**：无法继续执行
-**解决**：分析原因→提供解决方案→反馈寻求指导
-
-## 🎯 成功要素
-
-### 沟通方面
-- **主动反馈** - 不等用户询问
-- **明确描述** - 避免模糊表达
-- **提供选择** - 给出具体的方案选项
-
-### 记录方面  
-- **实时更新** - 即时记录进展
-- **分类清晰** - 问题、发现、任务分开
-- **便于查找** - 使用清晰的标题和格式
-
-### 执行方面
-- **遵循流程** - 不要跳过关键步骤
-- **质量保证** - 每个阶段都有检查标准
-- **持续改进** - 总结经验优化流程
+### Execution Aspects
+- **Follow Processes** - Don't skip key steps
+- **Quality Assurance** - Each stage has check standards
+- **Continuous Improvement** - Summarize experience to optimize processes
 
 ---
 
-**记住**：工作流程的目的是提高效率和质量，不是增加负担。灵活运用，重点关注沟通和记录。 
+**Remember**: The purpose of workflows is to improve efficiency and quality, not add burden. Use flexibly, focus on communication and recording.

@@ -1,24 +1,24 @@
-# 语言切换按钮修复
+# Language Switch Button Fix
 
-## 🎯 问题描述
+## 🎯 Problem Description
 
-### 核心问题
-功能提示词管理的语言切换按钮显示"Object Promise"而不是正确的语言名称（如"中文"或"English"）。
+### Core Issue
+The language switch button for managing functional prompts displays "Object Promise" instead of the correct language name (e.g., "中文" or "English").
 
-### 问题表现
-- UI组件中显示异常文本"Object Promise"
-- 语言切换功能无法正常工作
-- Web和Electron环境行为不一致
+### Problem Manifestation
+- The UI component shows the abnormal text "Object Promise"
+- The language switching functionality does not work properly
+- Inconsistent behavior between Web and Electron environments
 
-### 根本原因
-- **异步接口不一致**: Electron环境的方法返回Promise，但被当作同步值使用
-- **IPC调用处理错误**: 异步IPC调用的结果没有正确await
-- **接口定义不匹配**: Web和Electron环境使用不同的方法签名
+### Root Cause
+- **Inconsistent Asynchronous Interfaces**: Methods in the Electron environment return Promises but are used as synchronous values
+- **IPC Call Handling Errors**: The results of asynchronous IPC calls are not properly awaited
+- **Interface Definition Mismatch**: Web and Electron environments use different method signatures
 
-## 🔧 解决方案
+## 🔧 Solution
 
-### 1. 统一异步接口设计
-创建`ITemplateLanguageService`接口，确保跨环境一致性：
+### 1. Unify Asynchronous Interface Design
+Create the `ITemplateLanguageService` interface to ensure consistency across environments:
 
 ```typescript
 export interface ITemplateLanguageService {
@@ -31,12 +31,12 @@ export interface ITemplateLanguageService {
 }
 ```
 
-### 2. 修复Vue组件异步调用
+### 2. Fix Asynchronous Calls in Vue Component
 ```vue
-<!-- 修复前 -->
+<!-- Before Fix -->
 <span>{{ languageService.getCurrentLanguage() }}</span>
 
-<!-- 修复后 -->
+<!-- After Fix -->
 <span>{{ currentLanguage }}</span>
 
 <script setup>
@@ -48,7 +48,7 @@ onMounted(async () => {
 </script>
 ```
 
-### 3. 完善IPC调用链
+### 3. Improve IPC Call Chain
 ```javascript
 // preload.js
 templateLanguage: {
@@ -70,29 +70,29 @@ ipcMain.handle('template-getCurrentBuiltinTemplateLanguage', async (event) => {
 });
 ```
 
-## ✅ 修复验证
+## ✅ Fix Validation
 
-### 验证清单
-- [x] 语言切换按钮正确显示"中文"或"English"
-- [x] 完全解决了"Object Promise"显示问题
-- [x] Web和Electron环境行为一致
-- [x] 所有异步调用正确处理
+### Validation Checklist
+- [x] The language switch button correctly displays "中文" or "English"
+- [x] The "Object Promise" display issue is fully resolved
+- [x] Consistent behavior between Web and Electron environments
+- [x] All asynchronous calls are correctly handled
 
-## 💡 经验总结
+## 💡 Experience Summary
 
-### 核心原则
-1. **接口一致性**: 跨环境的接口必须保持一致的异步性
-2. **错误处理**: 让错误自然传播，便于问题定位
-3. **类型安全**: 使用TypeScript确保接口实现的完整性
-4. **事件传播**: 确保语言切换事件能传播到所有相关组件
+### Core Principles
+1. **Interface Consistency**: Interfaces across environments must maintain consistent asynchronicity
+2. **Error Handling**: Allow errors to propagate naturally for easier problem localization
+3. **Type Safety**: Use TypeScript to ensure the completeness of interface implementations
+4. **Event Propagation**: Ensure that language switch events can propagate to all relevant components
 
-### 最佳实践
-1. **统一异步**: 所有跨环境接口都应该是异步的
-2. **接口驱动**: 先定义接口，再实现具体类
-3. **完整测试**: 在两种环境下都要验证功能
-4. **事件链完整性**: 建立完整的事件传播机制，确保深层组件也能响应状态变化
+### Best Practices
+1. **Unified Asynchrony**: All cross-environment interfaces should be asynchronous
+2. **Interface-Driven**: Define interfaces first, then implement specific classes
+3. **Comprehensive Testing**: Validate functionality in both environments
+4. **Event Chain Integrity**: Establish a complete event propagation mechanism to ensure deep components can also respond to state changes
 
-### 相关问题
-- **迭代页面模板选择不更新**: 语言切换后，由于组件层级差异和事件传播机制缺失，迭代页面的模板选择无法正确更新。解决方案是建立完整的事件传播链，确保所有TemplateSelect组件都能响应语言切换事件。详见 `106-template-management/troubleshooting.md` 第9节。
+### Related Issues
+- **Iteration Page Template Selection Not Updating**: After switching languages, due to component hierarchy differences and a lack of event propagation mechanisms, the template selection on the iteration page fails to update correctly. The solution is to establish a complete event propagation chain to ensure all TemplateSelect components can respond to language switch events. See section 9 of `106-template-management/troubleshooting.md`.
 
-这个修复建立了完整的异步接口设计模式，为后续的IPC开发提供了标准。
+This fix establishes a complete asynchronous interface design pattern, providing a standard for future IPC development.

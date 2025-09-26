@@ -80,9 +80,9 @@ mkdir "docs\archives\[编号]-[功能名称]"
 
 ### Check workspace Status
 Should only have 3 files, and content is in template format:
-- `scratchpad.md` - Contains placeholders like `[任务名称]`
-- `todo.md` - Contains placeholders like `[任务描述]`
-- `experience.md` - Contains placeholders like `[经验描述]`
+- `scratchpad.md` - Contains placeholders like `[Task Name]`
+- `todo.md` - Contains placeholders like `[Task Description]`
+- `experience.md` - Contains placeholders like `[Experience Description]`
 
 ## 📚 Related Documentation
 

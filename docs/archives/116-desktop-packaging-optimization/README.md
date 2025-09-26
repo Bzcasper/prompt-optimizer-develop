@@ -1,28 +1,28 @@
-# 116 - 桌面应用打包优化
+# 116 - Desktop Application Packaging Optimization
 
-## 概述
+## Overview
 
-将桌面应用从单文件portable模式改为ZIP压缩包模式，解决了存储路径检测问题，简化了代码架构。
+Changing the desktop application from a single-file portable mode to a ZIP compressed package mode resolves the storage path detection issue and simplifies the code architecture.
 
-## 问题背景
+## Problem Background
 
-### 原有问题
+### Existing Issues
 
-1. **存储路径问题**：
-   - portable模式下，`process.execPath` 指向临时解压目录
-   - 数据保存在临时目录，应用关闭后被清理
-   - 路径检测逻辑复杂，容易出错
+1. **Storage Path Issue**:
+   - In portable mode, `process.execPath` points to a temporary extraction directory.
+   - Data is stored in a temporary directory and is cleaned up after the application closes.
+   - Path detection logic is complex and prone to errors.
 
-2. **架构复杂性**：
-   - 需要复杂的路径检测和回退逻辑
-   - 大量调试代码和日志输出
-   - 主进程日志在生产环境难以查看
+2. **Architectural Complexity**:
+   - Requires complex path detection and fallback logic.
+   - A large amount of debugging code and log output.
+   - Main process logs are difficult to view in production environments.
 
-## 解决方案
+## Solution
 
-### 1. 修改打包配置
+### 1. Modify Packaging Configuration
 
-**之前（不同格式）**：
+**Before (Different Formats)**:
 ```json
 {
   "win": { "target": "portable" },
@@ -31,7 +31,7 @@
 }
 ```
 
-**现在（统一ZIP格式）**：
+**Now (Unified ZIP Format)**:
 ```json
 {
   "win": {
@@ -49,102 +49,102 @@
 }
 ```
 
-### 2. 简化存储路径逻辑
+### 2. Simplify Storage Path Logic
 
-**之前（复杂检测）**：
-- 多种路径检测方法
-- 临时目录检查
-- 复杂的回退逻辑
-- 大量调试日志
+**Before (Complex Detection)**:
+- Multiple path detection methods.
+- Temporary directory checks.
+- Complex fallback logic.
+- A large amount of debugging logs.
 
-**现在（简化逻辑）**：
+**Now (Simplified Logic)**:
 ```javascript
 if (app.isPackaged) {
-  // ZIP包解压后的portable模式
+  // Portable mode after ZIP extraction
   const exePath = app.getPath('exe');
   const execDir = path.dirname(exePath);
   userDataPath = path.join(execDir, 'prompt-optimizer-data');
 } else {
-  // 开发环境
+  // Development environment
   userDataPath = path.join(__dirname, '..', '..', 'prompt-optimizer-data');
 }
 ```
 
-### 3. 移除调试代码
+### 3. Remove Debugging Code
 
-- 删除 `debugLog` 函数
-- 移除文件日志输出
-- 删除调试API和IPC接口
-- 简化错误处理
+- Delete `debugLog` function.
+- Remove file log output.
+- Delete debugging APIs and IPC interfaces.
+- Simplify error handling.
 
-## 实施步骤
+## Implementation Steps
 
-### 1. 修改打包配置
-- 更新 `packages/desktop/package.json`
-- 改为ZIP目标格式
+### 1. Modify Packaging Configuration
+- Update `packages/desktop/package.json`.
+- Change to ZIP target format.
 
-### 2. 简化main.js
-- 移除复杂的路径检测逻辑
-- 删除调试日志函数
-- 简化存储初始化代码
+### 2. Simplify main.js
+- Remove complex path detection logic.
+- Delete debugging log functions.
+- Simplify storage initialization code.
 
-### 3. 清理preload.js
-- 移除调试API接口
+### 3. Clean up preload.js
+- Remove debugging API interfaces.
 
-### 4. 更新文档和工作流
-- 修改GitHub Actions工作流
-- 更新README.md使用说明
-- 创建归档文档
+### 4. Update Documentation and Workflow
+- Modify GitHub Actions workflow.
+- Update README.md usage instructions.
+- Create archival documentation.
 
-## 优势
+## Advantages
 
-### 1. 技术优势
-- ✅ **路径可靠**：ZIP解压后路径确定，无临时目录问题
-- ✅ **代码简洁**：移除复杂检测逻辑，维护性更好
-- ✅ **性能更好**：无额外文件I/O操作
+### 1. Technical Advantages
+- ✅ **Reliable Paths**: The path is determined after ZIP extraction, eliminating temporary directory issues.
+- ✅ **Clean Code**: Removed complex detection logic, improving maintainability.
+- ✅ **Better Performance**: No additional file I/O operations.
 
-### 2. 用户体验
-- ✅ **真正portable**：解压到哪里，数据就在哪里
-- ✅ **便于管理**：整个文件夹包含应用+数据
-- ✅ **便于备份**：复制文件夹即可完整备份
+### 2. User Experience
+- ✅ **Truly Portable**: Wherever it is extracted, the data is there.
+- ✅ **Easy Management**: The entire folder contains the application and data.
+- ✅ **Easy Backup**: Copying the folder provides a complete backup.
 
-### 3. 分发优势
-- ✅ **文件名清晰**：包含版本、系统、架构信息
-- ✅ **便于下载**：单个ZIP文件包含所有内容
-- ✅ **跨平台一致**：所有平台都使用相同的分发方式
+### 3. Distribution Advantages
+- ✅ **Clear File Names**: Includes version, system, and architecture information.
+- ✅ **Easy to Download**: A single ZIP file contains everything.
+- ✅ **Cross-Platform Consistency**: All platforms use the same distribution method.
 
-## 使用方法
+## Usage Instructions
 
-### 构建
+### Build
 ```bash
 cd packages/desktop
 pnpm run build
 ```
 
-### 分发
+### Distribution
 - **Windows**: `PromptOptimizer-1.2.0-win-x64.zip`
 - **macOS**: `PromptOptimizer-1.2.0-darwin-x64.zip` / `PromptOptimizer-1.2.0-darwin-arm64.zip`
 - **Linux**: `PromptOptimizer-1.2.0-linux-x64.zip`
 
-所有平台：
-- 用户解压到任意目录
-- 运行对应的可执行文件
-- 数据保存在 `prompt-optimizer-data/` 目录
+All platforms:
+- Users extract to any directory.
+- Run the corresponding executable file.
+- Data is stored in the `prompt-optimizer-data/` directory.
 
-### 数据管理
-- **备份**：复制整个应用文件夹
-- **迁移**：移动整个文件夹到新位置
-- **升级**：替换exe文件，保留数据目录
+### Data Management
+- **Backup**: Copy the entire application folder.
+- **Migration**: Move the entire folder to a new location.
+- **Upgrade**: Replace the exe file while keeping the data directory.
 
-## 经验总结
+## Experience Summary
 
-1. **简单即美**：复杂的路径检测不如简单的ZIP解压
-2. **用户友好**：便携模式更符合用户期望
-3. **维护性**：简化的代码更容易维护和调试
-4. **可靠性**：减少边界情况，提高稳定性
+1. **Simplicity is Beauty**: Simple ZIP extraction is better than complex path detection.
+2. **User-Friendly**: Portable mode aligns better with user expectations.
+3. **Maintainability**: Simplified code is easier to maintain and debug.
+4. **Reliability**: Reducing edge cases improves stability.
 
-## 后续优化
+## Future Optimizations
 
-1. **自动更新**：考虑添加应用内更新功能
-2. **安装包选项**：为需要的用户提供传统安装包
-3. **数据迁移**：提供从旧版本迁移数据的工具
+1. **Automatic Updates**: Consider adding an in-app update feature.
+2. **Installer Options**: Provide traditional installer packages for users who need them.
+3. **Data Migration**: Offer tools for migrating data from older versions.

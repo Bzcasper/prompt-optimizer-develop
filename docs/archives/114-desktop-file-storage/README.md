@@ -1,94 +1,94 @@
-# 114-桌面版文件存储实现
+# 114-Desktop File Storage Implementation
 
-## 📋 概述
+## 📋 Overview
 
-实现桌面版从内存存储到文件存储的完整切换，为桌面应用提供可靠的数据持久化解决方案。
+Implement a complete switch from memory storage to file storage for the desktop version, providing a reliable data persistence solution for desktop applications.
 
-## 🏗️ 核心成果
+## 🏗️ Core Achievements
 
-### FileStorageProvider 实现
-- 完全兼容 `IStorageProvider` 接口，一行代码完成切换
-- 延迟写入策略 (500ms) + 内存缓存，性能优异
-- 原子写入操作，确保数据完整性
-- 应用退出前自动保存数据
+### FileStorageProvider Implementation
+- Fully compatible with the `IStorageProvider` interface, switch with a single line of code
+- Delayed write strategy (500ms) + memory cache, excellent performance
+- Atomic write operations to ensure data integrity
+- Automatically saves data before application exit
 
-### 存储路径设计
-根据用户偏好，采用可执行文件同级目录存储：
+### Storage Path Design
+Based on user preferences, store in the same directory as the executable file:
 
 ```typescript
-// 路径设置逻辑
+// Path setting logic
 if (app.isPackaged) {
-  // 生产环境：可执行文件目录/prompt-optimizer-data/
+  // Production environment: executable file directory/prompt-optimizer-data/
   const execDir = path.dirname(process.execPath);
   userDataPath = path.join(execDir, 'prompt-optimizer-data');
 } else {
-  // 开发环境：项目根目录/prompt-optimizer-data/
+  // Development environment: project root directory/prompt-optimizer-data/
   userDataPath = path.join(__dirname, '..', '..', 'prompt-optimizer-data');
 }
 ```
 
-**优势**：
-- ✅ 便于管理和查找数据文件
-- ✅ 数据与应用在同一位置，便于备份迁移
-- ✅ 目录名明确标识，避免与其他应用混淆
+**Advantages**:
+- ✅ Easy to manage and locate data files
+- ✅ Data and application in the same location, facilitating backup and migration
+- ✅ Directory name clearly identifies it, avoiding confusion with other applications
 
-### 架构集成
+### Architecture Integration
 ```typescript
-// 简单的一行切换
-// const storage = StorageFactory.create('memory')  // 旧方式
-const storage = new FileStorageProvider(userDataPath)  // 新方式
+// Simple one-line switch
+// const storage = StorageFactory.create('memory')  // Old way
+const storage = new FileStorageProvider(userDataPath)  // New way
 ```
 
-## ✅ 验证结果
+## ✅ Validation Results
 
-### 测试覆盖
-- **单元测试**: 18/18 通过 (Mock文件系统)
-- **集成测试**: 12/12 通过 (真实文件操作)
-- **性能基准**: 写入4ms，读取0ms (内存缓存)
+### Test Coverage
+- **Unit Tests**: 18/18 passed (Mock file system)
+- **Integration Tests**: 12/12 passed (Real file operations)
+- **Performance Benchmark**: Write 4ms, Read 0ms (Memory cache)
 
-### 实际验证
-- ✅ 桌面版本成功启动
-- ✅ 自动创建 `prompt-optimizer-data/prompt-optimizer-data.json` 文件
-- ✅ 数据持久化正常工作
-- ✅ 应用重启后配置和历史记录保持
+### Actual Validation
+- ✅ Desktop version successfully launched
+- ✅ Automatically created `prompt-optimizer-data/prompt-optimizer-data.json` file
+- ✅ Data persistence functioning normally
+- ✅ Configuration and history retained after application restart
 
-## 🔧 技术特性
+## 🔧 Technical Features
 
-- **延迟写入**: 正常操作延迟500ms，批量操作立即写入
-- **原子操作**: 临时文件写入 → 验证 → 重命名替换
-- **错误恢复**: 文件损坏时自动创建新存储
-- **退出保护**: 应用退出前强制保存所有数据
+- **Delayed Write**: Normal operations delayed by 500ms, batch operations written immediately
+- **Atomic Operations**: Temporary file write → Validation → Rename replacement
+- **Error Recovery**: Automatically creates new storage when file is corrupted
+- **Exit Protection**: Forces saving all data before application exit
 
-## 📊 项目价值
+## 📊 Project Value
 
-### 用户价值
-- **数据安全**: 用户数据得到可靠的持久化保护
-- **使用体验**: 应用重启后数据保持，提升用户体验
-- **功能完整**: 桌面版功能与Web版对等
+### User Value
+- **Data Security**: User data is reliably protected for persistence
+- **User Experience**: Data retention after application restart enhances user experience
+- **Complete Functionality**: Desktop version features are on par with the web version
 
-### 技术价值
-- **架构完善**: 为桌面应用提供了完整的存储解决方案
-- **接口设计**: 良好的抽象层设计让存储切换变得简单
-- **性能优化**: 实现了高性能的文件存储机制
+### Technical Value
+- **Robust Architecture**: Provides a complete storage solution for desktop applications
+- **Interface Design**: Good abstraction layer design makes storage switching simple
+- **Performance Optimization**: Achieved a high-performance file storage mechanism
 
 ---
 
-## 附录：测试修复记录
+## Appendix: Test Fix Records
 
-在实现过程中顺便修复了16个测试失败问题：
-- **架构问题**: Service层与UI层职责分离
-- **异步调用**: TemplateLanguageService测试缺少await
-- **集成测试**: 正确模拟UI层历史记录保存行为
+During the implementation process, 16 test failures were fixed:
+- **Architecture Issues**: Separation of responsibilities between Service layer and UI layer
+- **Asynchronous Calls**: TemplateLanguageService tests lacked await
+- **Integration Tests**: Correctly simulated UI layer history saving behavior
 
-修复后测试结果：291个测试通过，9个跳过 ✅
+After fixes, test results: 291 tests passed, 9 skipped ✅
 
-## 🔧 后续修复补充
+## 🔧 Subsequent Fixes
 
-### 应用退出无限循环问题修复
+### Application Exit Infinite Loop Issue Fix
 
-**问题发现**: 在使用FileStorageProvider后，发现应用退出时出现无限循环保存数据的问题。
+**Issue Discovery**: After using FileStorageProvider, an infinite loop saving data was found when exiting the application.
 
-**问题表现**:
+**Issue Manifestation**:
 ```
 [DESKTOP] Saving data before quit...
 [DESKTOP] Data saved successfully
@@ -96,16 +96,16 @@ const storage = new FileStorageProvider(userDataPath)  // 新方式
 [DESKTOP] Data saved successfully
 ```
 
-**根本原因**:
-1. 数据保存失败时`isDirty`标志未重置
-2. 退出事件处理器形成循环：`window.close` → `before-quit` → `app.quit()` → `before-quit`
+**Root Cause**:
+1. The `isDirty` flag was not reset when data saving failed
+2. The exit event handler formed a loop: `window.close` → `before-quit` → `app.quit()` → `before-quit`
 
-**解决方案**:
+**Solution**:
 
-#### 1. FileStorageProvider防护机制
+#### 1. FileStorageProvider Protection Mechanism
 ```javascript
 async flush(): Promise<void> {
-  // 检查重试次数限制
+  // Check retry attempts limit
   if (this.flushAttempts >= this.MAX_FLUSH_ATTEMPTS) {
     console.error('Max flush attempts reached, forcing isDirty to false');
     this.isDirty = false;
@@ -123,7 +123,7 @@ async flush(): Promise<void> {
     this.isDirty = false;
     this.flushAttempts = 0;
   } catch (error) {
-    // 强制重置状态避免无限重试
+    // Force reset state to avoid infinite retry
     if (this.flushAttempts >= this.MAX_FLUSH_ATTEMPTS) {
       this.isDirty = false;
       this.flushAttempts = 0;
@@ -133,12 +133,12 @@ async flush(): Promise<void> {
 }
 ```
 
-#### 2. 多层应用退出保护机制
+#### 2. Multi-layer Application Exit Protection Mechanism
 ```javascript
 let isQuitting = false;
 const MAX_SAVE_TIME = 5000;
 
-// 应急退出：10秒后强制终止
+// Emergency exit: force termination after 10 seconds
 function setupEmergencyExit() {
   const emergencyExitTimer = setTimeout(() => {
     console.error('[DESKTOP] EMERGENCY EXIT: Force terminating process');
@@ -174,71 +174,71 @@ app.on('before-quit', async (event) => {
 });
 ```
 
-#### 3. 防护机制层级
-- **逻辑保护**: `isQuitting`标志防止重复执行
-- **超时保护**: 5秒强制关闭窗口/退出应用
-- **应急保护**: 10秒强制终止进程
-- **系统保护**: 响应SIGINT/SIGTERM信号
+#### 3. Protection Mechanism Hierarchy
+- **Logical Protection**: `isQuitting` flag prevents repeated execution
+- **Timeout Protection**: Force close window/application after 5 seconds
+- **Emergency Protection**: Force terminate process after 10 seconds
+- **System Protection**: Respond to SIGINT/SIGTERM signals
 
-### 经验总结
+### Experience Summary
 
-#### 文件存储退出处理原则
-1. **多层保护**: 实现多个层级的保护机制
-2. **超时控制**: 避免无限等待数据保存
-3. **状态重置**: 异常情况下强制重置状态
-4. **优雅降级**: 保存失败也要确保应用能退出
+#### File Storage Exit Handling Principles
+1. **Multi-layer Protection**: Implement multiple levels of protection mechanisms
+2. **Timeout Control**: Avoid infinite waiting for data saving
+3. **State Reset**: Force reset state in exceptional cases
+4. **Graceful Degradation**: Ensure the application can exit even if saving fails
 
-#### 最佳实践
-- 在FileStorageProvider中实现重试限制和超时保护
-- 在应用层实现多层退出保护机制
-- 使用Promise.race实现超时控制
-- 建立完整的异常处理和状态重置机制
+#### Best Practices
+- Implement retry limits and timeout protection in FileStorageProvider
+- Implement multi-layer exit protection mechanisms at the application level
+- Use Promise.race to achieve timeout control
+- Establish a complete exception handling and state reset mechanism
 
-这些补充修复确保了FileStorageProvider在各种异常情况下都能正常工作，并且应用能够可靠地退出。
+These supplementary fixes ensure that FileStorageProvider functions correctly under various exceptional circumstances and that the application can exit reliably.
 
-## 🛡️ 数据安全性增强 (2025-07-06)
+## 🛡️ Data Security Enhancement (2025-07-06)
 
-### 问题发现：备份恢复安全隐患
+### Issue Discovery: Backup Recovery Security Risk
 
-在审查恢复逻辑时发现了一个严重的数据安全问题：
+A serious data security issue was discovered during the review of the recovery logic:
 
-**问题场景**：
-- 主文件 `storage.json` 损坏
-- 备份文件 `storage.json.backup` 完好
-- 系统进入恢复流程
+**Problem Scenario**:
+- Main file `storage.json` is corrupted
+- Backup file `storage.json.backup` is intact
+- The system enters recovery process
 
-**危险流程**：
+**Dangerous Process**:
 ```
-从备份恢复 → saveToFile() → createBackup() → 将损坏的主文件覆盖完好的备份！
+Recovering from backup → saveToFile() → createBackup() → Overwriting intact backup with corrupted main file!
 ```
 
-如果后续的原子写入也失败，将导致数据永久丢失。
+If subsequent atomic writes also fail, it will lead to permanent data loss.
 
-### 解决方案：智能恢复机制
+### Solution: Intelligent Recovery Mechanism
 
-#### 1. 新增安全保存方法
+#### 1. New Safe Save Method
 ```typescript
 /**
- * 专门用于恢复的保存方法，避免覆盖完好的备份
+ * Special save method for recovery, avoiding overwriting intact backup
  */
 private async saveToFileWithoutBackup(): Promise<void> {
   const data = Object.fromEntries(this.data);
   const jsonString = JSON.stringify(data, null, 2);
 
-  // 验证数据完整性
+  // Validate data integrity
   if (!this.validateJSON(jsonString)) {
     throw new StorageError('Generated JSON is invalid', 'write');
   }
 
-  // 直接原子写入，不创建备份
+  // Direct atomic write without creating a backup
   await this.atomicWrite(jsonString);
 }
 ```
 
-#### 2. 改进的恢复流程
+#### 2. Improved Recovery Process
 ```typescript
 private async loadFromFileWithRecovery(): Promise<void> {
-  // 1. 尝试从主文件加载
+  // 1. Attempt to load from the main file
   const mainResult = await this.tryLoadFromFile(this.filePath, 'main');
   if (mainResult.success) {
     this.data = mainResult.data!;
@@ -246,43 +246,43 @@ private async loadFromFileWithRecovery(): Promise<void> {
     return;
   }
 
-  // 2. 尝试从备份文件加载
+  // 2. Attempt to load from the backup file
   const backupResult = await this.tryLoadFromFile(this.backupPath, 'backup');
   if (backupResult.success) {
     this.data = backupResult.data!;
 
-    // 关键：使用专门的方法避免覆盖备份
+    // Key: Use special method to avoid overwriting backup
     await this.saveToFileWithoutBackup();
 
-    // 主文件恢复成功后，重新创建备份
+    // After successfully recovering the main file, recreate the backup
     await this.createBackup();
     return;
   }
 
-  // 3. 区分首次运行和数据损坏
+  // 3. Distinguish between first run and data corruption
   if (!await this.fileExists(this.filePath) && !await this.fileExists(this.backupPath)) {
-    // 首次运行
+    // First run
     this.data = new Map();
     await this.saveToFile();
   } else {
-    // 严重错误：文件存在但都损坏
+    // Severe error: files exist but are both corrupted
     throw new StorageError('Storage corruption detected', 'read');
   }
 }
 ```
 
-#### 3. 原子性updateData增强
+#### 3. Atomicity Enhancement for updateData
 
-为防止并发操作导致的数据不一致，增强了updateData的原子性：
+To prevent data inconsistency caused by concurrent operations, the atomicity of updateData has been enhanced:
 
 ```typescript
 /**
- * 原子性数据更新 - 增强版
+ * Atomic data update - enhanced version
  */
 async updateData<T>(key: string, modifier: (currentValue: T | null) => T): Promise<void> {
   await this.ensureInitialized();
 
-  // 使用更新锁确保原子性
+  // Use update lock to ensure atomicity
   const currentLock = this.updateLock;
   let resolveLock: () => void;
 
@@ -299,54 +299,54 @@ async updateData<T>(key: string, modifier: (currentValue: T | null) => T): Promi
 }
 
 /**
- * 执行原子更新操作
+ * Perform atomic update operation
  */
 private async performAtomicUpdate<T>(key: string, modifier: (currentValue: T | null) => T): Promise<void> {
-  // 重新从存储读取最新数据，确保数据一致性
+  // Read the latest data from storage to ensure data consistency
   const latestData = await this.getLatestData<T>(key);
 
-  // 应用修改
+  // Apply modification
   const newValue = modifier(latestData);
 
-  // 验证新值
+  // Validate new value
   this.validateValue(newValue);
 
-  // 写入新值
+  // Write new value
   this.data.set(key, JSON.stringify(newValue));
   this.scheduleWrite();
 }
 ```
 
-### 安全保障机制
+### Security Assurance Mechanisms
 
-#### 1. 数据完整性保障
-- **备份保护**：恢复时不会覆盖完好的备份文件
-- **智能恢复**：区分首次运行和数据损坏情况
-- **多层恢复**：主文件→备份文件→错误处理
+#### 1. Data Integrity Assurance
+- **Backup Protection**: Will not overwrite intact backup file during recovery
+- **Intelligent Recovery**: Distinguishes between first run and data corruption scenarios
+- **Multi-layer Recovery**: Main file → Backup file → Error handling
 
-#### 2. 原子性保障
-- **更新锁机制**：防止并发操作导致的数据不一致
-- **原子写入**：使用临时文件+重命名确保写入原子性
-- **事务性操作**：读-修改-写操作的完整性
+#### 2. Atomicity Assurance
+- **Update Lock Mechanism**: Prevents data inconsistency caused by concurrent operations
+- **Atomic Write**: Uses temporary files + renaming to ensure write atomicity
+- **Transactional Operations**: Integrity of read-modify-write operations
 
-#### 3. 错误处理增强
-- **错误分类**：区分不同类型的错误（首次运行、数据损坏、读写失败）
-- **优雅降级**：各种异常情况下的合理处理
-- **状态重置**：异常情况下的状态恢复机制
+#### 3. Enhanced Error Handling
+- **Error Classification**: Distinguishes between different types of errors (first run, data corruption, read/write failures)
+- **Graceful Degradation**: Reasonable handling in various exceptional cases
+- **State Reset**: State recovery mechanism in exceptional situations
 
-### 测试验证
+### Test Validation
 
-#### 备份保护测试
+#### Backup Protection Test
 ```typescript
 it('should not overwrite good backup during recovery', async () => {
-  // 模拟损坏的主文件和完好的备份
+  // Simulate corrupted main file and intact backup
   mockFs.readFile
-    .mockResolvedValueOnce('{ invalid json') // 损坏的主文件
-    .mockResolvedValueOnce(JSON.stringify(goodData)); // 完好的备份
+    .mockResolvedValueOnce('{ invalid json') // Corrupted main file
+    .mockResolvedValueOnce(JSON.stringify(goodData)); // Intact backup
 
   await provider.getItem('test');
 
-  // 验证没有覆盖备份
+  // Verify that the backup was not overwritten
   const dangerousCopyCall = mockFs.copyFile.mock.calls.find(call =>
     call[0] === mainPath && call[1] === backupPath
   );
@@ -354,7 +354,7 @@ it('should not overwrite good backup during recovery', async () => {
 });
 ```
 
-#### 并发安全测试
+#### Concurrent Safety Test
 ```typescript
 it('should handle concurrent updates safely', async () => {
   const promises = [
@@ -365,11 +365,11 @@ it('should handle concurrent updates safely', async () => {
 
   await Promise.all(promises);
 
-  // 验证所有更新都成功
+  // Verify that all updates were successful
   expect(await provider.getItem('key1')).toBe('value1');
   expect(await provider.getItem('key2')).toBe('value2');
   expect(await provider.getItem('key3')).toBe('value3');
 });
 ```
 
-这些增强确保了FileStorageProvider在各种复杂场景下的数据安全性和操作原子性。
+These enhancements ensure that FileStorageProvider maintains data security and operational atomicity under various complex scenarios.

@@ -1,337 +1,171 @@
 ---
-description: 任务初始化时的工作流程
+description: Workflow when task initialization
 alwaysApply: false
 ---
-# 工作流程1：任务初始化
+# Workflow 1: Task Initialization
 
-设置新任务，分析需求，制定开发计划。
+Set up new tasks, analyze requirements, formulate development plans.
 
-## 🎯 流程目标
+## 🎯 Process Goals
 
-- 清晰理解任务需求和目标
-- 初始化workspace工作环境
-- 制定具体的开发计划
-- 建立任务跟踪机制
+- Clearly understand task requirements and objectives
+- Initialize workspace working environment
+- Formulate specific development plans
+- Establish task tracking mechanisms
 
-## 📋 前置条件
+## 📋 Prerequisites
 
-### 输入要求
-- 用户明确的任务描述或需求
-- 基本的技术背景信息
+### Input Requirements
+- Clear task description or requirements from user
+- Basic technical background information
 
-### 环境检查
-- workspace应为空或模板状态
-- 如workspace有内容，先执行[工作流程3：任务归档](./3-task-archiving.md)
+### Environment Check
+- workspace should be empty or template state
+- If workspace has content, execute [Workflow 3: Task Archiving](./3-task-archiving.md) first
 
-## 🔄 执行步骤
+## 🔄 Execution Steps
 
-### 1. 需求确认与分析 ⚠️ 必须反馈
-**操作内容**：
-- 仔细阅读用户需求
-- 分析技术可行性
-- 识别潜在风险和依赖
+### 1. Requirements Confirmation and Analysis ⚠️ Must Feedback
+**Operation Content**:
+- Carefully read user requirements
+- Analyze technical feasibility
+- Identify potential risks and dependencies
 
-**⚠️ 反馈要求**：
+**⚠️ Feedback Requirements**:
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "我理解的任务需求是：[需求总结]。计划采用[技术方案]，预计[时间估算]。请确认理解是否正确？",
+  summary: "The task requirements I understand are: [requirements summary]. Plan to adopt [technical solution], estimated [time estimate]. Please confirm if understanding is correct?",
   project_directory: "."
 })
 ```
 
-**反馈内容细化**：
-- 明确说明理解的任务目标和范围
-- 提及识别的主要技术挑战
-- 给出初步的时间和复杂度评估
-- 询问是否有遗漏或误解的地方
+**Feedback Content Refinement**:
+- Clearly explain understood task objectives and scope
+- Mention identified main technical challenges
+- Provide preliminary time and complexity assessment
+- Ask if there are omissions or misunderstandings
 
-### 2. 查询历史经验
-**操作内容**：
-- 查看 `docs/archives/README.md` 寻找相关历史经验
-- 查看 `docs/developer/todo.md` 了解当前任务状态
-- 参考 `docs/developer/general-experience.md` 获取通用经验
+### 2. Query Historical Experience
+**Operation Content**:
+- Check `docs/archives/README.md` to find related historical experience
+- Check `docs/developer/todo.md` to understand current task status
+- Reference `docs/developer/general-experience.md` to obtain general experience
 
-**输出**：识别可复用的经验和避坑要点
+**Output**: Identify reusable experience and pitfalls to avoid
 
-### 3. workspace初始化
-**操作内容**：
-- 确认docs/workspace状态干净（只有3个模板文件）
-- 如不干净，先清理或归档
+### 3. workspace Initialization
+**Operation Content**:
+- Confirm workspace status is clean (only 3 template files)
+- If not clean, clean up or archive first
 
-**检查清单**：
-- [ ] `scratchpad.md` 包含 `[任务名称]` 占位符
-- [ ] `todo.md` 包含 `[任务描述]` 占位符  
-- [ ] `experience.md` 包含 `[经验描述]` 占位符
+**Check List**:
+- [ ] `scratchpad.md` contains `[任务名称]` placeholder
+- [ ] `todo.md` contains `[任务描述]` placeholder
+- [ ] `experience.md` contains `[经验描述]` placeholder
 
-### 4. 在scratchpad.md中设置任务 ⚠️ 必须反馈
-**操作内容**：
+### 4. Set Up Task in scratchpad.md ⚠️ Must Feedback
+**Operation Content**:
 ```markdown
-### [具体功能名称] - [开始日期]
-**目标**: [明确的目标描述]
-**状态**: 进行中
+### [Specific Feature Name] - [Start Date]
+**Goal**: [Clear goal description]
+**Status**: In Progress
 
-#### 计划步骤
-[ ] 1. [具体步骤1]
-    - 预期结果：[描述]
-    - 风险评估：[风险点]
-[ ] 2. [具体步骤2]
-[ ] 3. [具体步骤3]
+#### Planned Steps
+[ ] 1. [Specific step 1]
+    - Expected Result: [Description]
+    - Risk Assessment: [Risk points]
+[ ] 2. [Specific step 2]
+[ ] 3. [Specific step 3]
 ...
 ```
 
-**⚠️ 反馈要求**：
+**⚠️ Feedback Requirements**:
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "已初始化任务：[任务名称]。制定了[N]个主要步骤：[步骤概览]。是否需要调整计划？",
+  summary: "Task initialized: [Task Name]. Formulated [N] main steps: [Step overview]. Need to adjust plan?",
   project_directory: "."
 })
 ```
 
-**反馈内容细化**：
-- 展示完整的步骤列表和预期成果
-- 说明每个步骤的依赖关系
-- 指出潜在的风险点和缓解措施
-- 询问优先级是否需要调整
+**Feedback Content Refinement**:
+- Show complete step list and expected results
+- Explain dependencies between each step
+- Point out potential risk points and mitigation measures
+- Ask if priorities need adjustment
 
-### 5. 设置todo优先级
-**操作内容**：
-- 在 `todo.md` 中添加紧急和重要任务
-- 按优先级排序
-- 设定时间预期
+### 5. Set todo Priorities
+**Operation Content**:
+- Add urgent and important tasks in `todo.md`
+- Sort by priority
+- Set time expectations
 
-### 6. 技术方案设计 ⚠️ 重大决策需反馈
-**操作内容**：
-- 设计技术架构
-- 选择技术栈
-- 制定实施顺序
+### 6. Technical Solution Design ⚠️ Major Decisions Need Feedback
+**Operation Content**:
+- Design technical architecture
+- Select technology stack
+- Formulate implementation sequence
 
-**⚠️ 反馈触发条件**：
-- 涉及重大架构调整
-- 需要引入新的依赖
-- 可能影响其他功能
-- 有多个技术方案选择
+**⚠️ Feedback Trigger Conditions**:
+- Involves major architecture adjustments
+- Needs to introduce new dependencies
+- May affect other functions
+- Has multiple technology solution choices
 
-**反馈格式**：
+**Feedback Format**:
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "技术方案设计完成。采用[方案名称]，主要考虑：[设计理由]。替代方案有[其他选项]。请确认方案选择？",
+  summary: "Technical solution design completed. Adopt [solution name], main considerations: [design reasons]. Alternative solutions include [other options]. Please confirm solution selection?",
   project_directory: "."
 })
 ```
 
-**反馈内容细化**：
-- 详细说明推荐方案的优势和劣势
-- 列出考虑过的替代方案及其特点
-- 说明方案选择的决策依据
-- 提及方案实施的关键风险点
+**Feedback Content Refinement**:
+- Detail advantages and disadvantages of recommended solution
+- List considered alternative solutions and their characteristics
+- Explain decision basis for solution selection
+- Mention key risk points of solution implementation
 
-## ✅ 完成标准
+## ✅ Completion Standards
 
-### 输出检查
-- [ ] workspace包含具体的任务描述（非模板内容）
-- [ ] scratchpad.md有明确的任务目标和步骤规划
-- [ ] todo.md有按优先级排序的具体任务
-- [ ] 技术方案经过用户确认
-- [ ] 已完成至少2次反馈确认
+### Output Check
+- [ ] workspace contains specific task descriptions (non-template content)
+- [ ] scratchpad.md has clear task objectives and step planning
+- [ ] todo.md has specific tasks sorted by priority
+- [ ] Technical solutions confirmed by user
+- [ ] Completed at least 2 feedback confirmations
 
-### 质量验证
-- [ ] 任务目标清晰可测量
-- [ ] 计划步骤具体可执行
-- [ ] 风险识别充分
-- [ ] 时间估算合理
+### Quality Verification
+- [ ] Task objectives are clear and measurable
+- [ ] Planned steps are specific and executable
+- [ ] Risk identification is sufficient
+- [ ] Time estimation is reasonable
 
-## 🔄 后续流程
+## 🔄 Subsequent Processes
 
-**成功完成后**：转入[工作流程2：任务执行](./2-task-execution.md)
+**After Successful Completion**: Proceed to [Workflow 2: Task Execution](./2-task-execution.md)
 
-**需要调整时**：
-- 重大需求变更 → 重新执行步骤1-4
-- 技术方案调整 → 重新执行步骤6
-- 计划调整 → 更新scratchpad.md并反馈确认
+**When Adjustments Needed**:
+- Major requirement changes → Re-execute steps 1-4
+- Technical solution adjustments → Re-execute step 6
+- Plan adjustments → Update scratchpad.md and confirm via feedback
 
-## 🚨 异常处理
+## 🚨 Exception Handling
 
-### 需求不明确
-- 立即使用mcp-feedback-enhanced寻求澄清
-- 不要基于假设继续进行
-- 记录unclear points在scratchpad.md中
+### Unclear Requirements
+- Immediately use mcp-feedback-enhanced to seek clarification
+- Do not continue based on assumptions
+- Record unclear points in scratchpad.md
 
-### 技术可行性存疑
-- 进行快速技术验证
-- 记录验证结果
-- 与用户讨论替代方案
+### Technical Feasibility Questionable
+- Conduct quick technical verification
+- Record verification results
+- Discuss alternative solutions with user
 
-### 依赖其他未完成任务
-- 明确依赖关系
-- 调整任务优先级
-- 必要时拆分任务
+### Depends on Other Unfinished Tasks
+- Clarify dependency relationships
+- Adjust task priorities
+- Split tasks if necessary
 
 ---
 
-**关键成功要素**: 充分沟通 + 明确计划 + 及时反馈 # 工作流程1：任务初始化
-
-设置新任务，分析需求，制定开发计划。
-
-## 🎯 流程目标
-
-- 清晰理解任务需求和目标
-- 初始化workspace工作环境
-- 制定具体的开发计划
-- 建立任务跟踪机制
-
-## 📋 前置条件
-
-### 输入要求
-- 用户明确的任务描述或需求
-- 基本的技术背景信息
-
-### 环境检查
-- workspace应为空或模板状态
-- 如workspace有内容，先执行[工作流程3：任务归档](./3-task-archiving.md)
-
-## 🔄 执行步骤
-
-### 1. 需求确认与分析 ⚠️ 必须反馈
-**操作内容**：
-- 仔细阅读用户需求
-- 分析技术可行性
-- 识别潜在风险和依赖
-
-**⚠️ 反馈要求**：
-```typescript
-await mcp_feedback_enhanced({
-  summary: "我理解的任务需求是：[需求总结]。计划采用[技术方案]，预计[时间估算]。请确认理解是否正确？",
-  project_directory: "."
-})
-```
-
-**反馈内容细化**：
-- 明确说明理解的任务目标和范围
-- 提及识别的主要技术挑战
-- 给出初步的时间和复杂度评估
-- 询问是否有遗漏或误解的地方
-
-### 2. 查询历史经验
-**操作内容**：
-- 查看 `docs/archives/README.md` 寻找相关历史经验
-- 查看 `docs/developer/todo.md` 了解当前任务状态
-- 参考 `docs/developer/general-experience.md` 获取通用经验
-
-**输出**：识别可复用的经验和避坑要点
-
-### 3. workspace初始化
-**操作内容**：
-- 确认workspace状态干净（只有3个模板文件）
-- 如不干净，先清理或归档
-
-**检查清单**：
-- [ ] `scratchpad.md` 包含 `[任务名称]` 占位符
-- [ ] `todo.md` 包含 `[任务描述]` 占位符  
-- [ ] `experience.md` 包含 `[经验描述]` 占位符
-
-### 4. 在scratchpad.md中设置任务 ⚠️ 必须反馈
-**操作内容**：
-```markdown
-### [具体功能名称] - [开始日期]
-**目标**: [明确的目标描述]
-**状态**: 进行中
-
-#### 计划步骤
-[ ] 1. [具体步骤1]
-    - 预期结果：[描述]
-    - 风险评估：[风险点]
-[ ] 2. [具体步骤2]
-[ ] 3. [具体步骤3]
-...
-```
-
-**⚠️ 反馈要求**：
-```typescript
-await mcp_feedback_enhanced({
-  summary: "已初始化任务：[任务名称]。制定了[N]个主要步骤：[步骤概览]。是否需要调整计划？",
-  project_directory: "."
-})
-```
-
-**反馈内容细化**：
-- 展示完整的步骤列表和预期成果
-- 说明每个步骤的依赖关系
-- 指出潜在的风险点和缓解措施
-- 询问优先级是否需要调整
-
-### 5. 设置todo优先级
-**操作内容**：
-- 在 `todo.md` 中添加紧急和重要任务
-- 按优先级排序
-- 设定时间预期
-
-### 6. 技术方案设计 ⚠️ 重大决策需反馈
-**操作内容**：
-- 设计技术架构
-- 选择技术栈
-- 制定实施顺序
-
-**⚠️ 反馈触发条件**：
-- 涉及重大架构调整
-- 需要引入新的依赖
-- 可能影响其他功能
-- 有多个技术方案选择
-
-**反馈格式**：
-```typescript
-await mcp_feedback_enhanced({
-  summary: "技术方案设计完成。采用[方案名称]，主要考虑：[设计理由]。替代方案有[其他选项]。请确认方案选择？",
-  project_directory: "."
-})
-```
-
-**反馈内容细化**：
-- 详细说明推荐方案的优势和劣势
-- 列出考虑过的替代方案及其特点
-- 说明方案选择的决策依据
-- 提及方案实施的关键风险点
-
-## ✅ 完成标准
-
-### 输出检查
-- [ ] workspace包含具体的任务描述（非模板内容）
-- [ ] scratchpad.md有明确的任务目标和步骤规划
-- [ ] todo.md有按优先级排序的具体任务
-- [ ] 技术方案经过用户确认
-- [ ] 已完成至少2次反馈确认
-
-### 质量验证
-- [ ] 任务目标清晰可测量
-- [ ] 计划步骤具体可执行
-- [ ] 风险识别充分
-- [ ] 时间估算合理
-
-## 🔄 后续流程
-
-**成功完成后**：转入[工作流程2：任务执行](./2-task-execution.md)
-
-**需要调整时**：
-- 重大需求变更 → 重新执行步骤1-4
-- 技术方案调整 → 重新执行步骤6
-- 计划调整 → 更新scratchpad.md并反馈确认
-
-## 🚨 异常处理
-
-### 需求不明确
-- 立即使用mcp-feedback-enhanced寻求澄清
-- 不要基于假设继续进行
-- 记录unclear points在scratchpad.md中
-
-### 技术可行性存疑
-- 进行快速技术验证
-- 记录验证结果
-- 与用户讨论替代方案
-
-### 依赖其他未完成任务
-- 明确依赖关系
-- 调整任务优先级
-- 必要时拆分任务
-
----
-
-**关键成功要素**: 充分沟通 + 明确计划 + 及时反馈 
+**Key Success Factors**: Sufficient communication + Clear planning + Timely feedback

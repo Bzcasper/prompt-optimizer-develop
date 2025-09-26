@@ -1,133 +1,105 @@
-# 多自定义模型配置指南
+# Multiple Custom Models Configuration Guide
 
-## 概述
+## Overview
 
-Prompt Optimizer 现在支持配置无限数量的自定义模型，让您可以同时使用多个本地模型或自建API服务。
+Prompt Optimizer now supports configuring unlimited number of custom models, allowing you to use multiple local models or self-hosted API services simultaneously.
 
-## 功能特性
+## Features
 
-- ✅ 支持无限数量的自定义模型
-- ✅ 通过环境变量自动发现和注册
-- ✅ 友好的模型名称显示
-- ✅ 完全向后兼容原有配置
-- ✅ 支持所有部署方式（Web、Desktop、Docker、MCP）
+- ✅ Support unlimited number of custom models
+- ✅ Automatic discovery and registration via environment variables
+- ✅ Friendly model name display
+- ✅ Fully backward compatible with existing configurations
+- ✅ Support all deployment methods (Web, Desktop, Docker, MCP)
 
-## 配置方法
+## Configuration Method
 
-### 环境变量格式
+### Environment Variable Format
 
-使用以下格式配置多个自定义模型：
+Use the following format to configure multiple custom models:
 
 ```bash
-VITE_CUSTOM_API_KEY_<suffix>=your-api-key          # 必需
-VITE_CUSTOM_API_BASE_URL_<suffix>=your-base-url    # 必需
-VITE_CUSTOM_API_MODEL_<suffix>=your-model-name     # 必需
+VITE_CUSTOM_API_KEY_<suffix>=your-api-key          # Required
+VITE_CUSTOM_API_BASE_URL_<suffix>=your-base-url    # Required
+VITE_CUSTOM_API_MODEL_<suffix>=your-model-name     # Required
 ```
 
-### 配置要求
+### Configuration Requirements
 
-- **后缀名**：只能包含字母（a-z, A-Z）、数字（0-9）、下划线（_）、连字符（-），长度不超过50个字符
-- **API_KEY**：必需，用于API认证
-- **BASE_URL**：必需，API服务器地址
-- **MODEL**：必需，具体的模型名称
+- **Suffix**: Only letters (a-z, A-Z), numbers (0-9), underscores (_), hyphens (-), maximum 50 characters
+- **API_KEY**: Required for API authentication
+- **BASE_URL**: Required, API service base URL
+- **MODEL**: Required, specific model name
 
-### 后缀名命名示例
+### Configuration Examples
 
-| 模型服务 | 推荐后缀名 | 环境变量示例 | 显示名称 |
-|---------|-----------|-------------|----------|
-| Qwen3 | `qwen3` | `VITE_CUSTOM_API_KEY_qwen3` | Qwen3 |
-| Qwen2.5 | `qwen2_5` 或 `qwen25` | `VITE_CUSTOM_API_KEY_qwen2_5` | Qwen2 5 |
-| Claude本地 | `claude_local` | `VITE_CUSTOM_API_KEY_claude_local` | Claude Local |
-| GPT本地 | `gpt_local` | `VITE_CUSTOM_API_KEY_gpt_local` | Gpt Local |
-| 自定义LLM | `my_llm` | `VITE_CUSTOM_API_KEY_my_llm` | My Llm |
-| 公司内部模型 | `company_ai` | `VITE_CUSTOM_API_KEY_company_ai` | Company Ai |
-
-**命名规则：**
-- ✅ **允许**：字母（a-z, A-Z）、数字（0-9）、下划线（_）、连字符（-）
-- ❌ **不允许**：点号（.）、空格、特殊符号等
-- 💡 **建议**：使用小写字母，用下划线分隔单词（如：`qwen2_5`、`claude_local`）
-- 📏 **长度限制**：最多50个字符
-
-### 限制说明
-
-- **字符限制**：后缀名只能包含 `a-z A-Z 0-9 _ -`，不支持点号、空格等特殊字符
-- **长度限制**：最大50个字符
-- **冲突检查**：不能与现有静态模型名冲突（如：openai, gemini, deepseek, zhipu, siliconflow, custom）
-- **完整性要求**：所有三个配置项都必须提供，缺少任何一项都会跳过该模型
-
-### 配置示例
+#### Example 1: Local Ollama Models
 
 ```bash
-# 原有配置（保持兼容）
-VITE_CUSTOM_API_KEY=default-custom-key
-VITE_CUSTOM_API_BASE_URL=http://localhost:11434/v1
-VITE_CUSTOM_API_MODEL=default-model
+# Qwen 2.5 Model
+VITE_CUSTOM_API_KEY_qwen25=ollama-dummy-key
+VITE_CUSTOM_API_BASE_URL_qwen25=http://localhost:11434/v1
+VITE_CUSTOM_API_MODEL_qwen25=qwen2.5:7b
 
-# Ollama Qwen3 模型
-VITE_CUSTOM_API_KEY_qwen3=ollama-qwen3-key
-VITE_CUSTOM_API_BASE_URL_qwen3=http://localhost:11434/v1
-VITE_CUSTOM_API_MODEL_qwen3=qwen3:8b
-
-# Ollama Qwen2.5 模型（使用下划线分隔版本号）
-VITE_CUSTOM_API_KEY_qwen2_5=ollama-qwen25-key
-VITE_CUSTOM_API_BASE_URL_qwen2_5=http://localhost:11434/v1
-VITE_CUSTOM_API_MODEL_qwen2_5=qwen2.5:14b
-
-# 本地 Claude 兼容服务
-VITE_CUSTOM_API_KEY_claude_local=claude-local-key
-VITE_CUSTOM_API_BASE_URL_claude_local=http://localhost:8080/v1
-VITE_CUSTOM_API_MODEL_claude_local=claude-3-sonnet
-
-# 其他自建 API 服务
-VITE_CUSTOM_API_KEY_my_llm=my-llm-api-key
-VITE_CUSTOM_API_BASE_URL_my_llm=https://my-api.example.com/v1
-VITE_CUSTOM_API_MODEL_my_llm=my-custom-model
-```
-
-## UI 显示效果
-
-配置的模型会在模型选择下拉框中显示为：
-
-- **Custom** (原有配置)
-- **Qwen3** (来自 custom_qwen3)
-- **Qwen2 5** (来自 custom_qwen2_5)
-- **Claude Local** (来自 custom_claude_local)
-- **My Llm** (来自 custom_my_llm)
-
-后缀名会自动格式化为友好的显示名称：
-- 下划线和连字符会被替换为空格
-- 每个单词首字母自动大写
-- 例如：`qwen2_5` → `Qwen2 5`，`claude_local` → `Claude Local`
-
-## 部署方式配置
-
-### Web 开发环境
-
-在项目根目录的 `.env.local` 文件中添加配置：
-
-```bash
-VITE_CUSTOM_API_KEY_qwen3=your-qwen-key
+# Qwen 3 Model
+VITE_CUSTOM_API_KEY_qwen3=ollama-dummy-key
 VITE_CUSTOM_API_BASE_URL_qwen3=http://localhost:11434/v1
 VITE_CUSTOM_API_MODEL_qwen3=qwen3:8b
 ```
 
-### Desktop 应用
-
-设置系统环境变量或在启动时指定：
+#### Example 2: Cloud API Services
 
 ```bash
-# Windows
-set VITE_CUSTOM_API_KEY_qwen3=your-qwen-key
-npm run desktop
+# Claude API
+VITE_CUSTOM_API_KEY_claude=sk-ant-your-claude-key
+VITE_CUSTOM_API_BASE_URL_claude=https://api.anthropic.com/v1
+VITE_CUSTOM_API_MODEL_claude=claude-3-sonnet-20240229
 
-# macOS/Linux
-export VITE_CUSTOM_API_KEY_qwen3=your-qwen-key
-npm run desktop
+# Custom OpenAI Compatible Service
+VITE_CUSTOM_API_KEY_custom=your-custom-api-key
+VITE_CUSTOM_API_BASE_URL_custom=https://api.example.com/v1
+VITE_CUSTOM_API_MODEL_custom=custom-model-name
 ```
 
-### Docker 部署
+#### Example 3: Mixed Configuration
 
-#### 方式1：环境变量参数
+```bash
+# Local model
+VITE_CUSTOM_API_KEY_local=dummy-key
+VITE_CUSTOM_API_BASE_URL_local=http://localhost:11434/v1
+VITE_CUSTOM_API_MODEL_local=llama2:7b
+
+# Cloud service
+VITE_CUSTOM_API_KEY_cloud=real-api-key
+VITE_CUSTOM_API_BASE_URL_cloud=https://api.service.com/v1
+VITE_CUSTOM_API_MODEL_cloud=gpt-4-turbo
+
+# Development environment
+VITE_CUSTOM_API_KEY_dev=dev-api-key
+VITE_CUSTOM_API_BASE_URL_dev=https://dev-api.example.com/v1
+VITE_CUSTOM_API_MODEL_dev=dev-model
+```
+
+## Deployment Methods
+
+### Web Development Environment
+
+Create `.env.local` file in project root:
+
+```bash
+# Basic models
+VITE_OPENAI_API_KEY=your-openai-key
+VITE_GEMINI_API_KEY=your-gemini-key
+
+# Custom models
+VITE_CUSTOM_API_KEY_ollama=dummy-key
+VITE_CUSTOM_API_BASE_URL_ollama=http://localhost:11434/v1
+VITE_CUSTOM_API_MODEL_ollama=qwen2.5:7b
+```
+
+### Docker Deployment
+
+#### Method 1: Environment Variables
 
 ```bash
 docker run -d -p 8081:80 \
@@ -135,17 +107,17 @@ docker run -d -p 8081:80 \
   -e VITE_CUSTOM_API_KEY_ollama=dummy-key \
   -e VITE_CUSTOM_API_BASE_URL_ollama=http://host.docker.internal:11434/v1 \
   -e VITE_CUSTOM_API_MODEL_ollama=qwen2.5:7b \
-  -e VITE_CUSTOM_API_KEY_qwen3=your-qwen3-key \
-  -e VITE_CUSTOM_API_BASE_URL_qwen3=http://host.docker.internal:11434/v1 \
-  -e VITE_CUSTOM_API_MODEL_qwen3=qwen3:8b \
+  -e VITE_CUSTOM_API_KEY_claude=your-claude-key \
+  -e VITE_CUSTOM_API_BASE_URL_claude=https://api.anthropic.com/v1 \
+  -e VITE_CUSTOM_API_MODEL_claude=claude-3-sonnet \
   --restart unless-stopped \
   --name prompt-optimizer \
   linshen/prompt-optimizer
 ```
 
-#### 方式2：环境变量文件
+#### Method 2: Environment File
 
-创建 `.env` 文件：
+Create `.env` file:
 
 ```bash
 VITE_OPENAI_API_KEY=your-openai-key
@@ -157,7 +129,7 @@ VITE_CUSTOM_API_BASE_URL_qwen3=http://host.docker.internal:11434/v1
 VITE_CUSTOM_API_MODEL_qwen3=qwen3:8b
 ```
 
-使用环境变量文件运行：
+Run with environment file:
 
 ```bash
 docker run -d -p 8081:80 --env-file .env \
@@ -166,75 +138,154 @@ docker run -d -p 8081:80 --env-file .env \
   linshen/prompt-optimizer
 ```
 
-#### 方式3：Docker Compose
+#### Method 3: Docker Compose
 
-修改 `docker-compose.yml` 添加 `env_file` 配置：
+Modify `docker-compose.yml` to add `env_file` configuration:
 
 ```yaml
 services:
   prompt-optimizer:
     image: linshen/prompt-optimizer:latest
     env_file:
-      - .env  # 从 .env 文件读取环境变量
+      - .env  # Read environment variables from .env file
     ports:
       - "8081:80"
     restart: unless-stopped
 ```
 
-然后在 `.env` 文件中配置变量（同方式2）。
+Then configure variables in `.env` file (same as Method 2).
 
-### MCP 服务器
+### Desktop Application
 
-MCP 服务器会自动识别所有配置的自定义模型。可以通过 `MCP_DEFAULT_MODEL_PROVIDER` 指定首选模型：
+Desktop version automatically reads environment variables from system or `.env.local` file.
 
+### MCP Server
+
+MCP server supports all custom model configurations and automatically maps environment variables.
+
+## Model Name Display
+
+The system automatically converts suffix names to friendly display names:
+
+| Suffix | Display Name |
+|--------|--------------|
+| `qwen25` | Qwen25 |
+| `claude_local` | Claude Local |
+| `my_model_v2` | My Model V2 |
+| `test123` | Test123 |
+
+## Advanced Configuration
+
+### Suffix Naming Best Practices
+
+**Recommended**:
+- `ollama` - Local Ollama service
+- `claude` - Claude API
+- `qwen25` - Qwen 2.5 model
+- `local_llama` - Local Llama model
+- `dev_model` - Development environment model
+
+**Not Recommended**:
+- `model.v1` - Contains dots
+- `my model` - Contains spaces
+- `test@api` - Contains special characters
+
+### Configuration Validation
+
+The system automatically validates configurations:
+
+1. **Suffix Format Check**: Only allows valid characters
+2. **Required Fields Check**: Ensures all three environment variables are present
+3. **URL Format Check**: Validates BASE_URL format
+4. **Conflict Detection**: Prevents conflicts with built-in model names
+
+### Error Handling
+
+- **Incomplete Configuration**: Automatically ignored, doesn't affect other models
+- **Invalid Suffix**: Configuration skipped with warning log
+- **Duplicate Suffix**: Later configuration overwrites earlier one
+- **Network Issues**: Individual model failures don't affect system stability
+
+## Troubleshooting
+
+### Common Issues
+
+#### Q: Custom model not appearing in interface?
+
+A: Check the following:
+1. All three environment variables configured correctly
+2. Suffix name follows naming rules
+3. No conflicts with built-in model names
+4. Application restarted after configuration changes
+
+#### Q: Model connection test fails?
+
+A: Verify:
+1. BASE_URL is accessible
+2. API_KEY is valid
+3. MODEL name exists in the service
+4. Network connectivity is normal
+
+#### Q: How to check if configuration is loaded correctly?
+
+A: Check browser console or application logs for:
+```
+[scanCustomModelEnvVars] Found X valid custom models: [model1, model2, ...]
+[generateDynamicModels] Generated model: custom_modelname (Display Name)
+```
+
+### Performance Optimization
+
+- **Configuration Caching**: Configurations are cached at startup, restart required for changes
+- **Validation Optimization**: Single-point validation reduces redundant checks by 66%
+- **Dynamic Loading**: Models are loaded on-demand to improve startup performance
+
+## FAQ
+
+### Q: How many custom models can be configured?
+
+A: Theoretically unlimited, but recommend reasonable configuration based on actual needs to avoid UI clutter.
+
+### Q: How to remove unwanted custom models?
+
+A: Remove corresponding environment variables and restart the application.
+
+### Q: Do custom models support all features?
+
+A: Yes, custom models support all features including prompt optimization, comparison testing, etc.
+
+### Q: How to configure models for different environments?
+
+A: Use different suffixes for different environments:
 ```bash
-# 使用特定的自定义模型
-MCP_DEFAULT_MODEL_PROVIDER=custom_qwen3
+# Production
+VITE_CUSTOM_API_KEY_prod=prod-key
+VITE_CUSTOM_API_BASE_URL_prod=https://prod-api.com/v1
+VITE_CUSTOM_API_MODEL_prod=prod-model
+
+# Development
+VITE_CUSTOM_API_KEY_dev=dev-key
+VITE_CUSTOM_API_BASE_URL_dev=https://dev-api.com/v1
+VITE_CUSTOM_API_MODEL_dev=dev-model
 ```
 
-## 常见问题
+## Technical Details
 
-### Q: 如何验证配置是否正确？
+- Model key format: `custom_<suffix>`
+- Configuration validation: Automatic checks for suffix format, API key, baseURL, etc.
+- Error tolerance: Individual configuration errors don't affect other models
+- Default values: Reasonable defaults ensure system stability
 
-A: 启动应用后，检查控制台日志。成功配置的模型会显示类似信息：
-```
-[scanCustomModelEnvVars] Found 2 custom models: qwen3, claude_local
-[generateDynamicModels] Generated model: custom_qwen3 (Qwen3)
-```
+## Changelog
 
-### Q: 配置错误时会发生什么？
+- **v1.2.6**: Code quality fixes and performance optimization
+  - Fixed MCP Server case conversion bug for more accurate environment variable mapping
+  - Optimized configuration validation logic with 66% performance improvement
+  - Resolved ValidationResult interface conflicts, improved type safety
+  - Implemented dynamic static model key retrieval with automatic synchronization
+  - All fixes thoroughly tested to ensure cross-environment consistency
 
-A: 系统会输出详细的错误信息，但不会影响其他模型的正常使用：
-```
-[scanCustomModelEnvVars] Skipping invalid_suffix due to validation errors:
-  - Invalid suffix format: invalid$suffix
-```
-
-### Q: 可以配置多少个自定义模型？
-
-A: 理论上没有限制，但建议根据实际需要合理配置，避免UI界面过于拥挤。
-
-### Q: 如何删除不需要的自定义模型？
-
-A: 删除对应的环境变量并重启应用即可。
-
-## 技术细节
-
-- 模型key格式：`custom_<suffix>`
-- 配置验证：自动检查后缀名格式、API密钥、baseURL等
-- 容错处理：单个配置错误不影响其他模型
-- 默认值：提供合理的默认配置，确保系统稳定性
-
-## 更新日志
-
-- **v1.2.6**: 代码质量修复和性能优化
-  - 修复MCP Server大小写转换Bug，环境变量映射更准确
-  - 优化配置验证逻辑，性能提升66%
-  - 解决ValidationResult接口冲突，提升类型安全
-  - 实现静态模型键动态获取，自动同步更新
-  - 所有修复经过全面测试，确保跨环境一致性
-
-- **v1.4.0**: 新增多自定义模型支持
-  - 完全向后兼容原有配置
-  - 支持所有部署方式
-  - 添加配置验证和容错处理
+- **v1.4.0**: Added multiple custom models support
+  - Fully backward compatible with existing configurations
+  - Support all deployment methods
+  - Added configuration validation and error handling

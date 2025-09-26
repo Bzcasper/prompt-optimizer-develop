@@ -1,62 +1,62 @@
-# 模板管理故障排除清单
+# Template Management Troubleshooting Checklist
 
-## 常见问题和解决方案
+## Common Issues and Solutions
 
-### 1. 模板删除错误："Template not found"
+### 1. Template Deletion Error: "Template not found"
 
-**症状：**
-- 删除模板时出现 `TemplateError: Template not found: template-xxx` 错误
-- 错误通常在 `index.js:1683` 行抛出
+**Symptoms:**
+- An error `TemplateError: Template not found: template-xxx` occurs when deleting a template.
+- The error is typically thrown at line `index.js:1683`.
 
-**原因：**
-- 异步方法调用缺少 `await` 关键字
-- 时序问题：`deleteTemplate` 和 `loadTemplates` 并发执行
-- 模板在删除过程中被其他操作访问
+**Causes:**
+- Missing `await` keyword in asynchronous method calls.
+- Timing issue: `deleteTemplate` and `loadTemplates` are executed concurrently.
+- The template is accessed by other operations during the deletion process.
 
-**解决方案：**
-1. 确保所有异步模板操作都使用 `await`：
+**Solutions:**
+1. Ensure all asynchronous template operations use `await`:
    ```javascript
-   // ❌ 错误
+   // ❌ Incorrect
    getTemplateManager.value.deleteTemplate(templateId)
    await loadTemplates()
    
-   // ✅ 正确
+   // ✅ Correct
    await getTemplateManager.value.deleteTemplate(templateId)
    await loadTemplates()
    ```
 
-2. 检查以下函数中的异步调用：
+2. Check asynchronous calls in the following functions:
    - `confirmDelete()`
    - `handleSubmit()`
    - `handleFileImport()`
    - `applyMigration()`
 
-### 2. 模板类型错误：在管理界面切换分类后添加模板类型仍然错误
+### 2. Template Type Error: Adding Template Type Still Incorrect After Switching Categories in Management Interface
 
-**症状：**
-- 在模板管理界面切换到用户提示词分类，但点击添加按钮仍然添加系统提示词模板
-- 添加的模板类型与当前显示的分类不匹配
+**Symptoms:**
+- Switch to user prompt category in the template management interface, but clicking the add button still adds a system prompt template.
+- The added template type does not match the currently displayed category.
 
-**原因：**
-- **核心问题**：`getCurrentTemplateType()` 函数返回固定的 `props.templateType`，不会随用户在管理界面内的分类切换而改变
-- 添加模板时使用的模板类型来源错误
+**Causes:**
+- **Core Issue**: The `getCurrentTemplateType()` function returns a fixed `props.templateType`, which does not change with the user's category switch in the management interface.
+- Incorrect source of the template type used when adding a template.
 
-**重要概念澄清：**
-- **模板管理界面的分类切换**：用户可以在管理界面内切换查看不同类型的模板
-- **添加按钮的行为**：应该根据当前显示的分类来决定添加什么类型的模板
-  - 当前显示系统提示词分类 → 添加系统提示词模板（`templateType: 'optimize'`）
-  - 当前显示用户提示词分类 → 添加用户提示词模板（`templateType: 'userOptimize'`）
-  - 当前显示迭代提示词分类 → 添加迭代提示词模板（`templateType: 'iterate'`）
+**Important Concept Clarification:**
+- **Category Switching in Template Management Interface**: Users can switch to view different types of templates in the management interface.
+- **Behavior of the Add Button**: It should determine what type of template to add based on the currently displayed category.
+  - Currently displayed system prompt category → Add system prompt template (`templateType: 'optimize'`)
+  - Currently displayed user prompt category → Add user prompt template (`templateType: 'userOptimize'`)
+  - Currently displayed iteration prompt category → Add iteration prompt template (`templateType: 'iterate'`)
 
-**解决方案：**
-1. 修正 `getCurrentTemplateType()` 函数，让它根据当前分类而不是props来决定：
+**Solutions:**
+1. Fix the `getCurrentTemplateType()` function to determine based on the current category instead of props:
    ```javascript
-   // ❌ 错误：使用固定的props值
+   // ❌ Incorrect: Using fixed props value
    function getCurrentTemplateType() {
      return props.templateType
    }
 
-   // ✅ 正确：根据当前分类决定
+   // ✅ Correct: Determine based on current category
    function getCurrentTemplateType() {
      switch (currentCategory.value) {
        case 'system-optimize': return 'optimize'
@@ -67,176 +67,176 @@
    }
    ```
 
-2. 确保分类切换按钮正确更新 `currentCategory`：
+2. Ensure the category switch button correctly updates `currentCategory`:
    ```javascript
    @click="currentCategory = 'user-optimize'"
    ```
 
-3. 验证添加模板时使用正确的模板类型：
+3. Verify that the correct template type is used when adding a template:
    ```javascript
-   templateType: getCurrentTemplateType() // 现在会根据当前分类返回正确的类型
+   templateType: getCurrentTemplateType() // Now returns the correct type based on the current category
    ```
 
-### 3. 模板管理器打开位置错误
+### 3. Incorrect Opening Position of Template Manager
 
-**症状：**
-- 从系统优化提示词下拉框点击管理，但打开的是其他分类
-- 从导航栏打开模板管理器，定位到错误的分类
-- 模板管理器的初始定位与打开来源不匹配
+**Symptoms:**
+- Clicking manage from the system optimization prompt dropdown opens another category.
+- Opening the template manager from the navigation bar locates to the wrong category.
+- The initial location of the template manager does not match the source of the opening.
 
-**原因：**
-- `currentCategory` 只在组件初始化时设置，不会响应 `props.templateType` 的变化
-- 从导航栏打开时使用了错误的默认逻辑
+**Causes:**
+- `currentCategory` is set only during component initialization and does not respond to changes in `props.templateType`.
+- Incorrect default logic used when opened from the navigation bar.
 
-**解决方案：**
-1. 添加对 `props.templateType` 变化的监听：
+**Solutions:**
+1. Add a watcher for changes in `props.templateType`:
    ```javascript
-   // 监听 props.templateType 变化，更新当前分类
+   // Watch for changes in props.templateType and update current category
    watch(() => props.templateType, (newTemplateType) => {
      currentCategory.value = getCategoryFromProps()
    }, { immediate: true })
    ```
 
-2. 修正导航栏打开的默认逻辑：
+2. Fix the default logic for opening from the navigation bar:
    ```javascript
-   // ❌ 错误：根据当前优化模式决定
+   // ❌ Incorrect: Deciding based on current optimization mode
    const openTemplateManager = (templateType?: string) => {
      currentTemplateManagerType.value = templateType || (selectedOptimizationMode.value === 'system' ? 'optimize' : 'userOptimize')
    }
 
-   // ✅ 正确：默认为系统优化提示词
+   // ✅ Correct: Default to system optimization prompt
    const openTemplateManager = (templateType?: string) => {
      currentTemplateManagerType.value = templateType || 'optimize'
    }
    ```
 
-3. 确保正确的定位规则：
-   - 从系统优化提示词下拉框 → 定位到系统优化提示词分类
-   - 从用户优化提示词下拉框 → 定位到用户优化提示词分类
-   - 从迭代提示词下拉框 → 定位到迭代提示词分类
-   - 从导航栏 → 定位到系统优化提示词分类（默认第一个）
+3. Ensure correct positioning rules:
+   - From system optimization prompt dropdown → Locate to system optimization prompt category.
+   - From user optimization prompt dropdown → Locate to user optimization prompt category.
+   - From iteration prompt dropdown → Locate to iteration prompt category.
+   - From navigation bar → Locate to system optimization prompt category (default first).
 
-### 4. 模板保存失败
+### 4. Template Save Failure
 
-**症状：**
-- 保存模板时出现错误
-- 模板列表没有更新
+**Symptoms:**
+- An error occurs when saving a template.
+- The template list does not update.
 
-**检查项：**
-- [ ] `saveTemplate()` 调用是否使用了 `await`
-- [ ] `loadTemplates()` 调用是否使用了 `await`
-- [ ] 模板数据格式是否正确
-- [ ] 模板ID是否符合格式要求（至少3个字符，只包含小写字母、数字和连字符）
+**Checklist:**
+- [ ] Is `saveTemplate()` called with `await`?
+- [ ] Is `loadTemplates()` called with `await`?
+- [ ] Is the template data format correct?
+- [ ] Does the template ID meet format requirements (at least 3 characters, only lowercase letters, numbers, and hyphens)?
 
-### 5. 模板导入失败
+### 5. Template Import Failure
 
-**症状：**
-- 导入JSON文件时出现错误
-- 导入后模板列表没有更新
+**Symptoms:**
+- An error occurs when importing a JSON file.
+- The template list does not update after import.
 
-**检查项：**
-- [ ] `importTemplate()` 调用是否使用了 `await`
-- [ ] `loadTemplates()` 调用是否使用了 `await`
-- [ ] JSON文件格式是否正确
-- [ ] 模板schema验证是否通过
+**Checklist:**
+- [ ] Is `importTemplate()` called with `await`?
+- [ ] Is `loadTemplates()` called with `await`?
+- [ ] Is the JSON file format correct?
+- [ ] Does the template schema validation pass?
 
-### 6. 架构设计原则
+### 6. Architectural Design Principles
 
-**服务依赖注入：**
-- [ ] 使用依赖注入而不是直接创建服务实例
-- [ ] 避免在UI组件中使用 `StorageFactory.createDefault()`
-- [ ] 确保服务实例在整个应用中保持一致
+**Service Dependency Injection:**
+- [ ] Use dependency injection instead of directly creating service instances.
+- [ ] Avoid using `StorageFactory.createDefault()` in UI components.
+- [ ] Ensure service instances remain consistent throughout the application.
 
-**错误处理：**
-- [ ] 立即抛出异常而不是静默处理
-- [ ] 避免掩盖问题的重试机制
-- [ ] 在服务检查失败时快速失败
+**Error Handling:**
+- [ ] Throw exceptions immediately instead of handling them silently.
+- [ ] Avoid retry mechanisms that obscure issues.
+- [ ] Fail fast when service checks fail.
 
-**异步操作：**
-- [ ] 所有异步方法调用都使用 `await`
-- [ ] 避免并发执行可能冲突的操作
-- [ ] 确保操作顺序的正确性
+**Asynchronous Operations:**
+- [ ] All asynchronous method calls must use `await`.
+- [ ] Avoid concurrent execution of potentially conflicting operations.
+- [ ] Ensure the correctness of operation order.
 
-### 7. 代码审查清单
+### 7. Code Review Checklist
 
-**模板管理相关代码审查时检查：**
-- [ ] 所有 `templateManager` 方法调用是否正确使用 `await`
-- [ ] 异步函数是否正确声明为 `async`
-- [ ] 错误处理是否完整
-- [ ] 是否有竞态条件的风险
-- [ ] 模板ID生成和验证逻辑是否正确
-- [ ] 是否移除了有害的默认值
-- [ ] 优化模式是否正确传递给所有相关组件
+**Check during template management related code reviews:**
+- [ ] Are all `templateManager` method calls correctly using `await`?
+- [ ] Are asynchronous functions correctly declared as `async`?
+- [ ] Is error handling complete?
+- [ ] Is there a risk of race conditions?
+- [ ] Is the template ID generation and validation logic correct?
+- [ ] Have harmful default values been removed?
+- [ ] Is the optimization mode correctly passed to all relevant components?
 
-### 8. 测试建议
+### 8. Testing Recommendations
 
-**单元测试：**
-- [ ] 测试模板CRUD操作的异步行为
-- [ ] 测试错误情况下的异常处理
-- [ ] 测试并发操作的安全性
+**Unit Tests:**
+- [ ] Test asynchronous behavior of template CRUD operations.
+- [ ] Test exception handling in error scenarios.
+- [ ] Test safety of concurrent operations.
 
-**集成测试：**
-- [ ] 测试完整的模板管理流程
-- [ ] 测试UI组件与服务层的交互
-- [ ] 测试Electron环境下的IPC通信
+**Integration Tests:**
+- [ ] Test the complete template management process.
+- [ ] Test interaction between UI components and service layer.
+- [ ] Test IPC communication in the Electron environment.
 
-### 9. 内置模板语言切换后迭代页面模板选择不更新
+### 9. Iteration Page Template Selection Not Updating After Built-in Template Language Switch
 
-**症状：**
-- 在模板管理界面切换内置模板语言后，主界面的优化提示词下拉框正确更新
-- 但执行优化后点击"继续优化"，迭代页面的模板选择显示旧语言的模板名称
-- 下拉列表已更新为新语言，但当前选中项还是旧语言
-- 实际发送请求时生效的是新语言（因为通过templateId重新获取）
+**Symptoms:**
+- After switching built-in template languages in the template management interface, the dropdown for optimization prompts on the main interface updates correctly.
+- However, after executing optimization and clicking "Continue Optimization," the template selection on the iteration page displays the old language's template name.
+- The dropdown list has updated to the new language, but the currently selected item is still the old language.
+- The new language takes effect when sending requests (because it is retrieved again via templateId).
 
-**根本原因：**
-- **事件传播路径不同**：主界面和迭代页面的TemplateSelect组件在不同的层级
-- **组件层级差异**：
-  - 主界面：`App.vue → TemplateSelectUI`（直接引用）
-  - 迭代页面：`App.vue → PromptPanelUI → TemplateSelect`（间接引用）
-- **刷新机制缺失**：语言切换事件无法传播到深层的TemplateSelect组件
+**Root Cause:**
+- **Different Event Propagation Paths**: The TemplateSelect components on the main interface and iteration page are at different levels.
+- **Component Hierarchy Differences**:
+  - Main Interface: `App.vue → TemplateSelectUI` (direct reference)
+  - Iteration Page: `App.vue → PromptPanelUI → TemplateSelect` (indirect reference)
+- **Lack of Refresh Mechanism**: Language switch events cannot propagate to the deeper TemplateSelect component.
 
-**详细分析：**
-1. **主界面正常的原因**：
-   - 在TemplateManager关闭时会自动调用 `templateSelectRef?.refresh?.()`
-   - 组件层级简单，事件传播路径短
-   - 有直接的引用和刷新机制
+**Detailed Analysis:**
+1. **Reason for Normal Behavior on Main Interface**:
+   - When TemplateManager closes, it automatically calls `templateSelectRef?.refresh?.()`.
+   - The component hierarchy is simple, and the event propagation path is short.
+   - There is a direct reference and refresh mechanism.
 
-2. **迭代页面异常的原因**：
-   - 迭代页面的TemplateSelect没有被包含在语言切换的刷新逻辑中
-   - 组件层级更深，需要额外的事件传播机制
-   - 之前没有建立完整的事件传播链
+2. **Reason for Abnormal Behavior on Iteration Page**:
+   - The TemplateSelect on the iteration page is not included in the refresh logic for language switching.
+   - The component hierarchy is deeper, requiring additional event propagation mechanisms.
+   - A complete event propagation chain was not previously established.
 
-**解决方案：**
-1. **建立事件传播链**：
+**Solutions:**
+1. **Establish Event Propagation Chain**:
    ```javascript
-   // TemplateManager.vue - 发出语言变化事件
+   // TemplateManager.vue - Emit language change event
    const handleLanguageChanged = async (newLanguage: string) => {
-     // ... 现有逻辑 ...
+     // ... existing logic ...
 
-     // 发出语言变化事件，通知父组件
+     // Emit language change event to notify parent component
      emit('languageChanged', newLanguage)
    }
    ```
 
-2. **App.vue处理事件并传播**：
+2. **Handle Event in App.vue and Propagate**:
    ```javascript
-   // 处理模板语言变化
+   // Handle template language change
    const handleTemplateLanguageChanged = (newLanguage: string) => {
-     // 刷新主界面的模板选择组件
+     // Refresh the template selection component on the main interface
      if (templateSelectRef.value?.refresh) {
        templateSelectRef.value.refresh()
      }
 
-     // 刷新迭代页面的模板选择组件
+     // Refresh the template selection component on the iteration page
      if (promptPanelRef.value?.refreshIterateTemplateSelect) {
        promptPanelRef.value.refreshIterateTemplateSelect()
      }
    }
    ```
 
-3. **PromptPanel暴露刷新方法**：
+3. **Expose Refresh Method in PromptPanel**:
    ```javascript
-   // PromptPanel.vue - 暴露刷新迭代模板的方法
+   // PromptPanel.vue - Expose method to refresh iteration templates
    const refreshIterateTemplateSelect = () => {
      if (iterateTemplateSelectRef.value?.refresh) {
        iterateTemplateSelectRef.value.refresh()
@@ -248,49 +248,49 @@
    })
    ```
 
-**修复验证：**
-- [x] 语言切换事件正确传播到所有TemplateSelect组件
-- [x] 迭代页面的下拉列表正确更新为新语言
-- [x] 用户可以在迭代页面选择正确语言的模板
-- [x] 主界面和迭代页面行为一致
+**Fix Verification:**
+- [x] Language switch events correctly propagate to all TemplateSelect components.
+- [x] The dropdown list on the iteration page correctly updates to the new language.
+- [x] Users can select templates in the correct language on the iteration page.
+- [x] Main interface and iteration page behaviors are consistent.
 
-**经验总结：**
-1. **组件层级影响事件传播**：深层组件需要额外的事件传播机制
-2. **统一刷新机制**：所有相关组件都应该有统一的刷新接口
-3. **完整的事件链**：确保事件能够传播到所有需要响应的组件
-4. **架构一致性**：相同功能的组件应该有相同的响应机制
+**Experience Summary:**
+1. **Component Hierarchy Affects Event Propagation**: Deeper components require additional event propagation mechanisms.
+2. **Unified Refresh Mechanism**: All related components should have a unified refresh interface.
+3. **Complete Event Chain**: Ensure events can propagate to all components that need to respond.
+4. **Architectural Consistency**: Components with the same functionality should have the same response mechanisms.
 
-### 10. 监控和调试
+### 10. Monitoring and Debugging
 
-**日志记录：**
-- [ ] 记录模板操作的开始和结束
-- [ ] 记录异步操作的时序
-- [ ] 记录错误的详细上下文
+**Logging:**
+- [ ] Log the start and end of template operations.
+- [ ] Log the timing of asynchronous operations.
+- [ ] Log detailed context of errors.
 
-**调试技巧：**
-- [ ] 使用浏览器开发者工具检查异步调用栈
-- [ ] 检查模板管理器的初始化状态
-- [ ] 验证模板数据的完整性
+**Debugging Tips:**
+- [ ] Use browser developer tools to inspect asynchronous call stacks.
+- [ ] Check the initialization state of the template manager.
+- [ ] Validate the integrity of template data.
 
-## 预防措施
+## Preventive Measures
 
-1. **代码规范：**
-   - 所有异步模板操作必须使用 `await`
-   - 异步函数必须声明为 `async`
-   - 错误处理必须完整
-   - 移除所有有害的默认值，特别是优化模式相关的默认值
+1. **Code Standards:**
+   - All asynchronous template operations must use `await`.
+   - Asynchronous functions must be declared as `async`.
+   - Error handling must be complete.
+   - Remove all harmful default values, especially those related to optimization modes.
 
-2. **架构原则：**
-   - 使用依赖注入管理服务实例
-   - 避免在UI层直接创建服务
-   - 保持服务实例的一致性
+2. **Architectural Principles:**
+   - Use dependency injection to manage service instances.
+   - Avoid directly creating services in the UI layer.
+   - Maintain consistency of service instances.
 
-3. **测试覆盖：**
-   - 为所有模板操作编写单元测试
-   - 测试异步操作的正确性
-   - 测试错误情况的处理
+3. **Test Coverage:**
+   - Write unit tests for all template operations.
+   - Test the correctness of asynchronous operations.
+   - Test error handling scenarios.
 
-4. **代码审查：**
-   - 重点检查异步操作的正确性
-   - 验证错误处理的完整性
-   - 确保架构原则的遵循
+4. **Code Review:**
+   - Focus on checking the correctness of asynchronous operations.
+   - Verify the completeness of error handling.
+   - Ensure adherence to architectural principles.

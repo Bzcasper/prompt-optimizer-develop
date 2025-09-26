@@ -1,100 +1,100 @@
-# Advanced Mode Toggle 组件 Naive UI 迁移归档
+# Advanced Mode Toggle Component Naive UI Migration Archive
 
-> **归档时间**: 2025-09-04  
-> **项目阶段**: Naive UI 全面重构的收尾工作  
-> **任务性质**: 组件库标准化迁移  
+> **Archive Date**: 2025-09-04  
+> **Project Stage**: Finalization of Naive UI comprehensive refactoring  
+> **Task Nature**: Component library standardization migration  
 
-## 📋 项目概述
+## 📋 Project Overview
 
-这是 Prompt Optimizer 项目中最后一个需要从原生HTML组件迁移到 Naive UI 的组件。AdvancedModeToggle 组件负责控制应用的高级模式开关，是用户界面中的重要交互元素。
+This is the last component in the Prompt Optimizer project that needs to be migrated from native HTML components to Naive UI. The AdvancedModeToggle component is responsible for controlling the advanced mode switch of the application and is an important interactive element in the user interface.
 
-通过完成此迁移，项目实现了 **100% Naive UI 组件覆盖率**，完成了整个UI框架现代化升级的最后一环。
+By completing this migration, the project achieved **100% Naive UI component coverage**, marking the final step in the modernization upgrade of the entire UI framework.
 
-## 🎯 迁移目标与成果
+## 🎯 Migration Goals and Achievements
 
-### 主要目标
-- [x] 将原生 `<button>` 替换为 `<NButton>` 组件
-- [x] 移除所有自定义CSS，完全集成 Naive UI 主题系统  
-- [x] 保持100%向后兼容的Props和Events接口
-- [x] 实现响应式设计，支持移动端显示优化
-- [x] 添加加载状态管理，防止重复点击
+### Main Goals
+- [x] Replace native `<button>` with `<NButton>` component
+- [x] Remove all custom CSS and fully integrate with the Naive UI theme system  
+- [x] Maintain 100% backward compatibility for Props and Events interfaces
+- [x] Implement responsive design to support mobile display optimization
+- [x] Add loading state management to prevent repeated clicks
 
-### 核心成果
-✅ **完整迁移**: 从98行自定义CSS代码缩减到12行样式  
-✅ **主题集成**: 完全适配5种Naive UI内置主题  
-✅ **响应式优化**: 移动端自动隐藏文字显示图标  
-✅ **用户体验**: 添加loading状态和hover动画效果  
-✅ **向后兼容**: 保持现有Props和Events接口不变  
+### Core Achievements
+✅ **Complete Migration**: Reduced custom CSS code from 98 lines to 12 lines  
+✅ **Theme Integration**: Fully compatible with 5 built-in Naive UI themes  
+✅ **Responsive Optimization**: Automatically hides text on mobile while displaying icons  
+✅ **User Experience**: Added loading state and hover animation effects  
+✅ **Backward Compatibility**: Maintained existing Props and Events interfaces unchanged  
 
-## 📊 技术指标对比
+## 📊 Technical Metrics Comparison
 
-### 迁移前 vs 迁移后
+### Before Migration vs After Migration
 
-| 指标 | 迁移前 | 迁移后 | 改善 |
-|------|--------|--------|------|
-| 代码行数 | 142行 | 87行 | -38.7% |
-| CSS样式 | 98行 | 12行 | -87.8% |
-| 主题支持 | 2种 | 5种 | +150% |
-| 响应式支持 | 手动CSS | 自动适配 | 质的提升 |
-| 加载状态 | 无 | 完整支持 | 新增功能 |
+| Metric | Before Migration | After Migration | Improvement |
+|--------|------------------|-----------------|-------------|
+| Code Lines | 142 lines | 87 lines | -38.7% |
+| CSS Styles | 98 lines | 12 lines | -87.8% |
+| Theme Support | 2 types | 5 types | +150% |
+| Responsive Support | Manual CSS | Automatic adaptation | Qualitative improvement |
+| Loading State | None | Full support | New feature |
 
-### 关键改进亮点
-1. **代码简化**: CSS代码从98行减少到12行，删除了所有自定义主题变量
-2. **主题一致性**: 完全使用Naive UI的primary/default类型和ghost属性
-3. **交互优化**: 添加了loading状态防重复点击，hover动画效果
-4. **移动端友好**: 使用Tailwind的 `max-md:hidden` 实现响应式文字隐藏
+### Key Improvement Highlights
+1. **Code Simplification**: CSS code reduced from 98 lines to 12 lines, removing all custom theme variables
+2. **Theme Consistency**: Fully utilizes Naive UI's primary/default types and ghost attributes
+3. **Interaction Optimization**: Added loading state to prevent repeated clicks and hover animation effects
+4. **Mobile-Friendly**: Used Tailwind's `max-md:hidden` to achieve responsive text hiding
 
-## 🔧 实施过程记录
+## 🔧 Implementation Process Record
 
-### Git提交历史
-1. **主要迁移** (9d3d9c7): `feat: 完成AdvancedModeToggle组件Naive UI迁移`
-2. **相关修复** (bb2af6a): `feat: 完善Toast组件架构并消除inject()上下文错误`
+### Git Commit History
+1. **Main Migration** (9d3d9c7): `feat: Completed AdvancedModeToggle component Naive UI migration`
+2. **Related Fixes** (bb2af6a): `feat: Improved Toast component architecture and eliminated inject() context errors`
 
-### 关键技术决策
-- **组件选择**: 使用 `NButton` 而不是 `NSwitch`，保持按钮交互模式
-- **类型系统**: 动态计算 `buttonType` (primary/default) 基于启用状态  
-- **状态指示**: 使用绝对定位的小圆点替代复杂的CSS变量系统
-- **图标处理**: 保留SVG图标但通过 `template #icon` 集成到Naive UI
+### Key Technical Decisions
+- **Component Choice**: Used `NButton` instead of `NSwitch` to maintain button interaction mode
+- **Type System**: Dynamically calculate `buttonType` (primary/default) based on enabled status  
+- **State Indication**: Used an absolutely positioned small dot to replace a complex CSS variable system
+- **Icon Handling**: Retained SVG icons but integrated them into Naive UI through `template #icon`
 
-## ⚠️ 重要经验教训
+## ⚠️ Important Lessons Learned
 
-### 1. 依赖导出的重要性
-**问题**: 在迁移过程中发现 `NFlex` 组件导入失败  
-**根因**: packages/ui/src/index.ts 缺少 `NFlex` 的重导出  
-**解决**: 在第二次提交中补充了 `export { NFlex } from 'naive-ui'`  
-**教训**: 迁移时需要检查所有相关组件的导出状态，避免运行时错误  
+### 1. Importance of Exporting Dependencies
+**Issue**: During migration, `NFlex` component import failed  
+**Root Cause**: Missing re-export of `NFlex` in packages/ui/src/index.ts  
+**Solution**: Added `export { NFlex } from 'naive-ui'` in the second commit  
+**Lesson**: Check the export status of all related components during migration to avoid runtime errors  
 
-### 2. 上下文错误的连锁反应  
-**问题**: Toast组件的inject()上下文错误影响了整个迁移测试  
-**根因**: Naive UI的MessageProvider需要在正确的Vue上下文中初始化  
-**解决**: 重构了全局Toast架构，采用单例模式  
-**教训**: UI库迁移需要考虑全局状态和上下文的统一管理  
+### 2. Chain Reaction of Context Errors  
+**Issue**: The inject() context error in the Toast component affected the entire migration testing  
+**Root Cause**: Naive UI's MessageProvider needs to be initialized in the correct Vue context  
+**Solution**: Refactored the global Toast architecture to adopt a singleton pattern  
+**Lesson**: UI library migration requires consideration of unified management of global state and context  
 
-### 3. 响应式设计的平衡
-**成功实践**: 使用 `max-md:hidden` 实现移动端文字隐藏，保持图标可见  
-**关键决策**: 保持button形态而不是switch，符合现有用户交互习惯  
-**设计原则**: 在统一性和用户习惯之间找到最佳平衡点  
+### 3. Balancing Responsive Design
+**Successful Practice**: Used `max-md:hidden` to hide text on mobile while keeping icons visible  
+**Key Decision**: Maintained button form instead of switch to align with existing user interaction habits  
+**Design Principle**: Find the best balance between uniformity and user habits  
 
-## 📚 技术文档链接
+## 📚 Technical Documentation Links
 
-- [详细实施过程](./implementation.md)
-- [完整经验总结](./experience.md)  
-- [相关Spec工具记录](../../.spec-workflow/archived/advanced-mode-toggle-migration/)
+- [Detailed Implementation Process](./implementation.md)
+- [Complete Experience Summary](./experience.md)  
+- [Related Spec Tool Records](../../.spec-workflow/archived/advanced-mode-toggle-migration/)
 
-## 🎉 项目影响与价值
+## 🎉 Project Impact and Value
 
-### 直接价值
-- **完成度**: 实现项目100% Naive UI覆盖的最后一步
-- **维护性**: 消除自定义CSS维护负担，统一主题管理
-- **一致性**: 与项目中其他按钮组件保持完全一致的视觉和交互
+### Direct Value
+- **Completion**: Achieved the final step in the project's 100% Naive UI coverage
+- **Maintainability**: Eliminated the maintenance burden of custom CSS, unified theme management
+- **Consistency**: Maintained complete visual and interactive consistency with other button components in the project
 
-### 长远意义  
-- **技术债清理**: 完成UI框架标准化的最后环节
-- **开发效率**: 后续开发只需关注Naive UI组件，无需处理混合风格
-- **团队协作**: 为后续类似迁移任务提供了标准化的流程和经验
+### Long-term Significance  
+- **Technical Debt Clearance**: Completed the final step in standardizing the UI framework
+- **Development Efficiency**: Future development will only need to focus on Naive UI components, avoiding mixed styles
+- **Team Collaboration**: Provided a standardized process and experience for future similar migration tasks
 
 ---
 
-**归档状态**: 已完成 ✅  
-**后续维护**: 无需特殊维护，遵循标准Naive UI组件生命周期  
-**参考价值**: 为其他项目的UI框架迁移提供实战经验参考  
+**Archive Status**: Completed ✅  
+**Subsequent Maintenance**: No special maintenance required, follows standard Naive UI component lifecycle  
+**Reference Value**: Provides practical experience reference for UI framework migration in other projects

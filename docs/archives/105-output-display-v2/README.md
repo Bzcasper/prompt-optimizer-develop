@@ -1,43 +1,43 @@
-# 105-output-display-v2 - 输出显示v2
+# 105-output-display-v2 - Output Display v2
 
-## 概述
-输出显示功能的第二版设计和实现，提供更好的用户体验和功能扩展性。
+## Overview
+The second version of the output display feature is designed and implemented to provide a better user experience and functional extensibility.
 
-## 时间线
-- 开始时间：2024-12-30
-- 完成时间：2025-01-06
-- 状态：✅ 已完成
+## Timeline
+- Start Date: 2024-12-30
+- Completion Date: 2025-01-06
+- Status: ✅ Completed
 
-## 相关开发者
-- 主要开发者：项目团队
-- 设计师：项目团队
+## Related Developers
+- Main Developer: Project Team
+- Designer: Project Team
 
-## 文档清单
-- [x] `design.md` - 输出显示v2设计文档
-- [x] `implementation.md` - 实现记录
-- [x] `experience.md` - 开发经验总结（包含在implementation.md中）
+## Document List
+- [x] `design.md` - Output Display v2 Design Document
+- [x] `implementation.md` - Implementation Record
+- [x] `experience.md` - Development Experience Summary (included in implementation.md)
 
-## 相关代码变更
-- 影响包：@prompt-optimizer/ui, @prompt-optimizer/core
-- 主要变更：
-  - 输出显示界面重新设计（统一顶层工具栏）
-  - 交互体验优化（智能视图切换）
-  - CompareService 依赖注入架构完善
-  - 对比功能正常工作
+## Related Code Changes
+- Affected Packages: @prompt-optimizer/ui, @prompt-optimizer/core
+- Major Changes:
+  - Redesign of the output display interface (unified top-level toolbar)
+  - Interaction experience optimization (intelligent view switching)
+  - Improvement of CompareService dependency injection architecture
+  - Comparison functionality working properly
 
-## 后续影响
-- ✅ 提升用户体验（统一工具栏，智能切换）
-- ✅ 增强产品竞争力（对比功能正常工作）
-- ✅ 为后续功能扩展奠定基础（完善的依赖注入架构）
+## Subsequent Impact
+- ✅ Improved user experience (unified toolbar, intelligent switching)
+- ✅ Enhanced product competitiveness (comparison functionality working properly)
+- ✅ Laid the foundation for future functional expansion (complete dependency injection architecture)
 
-## 关键问题修复
+## Key Issue Fixes
 
-### CompareService 依赖注入不完整问题
-- **问题**：重构过程中子组件已修改但父组件未配套更新
-- **错误**：`CompareService is required but not provided`
-- **修复**：完善服务架构 + 父组件依赖注入
-- **验证**：手动测试确认对比功能正常工作
+### Incomplete Dependency Injection Issue for CompareService
+- **Issue**: Subcomponents were modified during refactoring, but the parent component was not updated accordingly.
+- **Error**: `CompareService is required but not provided`
+- **Fix**: Complete the service architecture + parent component dependency injection
+- **Verification**: Manual testing confirmed that the comparison functionality is working properly.
 
-## 相关功能点
-- 前置依赖：104-test-panel-refactor
-- 后续功能：106-template-management
+## Related Functional Points
+- Pre-requisite Dependency: 104-test-panel-refactor
+- Subsequent Functionality: 106-template-management

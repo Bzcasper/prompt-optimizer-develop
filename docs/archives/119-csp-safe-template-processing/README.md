@@ -1,175 +1,175 @@
-# 119-CSP安全模板处理 🔒
+# 119-CSP Security Template Processing 🔒
 
-## 📋 概述
+## 📋 Overview
 
-**问题**: 浏览器扩展环境中的严格内容安全策略(CSP)导致Handlebars模板编译失败，出现"unsafe-eval"错误。
+**Issue**: The strict Content Security Policy (CSP) in the browser extension environment causes Handlebars template compilation to fail, resulting in an "unsafe-eval" error.
 
-**解决方案**: 实现CSP兼容的模板处理器，在浏览器扩展环境中使用简单变量替换，其他环境保持完整Handlebars功能。
+**Solution**: Implement a CSP-compatible template processor that uses simple variable replacement in the browser extension environment, while maintaining full Handlebars functionality in other environments.
 
-**影响范围**: 
-- ✅ 修复：浏览器扩展模板功能正常工作
-- ✅ 保持：Web和Desktop应用完整功能不受影响
-- ✅ 增强：环境检测更加准确，避免Electron误判
+**Scope of Impact**: 
+- ✅ Fix: Browser extension template functionality works normally
+- ✅ Maintain: Full functionality of Web and Desktop applications is unaffected
+- ✅ Enhance: Environment detection is more accurate, avoiding false positives in Electron
 
-## 🚨 问题背景
+## 🚨 Problem Background
 
-### 错误现象
+### Error Phenomenon
 ```
 OptimizationError: Optimization failed: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
 ```
 
-### 根本原因
-1. **CSP限制**: 浏览器扩展manifest.json中设置了严格的CSP策略
-2. **动态编译**: `Handlebars.compile()`内部使用`Function`构造函数或`eval()`
-3. **环境差异**: 只有extension模块受影响，web/desktop模块正常
+### Root Cause
+1. **CSP Restriction**: A strict CSP policy is set in the browser extension manifest.json
+2. **Dynamic Compilation**: `Handlebars.compile()` internally uses the `Function` constructor or `eval()`
+3. **Environmental Differences**: Only the extension module is affected; web/desktop modules function normally
 
-### 技术细节
-- **问题位置**: `packages/core/src/services/template/processor.ts:89`
-- **CSP配置**: `packages/extension/public/manifest.json`
-- **影响功能**: 高级模板的变量替换功能
+### Technical Details
+- **Problem Location**: `packages/core/src/services/template/processor.ts:89`
+- **CSP Configuration**: `packages/extension/public/manifest.json`
+- **Affected Functionality**: Variable replacement functionality in advanced templates
 
-## 🎯 解决方案
+## 🎯 Solution
 
-### 1. CSP安全处理器
-创建`CSPSafeTemplateProcessor`类，提供基本变量替换功能：
+### 1. CSP Safe Processor
+Create the `CSPSafeTemplateProcessor` class to provide basic variable replacement functionality:
 
-**支持功能**:
-- ✅ `{{variableName}}` - 基本变量替换
-- ✅ `{{ variableName }}` - 带空格变量
-- ✅ 预定义变量：`{{originalPrompt}}`、`{{lastOptimizedPrompt}}`、`{{iterateInput}}`
-- ✅ 新增变量自动支持
+**Supported Features**:
+- ✅ `{{variableName}}` - Basic variable replacement
+- ✅ `{{ variableName }}` - Variable with spaces
+- ✅ Predefined variables: `{{originalPrompt}}`, `{{lastOptimizedPrompt}}`, `{{iterateInput}}`
+- ✅ Automatic support for newly added variables
 
-**不支持功能**:
-- ❌ `{{#if condition}}` - 条件语句
-- ❌ `{{#each items}}` - 循环语句
-- ❌ `{{> partial}}` - 部分模板
-- ❌ 其他复杂Handlebars功能
+**Unsupported Features**:
+- ❌ `{{#if condition}}` - Conditional statements
+- ❌ `{{#each items}}` - Loop statements
+- ❌ `{{> partial}}` - Partial templates
+- ❌ Other complex Handlebars features
 
-### 2. 智能环境检测
-增强`isExtensionEnvironment()`函数，准确区分不同运行环境：
+### 2. Intelligent Environment Detection
+Enhance the `isExtensionEnvironment()` function to accurately distinguish different runtime environments:
 
-**检测逻辑**:
-1. 排除Node.js环境
-2. 排除Electron环境（多重检测）
-3. 验证Chrome扩展API
-4. 验证manifest有效性
+**Detection Logic**:
+1. Exclude Node.js environments
+2. Exclude Electron environments (multiple checks)
+3. Validate Chrome extension API
+4. Verify manifest validity
 
-**环境支持**:
-- 🌐 **普通Web**: 使用完整Handlebars
-- 🖥️ **Electron**: 使用完整Handlebars  
-- 🧩 **浏览器扩展**: 使用CSP安全处理器
+**Environment Support**:
+- 🌐 **Regular Web**: Uses full Handlebars
+- 🖥️ **Electron**: Uses full Handlebars  
+- 🧩 **Browser Extension**: Uses CSP safe processor
 
-### 3. 自动切换机制
-`TemplateProcessor`根据环境自动选择合适的处理器，无需手动配置。
+### 3. Automatic Switching Mechanism
+`TemplateProcessor` automatically selects the appropriate processor based on the environment, requiring no manual configuration.
 
-## 📁 文件结构
+## 📁 File Structure
 
 ```
 packages/core/src/services/template/
-├── processor.ts                    # 主模板处理器（已修改）
-├── csp-safe-processor.ts          # CSP安全处理器（新增）
-└── minimal.ts                     # Handlebars导出
+├── processor.ts                    # Main template processor (modified)
+├── csp-safe-processor.ts          # CSP safe processor (new)
+└── minimal.ts                     # Handlebars export
 
 packages/core/tests/unit/template/
-├── csp-safe-processor.test.ts     # CSP处理器测试（新增）
-└── extension-environment.test.ts   # 扩展环境测试（新增）
+├── csp-safe-processor.test.ts     # CSP processor tests (new)
+└── extension-environment.test.ts   # Extension environment tests (new)
 
 packages/core/docs/
-└── csp-safe-template-processing.md # 技术文档（新增）
+└── csp-safe-template-processing.md # Technical documentation (new)
 ```
 
-## 🧪 测试覆盖
+## 🧪 Test Coverage
 
-### 测试类型
-- **单元测试**: CSP安全处理器功能测试
-- **环境测试**: 不同环境下的行为验证
-- **集成测试**: 模板处理器整体功能测试
+### Test Types
+- **Unit Tests**: CSP safe processor functionality tests
+- **Environment Tests**: Behavior validation in different environments
+- **Integration Tests**: Overall functionality tests of the template processor
 
-### 测试结果
-- ✅ 所有测试通过（84个测试）
-- ✅ 覆盖所有环境检测场景
-- ✅ 验证Electron环境正确排除
-- ✅ 验证扩展环境正确识别
+### Test Results
+- ✅ All tests passed (84 tests)
+- ✅ Covers all environment detection scenarios
+- ✅ Validates correct exclusion of Electron environment
+- ✅ Validates correct identification of extension environment
 
-## 🎉 实施效果
+## 🎉 Implementation Effects
 
-### 功能恢复
-- ✅ 浏览器扩展可正常使用模板功能
-- ✅ 系统提示词优化正常工作
-- ✅ 用户提示词优化正常工作
-- ✅ 迭代优化功能正常工作
+### Functionality Restoration
+- ✅ Browser extension can use template functionality normally
+- ✅ System prompt optimization works correctly
+- ✅ User prompt optimization works correctly
+- ✅ Iterative optimization functionality works correctly
 
-### 兼容性保证
-- ✅ Web应用功能完全不受影响
-- ✅ Desktop应用功能完全不受影响
-- ✅ 现有模板100%向后兼容
-- ✅ 新增变量自动支持
+### Compatibility Assurance
+- ✅ Web application functionality is completely unaffected
+- ✅ Desktop application functionality is completely unaffected
+- ✅ Existing templates are 100% backward compatible
+- ✅ Automatic support for newly added variables
 
-### 安全性提升
-- ✅ 符合浏览器扩展CSP要求
-- ✅ 不降低其他平台的安全性
-- ✅ 环境检测更加准确可靠
+### Security Enhancement
+- ✅ Complies with browser extension CSP requirements
+- ✅ Does not compromise security on other platforms
+- ✅ Environment detection is more accurate and reliable
 
-## 📚 相关文档
+## 📚 Related Documentation
 
-- **技术文档**: `packages/core/docs/csp-safe-template-processing.md`
-- **测试文档**: 测试文件中的详细注释
-- **API文档**: 代码中的JSDoc注释
+- **Technical Documentation**: `packages/core/docs/csp-safe-template-processing.md`
+- **Testing Documentation**: Detailed comments in test files
+- **API Documentation**: JSDoc comments in the code
 
-## 🔄 后续优化建议
+## 🔄 Follow-up Optimization Suggestions
 
-### 短期优化
-- 考虑显式环境标识方案，进一步提高检测准确性
-- 监控实际使用中的环境检测准确性
+### Short-term Optimizations
+- Consider an explicit environment identification scheme to further improve detection accuracy
+- Monitor the accuracy of environment detection in actual usage
 
-### 长期规划
-- 如需要复杂模板功能，可考虑预编译方案
-- 评估是否需要为扩展环境提供更多模板功能
+### Long-term Planning
+- If complex template functionality is needed, consider a pre-compilation scheme
+- Assess whether more template functionalities should be provided for the extension environment
 
-## 💡 经验总结
+## 💡 Experience Summary
 
-### 技术经验
-1. **环境检测**: 多重检测机制确保准确性，异常处理保证稳定性
-2. **向后兼容**: 渐进增强策略，不影响现有功能
-3. **测试驱动**: 完整测试覆盖确保方案可靠性
+### Technical Experience
+1. **Environment Detection**: Multi-layer detection mechanisms ensure accuracy, and exception handling guarantees stability
+2. **Backward Compatibility**: Progressive enhancement strategy that does not affect existing functionality
+3. **Test-Driven**: Complete test coverage ensures the reliability of the solution
 
-### 架构经验
-1. **适配器模式**: 根据环境选择合适的处理器
-2. **最小影响原则**: 只在必要时使用简化功能
-3. **扩展性设计**: 新增变量零成本支持
+### Architectural Experience
+1. **Adapter Pattern**: Selects the appropriate processor based on the environment
+2. **Minimal Impact Principle**: Simplified functionality is used only when necessary
+3. **Scalability Design**: Zero-cost support for newly added variables
 
-## 📝 后续更新（2025-08-29）
+## 📝 Subsequent Updates (2025-08-29)
 
-### 模板技术统一迁移
+### Unified Migration of Template Technology
 
-**背景**: 为了进一步简化架构并提供统一的CSP安全保障，我们完成了从Handlebars到Mustache的全面迁移。
+**Background**: To further simplify the architecture and provide unified CSP security guarantees, we have completed a comprehensive migration from Handlebars to Mustache.
 
-**主要变更**:
-1. **完全移除Handlebars依赖**: 所有环境统一使用Mustache.js作为模板引擎
-2. **废弃CSPSafeTemplateProcessor**: 不再需要环境特定的处理器，Mustache原生支持CSP安全
-3. **统一模板语法**: 所有模板使用标准Mustache语法 `{{#variable}}...{{/variable}}`
-4. **简化架构**: 移除环境检测逻辑，所有环境使用相同的处理流程
+**Major Changes**:
+1. **Complete Removal of Handlebars Dependency**: All environments use Mustache.js as the template engine
+2. **Decommissioning of CSPSafeTemplateProcessor**: No longer needed as an environment-specific processor; Mustache natively supports CSP security
+3. **Unified Template Syntax**: All templates use standard Mustache syntax `{{#variable}}...{{/variable}}`
+4. **Simplified Architecture**: Removed environment detection logic; all environments use the same processing flow
 
-**技术优势**:
-- ✅ **更简洁的架构**: 单一模板引擎，无需环境判断
-- ✅ **原生CSP安全**: Mustache.js天然支持CSP环境
-- ✅ **更好的维护性**: 统一的模板语法和处理逻辑
-- ✅ **完全兼容**: 现有变量替换功能保持不变
+**Technical Advantages**:
+- ✅ **Simpler Architecture**: Single template engine, no need for environment checks
+- ✅ **Native CSP Security**: Mustache.js inherently supports CSP environments
+- ✅ **Better Maintainability**: Unified template syntax and processing logic
+- ✅ **Complete Compatibility**: Existing variable replacement functionality remains unchanged
 
-**文件变更**:
+**File Changes**:
 ```diff
-- packages/core/src/services/template/csp-safe-processor.ts (已删除)
-- packages/core/tests/unit/template/csp-safe-processor.test.ts (已删除)
-+ 所有模板处理统一使用 Mustache.render()
-+ 依赖从 handlebars 更新为 mustache
+- packages/core/src/services/template/csp-safe-processor.ts (deleted)
+- packages/core/tests/unit/template/csp-safe-processor.test.ts (deleted)
++ All template processing now uses Mustache.render()
++ Dependency updated from handlebars to mustache
 ```
 
-**文档更新**:
-- 语法指南中的"Handlebars模板技术"已更新为"Mustache模板技术"
-- 所有用户面向文档已同步更新
+**Documentation Updates**:
+- The "Handlebars Template Technology" in the syntax guide has been updated to "Mustache Template Technology"
+- All user-facing documentation has been synchronized with the updates
 
-这次迁移是本CSP安全处理方案的自然演进，从"环境特定的兼容方案"升级为"统一的原生支持方案"。
+This migration is a natural evolution of the CSP security processing solution, upgrading from "environment-specific compatibility solutions" to "unified native support solutions".
 
 ---
 
-**🏷️ 标签**: CSP安全, 模板处理, 浏览器扩展, 环境检测, 兼容性, Mustache迁移
+**🏷️ Tags**: CSP Security, Template Processing, Browser Extension, Environment Detection, Compatibility, Mustache Migration

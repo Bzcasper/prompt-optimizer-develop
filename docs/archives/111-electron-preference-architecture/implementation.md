@@ -1,8 +1,8 @@
-# 技术实现详解
+# Technical Implementation Details
 
-## 🔧 架构设计
+## 🔧 Architecture Design
 
-### 整体架构
+### Overall Architecture
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   UI Components │    │  PreferenceService │    │  Storage Layer  │
@@ -13,9 +13,9 @@
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
-### 关键组件
+### Key Components
 
-#### 1. IPreferenceService接口
+#### 1. IPreferenceService Interface
 ```typescript
 interface IPreferenceService {
   get<T>(key: string, defaultValue: T): Promise<T>;
@@ -26,9 +26,9 @@ interface IPreferenceService {
 }
 ```
 
-#### 2. 环境检测机制
+#### 2. Environment Detection Mechanism
 ```typescript
-// 检测Electron API完整可用性
+// Check the complete availability of Electron API
 export function isElectronApiReady(): boolean {
   const window_any = window as any;
   const hasElectronAPI = typeof window_any.electronAPI !== 'undefined';
@@ -37,7 +37,7 @@ export function isElectronApiReady(): boolean {
   return hasElectronAPI && hasPreferenceApi;
 }
 
-// 异步等待API就绪
+// Asynchronously wait for API to be ready
 export function waitForElectronApi(timeout = 5000): Promise<boolean> {
   return new Promise((resolve) => {
     if (isElectronApiReady()) {
@@ -59,62 +59,62 @@ export function waitForElectronApi(timeout = 5000): Promise<boolean> {
 }
 ```
 
-## 🐛 问题诊断与解决
+## 🐛 Problem Diagnosis and Resolution
 
-### 问题1: 竞态条件错误
-**错误信息**: `Cannot read properties of undefined (reading 'preference')`
+### Problem 1: Race Condition Error
+**Error Message**: `Cannot read properties of undefined (reading 'preference')`
 
-**根本原因**: 
-- Vue组件初始化时调用useTemplateManager
-- useTemplateManager立即尝试访问preferenceService
-- 但此时window.electronAPI.preference尚未完全就绪
+**Root Cause**: 
+- The Vue component calls useTemplateManager during initialization.
+- useTemplateManager immediately tries to access preferenceService.
+- However, at this point, window.electronAPI.preference is not fully ready.
 
-**解决方案**:
-1. **延迟初始化检查**: 在useAppInitializer中等待API就绪
-2. **运行时保护**: 在代理服务中添加API可用性检查
+**Solution**:
+1. **Delayed Initialization Check**: Wait for the API to be ready in useAppInitializer.
+2. **Runtime Protection**: Add API availability checks in the proxy service.
 
-### 问题2: API路径不匹配
-**错误现象**: `hasApi: false, hasPreferenceApi: false`
+### Problem 2: API Path Mismatch
+**Error Phenomenon**: `hasApi: false, hasPreferenceApi: false`
 
-**根本原因**:
-- preload.js暴露API在: `window.electronAPI.preference`
-- 代码尝试访问: `window.api.preference`
+**Root Cause**:
+- preload.js exposes the API at: `window.electronAPI.preference`.
+- The code attempts to access: `window.api.preference`.
 
-**解决方案**: 统一API路径为`window.electronAPI.preference`
+**Solution**: Standardize the API path to `window.electronAPI.preference`.
 
-## 📝 实施步骤
+## 📝 Implementation Steps
 
-### 步骤1: 环境检测增强
-**文件**: `packages/core/src/utils/environment.ts`
+### Step 1: Enhance Environment Detection
+**File**: `packages/core/src/utils/environment.ts`
 
-**修改内容**:
-- 新增`isElectronApiReady()`函数
-- 新增`waitForElectronApi()`函数
-- 增强API可用性检测逻辑
+**Modifications**:
+- Added `isElectronApiReady()` function.
+- Added `waitForElectronApi()` function.
+- Enhanced API availability detection logic.
 
-### 步骤2: 应用初始化优化
-**文件**: `packages/ui/src/composables/useAppInitializer.ts`
+### Step 2: Optimize Application Initialization
+**File**: `packages/ui/src/composables/useAppInitializer.ts`
 
-**修改内容**:
+**Modifications**:
 ```typescript
 if (isRunningInElectron()) {
-  console.log('[AppInitializer] 检测到Electron环境，等待API就绪...');
+  console.log('[AppInitializer] Detected Electron environment, waiting for API to be ready...');
   
-  // 等待 Electron API 完全就绪
+  // Wait for Electron API to be fully ready
   const apiReady = await waitForElectronApi();
   if (!apiReady) {
-    throw new Error('Electron API 初始化超时，请检查preload脚本是否正确加载');
+    throw new Error('Electron API initialization timed out, please check if the preload script is loaded correctly');
   }
   
-  console.log('[AppInitializer] Electron API 就绪，初始化代理服务...');
-  // ... 继续初始化
+  console.log('[AppInitializer] Electron API is ready, initializing proxy service...');
+  // ... continue initialization
 }
 ```
 
-### 步骤3: 代理服务保护
-**文件**: `packages/core/src/services/preference/electron-proxy.ts`
+### Step 3: Protect Proxy Service
+**File**: `packages/core/src/services/preference/electron-proxy.ts`
 
-**修改内容**:
+**Modifications**:
 ```typescript
 export class ElectronPreferenceServiceProxy implements IPreferenceService {
   private ensureApiAvailable() {
@@ -128,88 +128,88 @@ export class ElectronPreferenceServiceProxy implements IPreferenceService {
     this.ensureApiAvailable();
     return window.electronAPI.preference.get(key, defaultValue);
   }
-  // ... 其他方法
+  // ... other methods
 }
 ```
 
-### 步骤4: 导出更新
-**文件**: 
+### Step 4: Export Updates
+**Files**: 
 - `packages/core/src/index.ts` 
 - `packages/ui/src/index.ts`
 
-**修改内容**: 导出新的环境检测函数
+**Modifications**: Export new environment detection functions.
 
-### 步骤5: 构建与测试
+### Step 5: Build and Test
 ```bash
-# 构建core包
+# Build core package
 cd packages/core && pnpm run build
 
-# 构建ui包  
+# Build ui package  
 cd packages/ui && pnpm run build
 
-# 运行测试
+# Run tests
 pnpm run test
 ```
 
-## 🔍 调试过程
+## 🔍 Debugging Process
 
-### 调试日志分析
+### Debug Log Analysis
 ```
 [isRunningInElectron] Verdict: true (via electronAPI)
 [isElectronApiReady] API readiness check: {hasElectronAPI: true, hasPreferenceApi: true}
 [waitForElectronApi] API already ready
-[AppInitializer] Electron API 就绪，初始化代理服务...
-[AppInitializer] 所有服务初始化完成
+[AppInitializer] Electron API is ready, initializing proxy service...
+[AppInitializer] All services initialized
 ```
 
-### 关键时序
-1. **环境检测** → **API等待** → **服务初始化** → **组件挂载**
-2. 确保每个步骤都完成后才进行下一步
-3. 添加超时保护防止无限等待
+### Key Timing
+1. **Environment Detection** → **API Waiting** → **Service Initialization** → **Component Mounting**
+2. Ensure each step is completed before proceeding to the next.
+3. Add timeout protection to prevent infinite waiting.
 
-## ⚡ 性能优化
+## ⚡ Performance Optimization
 
-### 1. 快速检测
-- API就绪时立即返回，无需等待
-- 50ms检查间隔平衡响应性和性能
+### 1. Quick Detection
+- Return immediately when the API is ready, no need to wait.
+- 50ms check interval balances responsiveness and performance.
 
-### 2. 超时保护
-- 5秒超时防止无限等待
-- 明确的错误信息指导问题排查
+### 2. Timeout Protection
+- 5 seconds timeout to prevent infinite waiting.
+- Clear error messages guide problem troubleshooting.
 
-### 3. 缓存机制
-- 环境检测结果可以缓存
-- 避免重复的DOM查询
+### 3. Caching Mechanism
+- Cache environment detection results.
+- Avoid repeated DOM queries.
 
-## 🧪 测试验证
+## 🧪 Testing Validation
 
-### 测试结果
-- **总测试数**: 262个
-- **通过数**: 252个
-- **跳过数**: 9个  
-- **失败数**: 1个(网络相关，非功能问题)
+### Test Results
+- **Total Tests**: 262
+- **Passed**: 252
+- **Skipped**: 9  
+- **Failed**: 1 (network-related, non-functional issue)
 
-### 关键测试场景
-1. **Electron环境启动** ✅
-2. **API初始化时序** ✅  
-3. **代理服务调用** ✅
-4. **错误处理机制** ✅
-5. **超时保护** ✅
+### Key Test Scenarios
+1. **Electron Environment Startup** ✅
+2. **API Initialization Timing** ✅  
+3. **Proxy Service Calls** ✅
+4. **Error Handling Mechanism** ✅
+5. **Timeout Protection** ✅
 
-## 🔗 相关代码文件
+## 🔗 Related Code Files
 
-### 核心修改文件
-1. `packages/core/src/utils/environment.ts` - 环境检测增强
-2. `packages/ui/src/composables/useAppInitializer.ts` - 初始化优化
-3. `packages/core/src/services/preference/electron-proxy.ts` - 代理服务保护
-4. `packages/core/src/index.ts` - 导出更新
-5. `packages/ui/src/index.ts` - 导出更新
+### Core Modified Files
+1. `packages/core/src/utils/environment.ts` - Environment detection enhancement.
+2. `packages/ui/src/composables/useAppInitializer.ts` - Initialization optimization.
+3. `packages/core/src/services/preference/electron-proxy.ts` - Proxy service protection.
+4. `packages/core/src/index.ts` - Export updates.
+5. `packages/ui/src/index.ts` - Export updates.
 
-### 相关配置文件
-- `packages/desktop/preload.js` - API暴露配置
-- `packages/desktop/main.js` - 主进程IPC处理
+### Related Configuration Files
+- `packages/desktop/preload.js` - API exposure configuration.
+- `packages/desktop/main.js` - Main process IPC handling.
 
 ---
 
-**实施完成日期**: 2025-01-01  
-**验证状态**: ✅ 完全通过 
+**Implementation Completion Date**: 2025-01-01  
+**Validation Status**: ✅ Fully Passed

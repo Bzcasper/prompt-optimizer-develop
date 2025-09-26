@@ -125,3 +125,11 @@ export * from './services/content-generation/errors'
 // 导出ADK模板编排器相关
 export { ADKTemplateOrchestrator, createADKTemplateOrchestrator } from './services/adk-template-orchestrator'
 export type { ADKTemplateExecutionRequest, ADKTemplateExecutionResult } from './services/adk-template-orchestrator'
+
+// 导出ADK集成相关
+export * from './services/google-adk'
+export * from './services/google-adk-agents'
+export * from './services/registry-orchestrator'
+
+// 导出代理注册服务相关
+export * from './services/agent-registry'

@@ -1,459 +1,232 @@
 ---
-description: 任务执行过程的进度更新
+description: Progress updates during task execution process
 alwaysApply: false
 ---
-# 工作流程2：任务执行
+# Workflow 2: Task Execution
 
-迭代开发，更新进度，记录发现和问题。
+Iterative development, update progress, record discoveries and issues.
 
-## 🎯 流程目标
+## 🎯 Process Goals
 
-- 按计划执行开发任务
-- 及时更新任务进度
-- 记录重要发现和经验
-- 保持与用户的有效沟通
+- Execute development tasks according to plan
+- Update task progress timely
+- Record important discoveries and experience
+- Maintain effective communication with users
 
-## 📋 前置条件
+## 📋 Prerequisites
 
-### 输入要求
-- 任务已通过[工作流程1：任务初始化](./1-task-initialization.md)完成设置
-- workspace包含具体的任务描述和计划
-- 技术方案已经确定
+### Input Requirements
+- Task has been set up through [Workflow 1: Task Initialization](./1-task-initialization.md)
+- workspace contains specific task descriptions and plans
+- Technical solutions have been determined
 
-### 环境检查
-- scratchpad.md包含具体任务（非模板内容）
-- 有明确的计划步骤列表
-- 开发环境已准备就绪
+### Environment Check
+- scratchpad.md contains specific tasks (non-template content)
+- Has clear planned step list
+- Development environment is ready
 
-## 🔄 执行步骤
+## 🔄 Execution Steps
 
-### 1. 步骤执行循环
+### 1. Step Execution Loop
 
-#### 1.1 开始新步骤 ⚠️ 必须反馈
-**操作内容**：
-- 选择下一个待执行的步骤
-- 确认前置条件已满足
-- 评估当前步骤的复杂度
+#### 1.1 Start New Step ⚠️ Must Feedback
+**Operation Content**:
+- Select the next step to execute
+- Confirm prerequisites are met
+- Assess current step complexity
 
-**⚠️ 反馈要求**：
+**⚠️ Feedback Requirements**:
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "准备执行步骤[N]：[步骤描述]。预计需要[时间]，主要工作包括[工作内容]。开始执行？",
+  summary: "Preparing to execute step [N]: [step description]. Expected to take [time], main work includes [work content]. Start execution?",
   project_directory: "."
 })
 ```
 
-**反馈内容细化**：
-- 明确说明当前步骤的具体目标
-- 列出需要完成的主要工作项
-- 说明预期的输出和验收标准
-- 提及可能遇到的技术难点
+**Feedback Content Refinement**:
+- Clearly explain current step's specific objectives
+- List main work items that need completion
+- Explain expected output and acceptance criteria
+- Mention potential technical difficulties
 
-#### 1.2 实施开发工作
-**操作内容**：
-- 编写代码
-- 运行测试
-- 验证功能
-- 修复问题
+#### 1.2 Implement Development Work
+**Operation Content**:
+- Write code
+- Run tests
+- Verify functionality
+- Fix issues
 
-**实时记录**：在scratchpad.md中更新进展记录
+**Real-time Recording**: Update progress records in scratchpad.md
 ```markdown
-#### 进展记录
-- [时间] 开始执行步骤[N]：[步骤名称]
-- [时间] 完成[具体工作]，遇到[问题描述]
-- [时间] 解决方案：[解决方法]
+#### Progress Records
+- [Time] Start executing step [N]: [Step Name]
+- [Time] Complete [specific work], encountered [problem description]
+- [Time] Solution: [solution method]
 ```
 
-#### 1.3 步骤完成确认 ⚠️ 重要里程碑需反馈
-**操作内容**：
-- 标记步骤完成：`[x] 1. [已完成步骤]`
-- 记录实际结果和发现
-- 评估对后续步骤的影响
+#### 1.3 Step Completion Confirmation ⚠️ Important Milestones Need Feedback
+**Operation Content**:
+- Mark step completion: `[x] 1. [Completed Step]`
+- Record actual results and discoveries
+- Assess impact on subsequent steps
 
-**⚠️ 反馈触发条件**：
-- 完成重要里程碑
-- 发现重大技术问题  
-- 需要调整后续计划
-- 超出预期时间50%以上
+**⚠️ Feedback Trigger Conditions**:
+- Complete important milestones
+- Discover major technical issues
+- Need to adjust subsequent plans
+- Exceed expected time by more than 50%
 
-**反馈格式**：
+**Feedback Format**:
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "步骤[N]已完成：[成果描述]。发现[重要发现]。后续计划[是否需要调整]。",
+  summary: "Step [N] completed: [results description]. Discovered [important findings]. Subsequent plans [need adjustment].",
   project_directory: "."
 })
 ```
 
-**反馈内容细化**：
-- 详细描述实际完成的功能和效果
-- 说明与预期目标的差异（如有）
-- 总结重要的技术发现或经验
-- 评估对后续步骤的影响和调整建议
+**Feedback Content Refinement**:
+- Describe in detail the functions and effects actually completed
+- Explain differences from expected objectives (if any)
+- Summarize important technical discoveries or experience
+- Assess impact on subsequent steps and adjustment suggestions
 
-### 2. 问题处理流程
+### 2. Problem Handling Process
 
-#### 2.1 遇到技术问题 ⚠️ 必须反馈
-**操作内容**：
-- 详细分析问题原因
-- 研究可能的解决方案
-- 评估解决方案的影响
+#### 2.1 Encounter Technical Problems ⚠️ Must Feedback
+**Operation Content**:
+- Analyze problem causes in detail
+- Research possible solutions
+- Assess solution impacts
 
-**⚠️ 反馈要求**：
+**⚠️ Feedback Requirements**:
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "遇到技术问题：[问题描述]。可能原因：[分析]。建议解决方案：[方案1/方案2]。请选择处理方式？",
+  summary: "Encountered technical problem: [problem description]. Possible causes: [analysis]. Suggested solutions: [solution 1/solution 2]. Please choose handling method?",
   project_directory: "."
 })
 ```
 
-**反馈内容细化**：
-- 清晰描述问题的具体表现和影响范围
-- 提供详细的根因分析
-- 给出2-3个可行的解决方案，包括优缺点
-- 说明各方案的时间成本和风险评估
+**Feedback Content Refinement**:
+- Clearly describe problem's specific manifestations and impact scope
+- Provide detailed root cause analysis
+- Give 2-3 feasible solutions, including pros and cons
+- Explain time costs and risk assessments for each solution
 
-#### 2.2 记录问题和解决方案
-**操作内容**：
-在scratchpad.md中记录：
+#### 2.2 Record Problems and Solutions
+**Operation Content**:
+Record in scratchpad.md:
 ```markdown
-## 问题记录
+## Problem Records
 
-### [问题标题] - [发现日期]
-**问题描述**: [详细描述]
-**原因分析**: [根本原因]
-**解决方案**: [采用的解决方法]
-**经验总结**: [避坑要点]
+### [Problem Title] - [Discovery Date]
+**Problem Description**: [Detailed description]
+**Cause Analysis**: [Root cause]
+**Solution**: [Adopted solution method]
+**Experience Summary**: [Pitfall avoidance points]
 ```
 
-### 3. 经验记录
+### 3. Experience Recording
 
-#### 3.1 重要发现记录
-**操作内容**：
-在scratchpad.md中实时记录：
+#### 3.1 Important Discovery Recording
+**Operation Content**:
+Record in real-time in scratchpad.md:
 ```markdown
-#### 重要发现
-- [时间] [技术发现或最佳实践]
-- [时间] [需要注意的细节或陷阱]
-- [时间] [可复用的代码模式或工具]
+#### Important Discoveries
+- [Time] [Technical discovery or best practice]
+- [Time] [Details or pitfalls to note]
+- [Time] [Reusable code patterns or tools]
 ```
 
-#### 3.2 通用经验提取
-**操作内容**：
-- 识别可复用的经验
-- 在experience.md中分类记录
-- 避免重复造轮子
+#### 3.2 General Experience Extraction
+**Operation Content**:
+- Identify reusable experience
+- Record in classifications in experience.md
+- Avoid reinventing the wheel
 
-### 4. 进度管理
+### 4. Progress Management
 
-#### 4.1 定期进度检查
-**检查频率**：
-- 简单任务：每完成1-2个步骤
-- 复杂任务：每2-4小时
-- 遇到阻塞：立即检查
+#### 4.1 Regular Progress Checks
+**Check Frequency**:
+- Simple tasks: Every 1-2 steps completed
+- Complex tasks: Every 2-4 hours
+- Encounter blocking: Immediate check
 
-**检查内容**：
-- 当前进度vs计划进度
-- 遇到的问题和阻塞
-- 后续计划是否需要调整
+**Check Content**:
+- Current progress vs planned progress
+- Problems and blocking encountered
+- Whether subsequent plans need adjustment
 
-#### 4.2 计划调整 ⚠️ 必须反馈
-**触发条件**：
-- 发现新的技术问题
-- 需求发生变化
-- 时间估算偏差较大
-- 发现更好的解决方案
+#### 4.2 Plan Adjustments ⚠️ Must Feedback
+**Trigger Conditions**:
+- Discover new technical problems
+- Requirements change
+- Time estimates deviate significantly
+- Discover better solutions
 
-**⚠️ 反馈要求**：
+**⚠️ Feedback Requirements**:
 ```typescript
 await mcp_feedback_enhanced({
-  summary: "计划需要调整。原因：[调整原因]。建议将[原计划]调整为[新计划]。预计影响：[时间/范围变化]。",
+  summary: "Plan needs adjustment. Reason: [adjustment reason]. Suggest changing [original plan] to [new plan]. Expected impact: [time/scope changes].",
   project_directory: "."
 })
 ```
 
-**反馈内容细化**：
-- 详细说明需要调整的具体原因
-- 对比原计划和新计划的差异
-- 量化评估时间、资源、范围的变化
-- 说明调整后的风险和收益
+**Feedback Content Refinement**:
+- Explain in detail the specific reasons needing adjustment
+- Compare differences between original plan and new plan
+- Quantitatively assess changes in time, resources, scope
+- Explain risks and benefits after adjustment
 
-## ✅ 阶段完成标准
+## ✅ Phase Completion Standards
 
-### 单个步骤完成
-- [ ] 功能按预期实现
-- [ ] 测试验证通过
-- [ ] 代码质量符合标准
-- [ ] 问题和发现已记录
-- [ ] 步骤状态已更新
+### Individual Step Completion
+- [ ] Functions implemented as expected
+- [ ] Tests pass verification
+- [ ] Code quality meets standards
+- [ ] Problems and discoveries recorded
+- [ ] Step status updated
 
-### 重要里程碑完成
-- [ ] 用户已确认阶段成果
-- [ ] 重要经验已记录
-- [ ] 后续计划已确认
-- [ ] 必要的文档已更新
+### Important Milestone Completion
+- [ ] User has confirmed phase results
+- [ ] Important experience recorded
+- [ ] Subsequent plans confirmed
+- [ ] Necessary documents updated
 
-## 🔄 流程转换
+## 🔄 Process Conversion
 
-### 继续执行
-- 还有未完成步骤 → 继续执行循环
-- 遇到阻塞问题 → 进入问题处理流程
-- 需要调整计划 → 更新计划并获得确认
+### Continue Execution
+- Unfinished steps remain → Continue execution loop
+- Encounter blocking problems → Enter problem handling process
+- Need plan adjustment → Update plan and obtain confirmation
 
-### 转向归档
-- 所有主要步骤完成 → [工作流程3：任务归档](./3-task-archiving.md)
-- 任务暂停/取消 → 整理现有成果后归档
-- workspace内容过多 → 阶段性归档，重新初始化
+### Switch to Archiving
+- All main steps completed → [Workflow 3: Task Archiving](./3-task-archiving.md)
+- Task paused/cancelled → Organize existing results then archive
+- workspace content excessive → Phased archiving, reinitialize
 
-## 🚨 异常处理
+## 🚨 Exception Handling
 
-### 长时间无进展
-**处理步骤**：
-1. 分析阻塞原因
-2. 寻求外部帮助或改变方法
-3. 考虑降低任务范围
-4. 与用户讨论替代方案
+### Long Time No Progress
+**Processing Steps**:
+1. Analyze blocking causes
+2. Seek external help or change methods
+3. Consider reducing task scope
+4. Discuss alternative solutions with user
 
-### 频繁变更需求
-**处理步骤**：
-1. 暂停当前工作
-2. 重新进行需求分析
-3. 评估已完成工作的价值
-4. 决定是否需要重新初始化
+### Frequent Requirement Changes
+**Processing Steps**:
+1. Pause current work
+2. Re-analyze requirements
+3. Assess value of completed work
+4. Decide whether reinitialization needed
 
-### 技术方案证明不可行
-**处理步骤**：
-1. 立即停止当前实施
-2. 详细分析失败原因
-3. 研究替代技术方案
-4. 与用户讨论后续计划
+### Technical Solution Proves Infeasible
+**Processing Steps**:
+1. Immediately stop current implementation
+2. Analyze failure causes in detail
+3. Research alternative technical solutions
+4. Discuss subsequent plans with user
 
 ---
 
-**关键成功要素**: 持续沟通 + 及时调整 + 详细记录 # 工作流程2：任务执行
-
-迭代开发，更新进度，记录发现和问题。
-
-## 🎯 流程目标
-
-- 按计划执行开发任务
-- 及时更新任务进度
-- 记录重要发现和经验
-- 保持与用户的有效沟通
-
-## 📋 前置条件
-
-### 输入要求
-- 任务已通过[工作流程1：任务初始化](./1-task-initialization.md)完成设置
-- workspace包含具体的任务描述和计划
-- 技术方案已经确定
-
-### 环境检查
-- scratchpad.md包含具体任务（非模板内容）
-- 有明确的计划步骤列表
-- 开发环境已准备就绪
-
-## 🔄 执行步骤
-
-### 1. 步骤执行循环
-
-#### 1.1 开始新步骤 ⚠️ 必须反馈
-**操作内容**：
-- 选择下一个待执行的步骤
-- 确认前置条件已满足
-- 评估当前步骤的复杂度
-
-**⚠️ 反馈要求**：
-```typescript
-await mcp_feedback_enhanced({
-  summary: "准备执行步骤[N]：[步骤描述]。预计需要[时间]，主要工作包括[工作内容]。开始执行？",
-  project_directory: "."
-})
-```
-
-**反馈内容细化**：
-- 明确说明当前步骤的具体目标
-- 列出需要完成的主要工作项
-- 说明预期的输出和验收标准
-- 提及可能遇到的技术难点
-
-#### 1.2 实施开发工作
-**操作内容**：
-- 编写代码
-- 运行测试
-- 验证功能
-- 修复问题
-
-**实时记录**：在scratchpad.md中更新进展记录
-```markdown
-#### 进展记录
-- [时间] 开始执行步骤[N]：[步骤名称]
-- [时间] 完成[具体工作]，遇到[问题描述]
-- [时间] 解决方案：[解决方法]
-```
-
-#### 1.3 步骤完成确认 ⚠️ 重要里程碑需反馈
-**操作内容**：
-- 标记步骤完成：`[x] 1. [已完成步骤]`
-- 记录实际结果和发现
-- 评估对后续步骤的影响
-
-**⚠️ 反馈触发条件**：
-- 完成重要里程碑
-- 发现重大技术问题  
-- 需要调整后续计划
-- 超出预期时间50%以上
-
-**反馈格式**：
-```typescript
-await mcp_feedback_enhanced({
-  summary: "步骤[N]已完成：[成果描述]。发现[重要发现]。后续计划[是否需要调整]。",
-  project_directory: "."
-})
-```
-
-**反馈内容细化**：
-- 详细描述实际完成的功能和效果
-- 说明与预期目标的差异（如有）
-- 总结重要的技术发现或经验
-- 评估对后续步骤的影响和调整建议
-
-### 2. 问题处理流程
-
-#### 2.1 遇到技术问题 ⚠️ 必须反馈
-**操作内容**：
-- 详细分析问题原因
-- 研究可能的解决方案
-- 评估解决方案的影响
-
-**⚠️ 反馈要求**：
-```typescript
-await mcp_feedback_enhanced({
-  summary: "遇到技术问题：[问题描述]。可能原因：[分析]。建议解决方案：[方案1/方案2]。请选择处理方式？",
-  project_directory: "."
-})
-```
-
-**反馈内容细化**：
-- 清晰描述问题的具体表现和影响范围
-- 提供详细的根因分析
-- 给出2-3个可行的解决方案，包括优缺点
-- 说明各方案的时间成本和风险评估
-
-#### 2.2 记录问题和解决方案
-**操作内容**：
-在scratchpad.md中记录：
-```markdown
-## 问题记录
-
-### [问题标题] - [发现日期]
-**问题描述**: [详细描述]
-**原因分析**: [根本原因]
-**解决方案**: [采用的解决方法]
-**经验总结**: [避坑要点]
-```
-
-### 3. 经验记录
-
-#### 3.1 重要发现记录
-**操作内容**：
-在scratchpad.md中实时记录：
-```markdown
-#### 重要发现
-- [时间] [技术发现或最佳实践]
-- [时间] [需要注意的细节或陷阱]
-- [时间] [可复用的代码模式或工具]
-```
-
-#### 3.2 通用经验提取
-**操作内容**：
-- 识别可复用的经验
-- 在experience.md中分类记录
-- 避免重复造轮子
-
-### 4. 进度管理
-
-#### 4.1 定期进度检查
-**检查频率**：
-- 简单任务：每完成1-2个步骤
-- 复杂任务：每2-4小时
-- 遇到阻塞：立即检查
-
-**检查内容**：
-- 当前进度vs计划进度
-- 遇到的问题和阻塞
-- 后续计划是否需要调整
-
-#### 4.2 计划调整 ⚠️ 必须反馈
-**触发条件**：
-- 发现新的技术问题
-- 需求发生变化
-- 时间估算偏差较大
-- 发现更好的解决方案
-
-**⚠️ 反馈要求**：
-```typescript
-await mcp_feedback_enhanced({
-  summary: "计划需要调整。原因：[调整原因]。建议将[原计划]调整为[新计划]。预计影响：[时间/范围变化]。",
-  project_directory: "."
-})
-```
-
-**反馈内容细化**：
-- 详细说明需要调整的具体原因
-- 对比原计划和新计划的差异
-- 量化评估时间、资源、范围的变化
-- 说明调整后的风险和收益
-
-## ✅ 阶段完成标准
-
-### 单个步骤完成
-- [ ] 功能按预期实现
-- [ ] 测试验证通过
-- [ ] 代码质量符合标准
-- [ ] 问题和发现已记录
-- [ ] 步骤状态已更新
-
-### 重要里程碑完成
-- [ ] 用户已确认阶段成果
-- [ ] 重要经验已记录
-- [ ] 后续计划已确认
-- [ ] 必要的文档已更新
-
-## 🔄 流程转换
-
-### 继续执行
-- 还有未完成步骤 → 继续执行循环
-- 遇到阻塞问题 → 进入问题处理流程
-- 需要调整计划 → 更新计划并获得确认
-
-### 转向归档
-- 所有主要步骤完成 → [工作流程3：任务归档](./3-task-archiving.md)
-- 任务暂停/取消 → 整理现有成果后归档
-- workspace内容过多 → 阶段性归档，重新初始化
-
-## 🚨 异常处理
-
-### 长时间无进展
-**处理步骤**：
-1. 分析阻塞原因
-2. 寻求外部帮助或改变方法
-3. 考虑降低任务范围
-4. 与用户讨论替代方案
-
-### 频繁变更需求
-**处理步骤**：
-1. 暂停当前工作
-2. 重新进行需求分析
-3. 评估已完成工作的价值
-4. 决定是否需要重新初始化
-
-### 技术方案证明不可行
-**处理步骤**：
-1. 立即停止当前实施
-2. 详细分析失败原因
-3. 研究替代技术方案
-4. 与用户讨论后续计划
-
----
-
-**关键成功要素**: 持续沟通 + 及时调整 + 详细记录 
+**Key Success Factors**: Continuous communication + Timely adjustment + Detailed recording

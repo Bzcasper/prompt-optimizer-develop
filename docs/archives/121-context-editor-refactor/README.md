@@ -1,81 +1,81 @@
 # Context Editor Refactor (121)
 
-## 概述
+## Overview
 
-本次重构的目标是清理和优化上下文编辑器相关的组件结构，移除废弃组件，优化API设计，提升代码可维护性。
+The goal of this refactor is to clean up and optimize the component structure related to the context editor, remove deprecated components, optimize API design, and improve code maintainability.
 
-## 重构范围
+## Refactor Scope
 
-### 已移除的废弃组件
-1. **ConversationMessageEditor.vue** - 已被ConversationManager内联实现替代
-2. **ConversationSection.vue** - 功能已整合到ConversationManager中
+### Removed Deprecated Components
+1. **ConversationMessageEditor.vue** - Replaced by inline implementation in ConversationManager
+2. **ConversationSection.vue** - Functionality has been integrated into ConversationManager
 
-### API清理优化
-- **ConversationManager组件**: 移除了未使用的props（`isPredefinedVariable`, `replaceVariables`）
-- **ContextEditor组件**: 移除了未使用的props（`isPredefinedVariable`）
+### API Cleanup and Optimization
+- **ConversationManager Component**: Removed unused props (`isPredefinedVariable`, `replaceVariables`)
+- **ContextEditor Component**: Removed unused props (`isPredefinedVariable`)
 
-### 测试清理
-- 移除了与废弃组件相关的测试文件和mock
-- 更新了集成测试以反映新的组件结构
+### Test Cleanup
+- Removed test files and mocks related to deprecated components
+- Updated integration tests to reflect the new component structure
 
-## 技术细节
+## Technical Details
 
-### 组件清理策略
-采用了"逐层清理"的策略：
-1. 首先移除文件系统中的废弃组件
-2. 清理导出声明和类型定义
-3. 移除相关测试代码
-4. 优化remaining组件的API
+### Component Cleanup Strategy
+Adopted a "layered cleanup" strategy:
+1. First, remove deprecated components from the file system
+2. Clean up export declarations and type definitions
+3. Remove related test code
+4. Optimize the API of remaining components
 
-### Props传递优化
-发现并修复了props命名和使用上的问题：
-- Vue的自动kebab-case到camelCase转换确保了向后兼容性
-- 移除了组件内部未实际使用的props，减少了不必要的数据传递
+### Props Passing Optimization
+Identified and fixed issues with prop naming and usage:
+- Vue's automatic kebab-case to camelCase conversion ensures backward compatibility
+- Removed unused props within components, reducing unnecessary data passing
 
-## 质量保证
+## Quality Assurance
 
-### 回归测试结果
-- ✅ **核心功能**: 高级模式切换、变量管理、上下文编辑等关键功能全部正常
-- ✅ **UI交互**: 所有交互组件响应正常
-- ✅ **状态管理**: 数据持久化和状态同步正常工作
-- ⚠️ **单元测试**: Core包382个通过，UI包194个通过（137个测试失败主要是测试框架兼容性问题）
+### Regression Test Results
+- ✅ **Core Functionality**: Key features such as advanced mode switching, variable management, and context editing are all functioning normally
+- ✅ **UI Interaction**: All interactive components are responding correctly
+- ✅ **State Management**: Data persistence and state synchronization are working properly
+- ⚠️ **Unit Tests**: 382 passed in the Core package, 194 passed in the UI package (137 test failures mainly due to test framework compatibility issues)
 
-### 构建验证
-- ✅ **开发服务器**: 正常运行，HMR工作正常
-- ✅ **构建过程**: UI和Core包都能成功构建
-- ✅ **运行时**: 无JavaScript错误，性能表现良好
+### Build Verification
+- ✅ **Development Server**: Running normally, HMR is functioning correctly
+- ✅ **Build Process**: Both UI and Core packages build successfully
+- ✅ **Runtime**: No JavaScript errors, performance is good
 
-## 经验总结
+## Experience Summary
 
-### 成功要素
-1. **渐进式清理**: 逐步移除组件，确保每一步都不破坏现有功能
-2. **充分测试**: 使用浏览器自动化测试验证关键功能
-3. **API分析**: 通过实际代码分析确定哪些props真正被使用
+### Success Factors
+1. **Incremental Cleanup**: Gradually removing components to ensure no existing functionality is broken at each step
+2. **Thorough Testing**: Using browser automation tests to validate key functionalities
+3. **API Analysis**: Determining which props are actually used through real code analysis
 
-### 技术洞察
-1. **Vue Props灵活性**: Vue的命名转换机制提供了很好的向后兼容性
-2. **组件耦合度**: 清理过程中发现了一些不必要的props传递，说明组件间耦合度可以进一步优化
-3. **测试策略**: 功能性测试比单元测试更能反映实际的用户体验
+### Technical Insights
+1. **Flexibility of Vue Props**: Vue's naming conversion mechanism provides good backward compatibility
+2. **Component Coupling**: The cleanup process revealed some unnecessary prop passing, indicating that component coupling can be further optimized
+3. **Testing Strategy**: Functional testing reflects actual user experience better than unit testing
 
-## 后续优化建议
+## Follow-up Optimization Suggestions
 
-1. **测试框架升级**: 考虑升级测试框架以解决兼容性问题
-2. **Props设计**: 可以考虑使用更严格的类型检查来避免未使用的props
-3. **组件职责**: 继续评估其他组件的职责分离，寻找进一步优化空间
+1. **Testing Framework Upgrade**: Consider upgrading the testing framework to resolve compatibility issues
+2. **Props Design**: Consider using stricter type checking to avoid unused props
+3. **Component Responsibilities**: Continue evaluating the separation of responsibilities in other components to find further optimization opportunities
 
-## 相关文件
+## Related Documents
 
-### 核心文档
-- **需求分析**: [requirements.md](./requirements.md) - 重构需求和功能分配方案
-- **设计文档**: [design.md](./design.md) - 详细的技术设计和架构说明  
-- **任务清单**: [tasks.md](./tasks.md) - 具体的实施任务和进度跟踪
+### Core Documents
+- **Requirements Analysis**: [requirements.md](./requirements.md) - Refactor requirements and functionality allocation plan
+- **Design Document**: [design.md](./design.md) - Detailed technical design and architecture description  
+- **Task List**: [tasks.md](./tasks.md) - Specific implementation tasks and progress tracking
 
-### 实施记录
-- **实施计划**: [implementation.md](./implementation.md) - 实际执行过程和技术细节
-- **技术经验**: [experience.md](./experience.md) - 经验总结和最佳实践
-- **测试结果**: [testing-report.md](./testing-report.md) - 完整的测试验证报告
+### Implementation Records
+- **Implementation Plan**: [implementation.md](./implementation.md) - Actual execution process and technical details
+- **Technical Experience**: [experience.md](./experience.md) - Experience summary and best practices
+- **Testing Results**: [testing-report.md](./testing-report.md) - Complete testing validation report
 
 ---
-**重构完成时间**: 2025-01-09
-**影响范围**: UI组件层，无业务逻辑变更
-**向后兼容性**: 完全兼容，无破坏性变更
+**Refactor Completion Date**: 2025-01-09  
+**Impact Scope**: UI component layer, no business logic changes  
+**Backward Compatibility**: Fully compatible, no breaking changes

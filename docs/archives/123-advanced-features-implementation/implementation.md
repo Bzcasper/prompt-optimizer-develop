@@ -1,12 +1,12 @@
-# 技术实现详解
+# Technical Implementation Details
 
-## 🔧 架构设计
+## 🔧 Architecture Design
 
-### 整体架构演进
+### Overall Architecture Evolution
 ```
-原始架构                    扩展后架构
+Original Architecture                Expanded Architecture
 ┌─────────────┐           ┌─────────────────────────────────┐
-│ BasicTestPanel │    →     │ AdvancedTestPanel (主组件)      │
+│ BasicTestPanel │    →     │ AdvancedTestPanel (Main Component) │
 └─────────────┘           │ ├── BasicTestMode               │
                           │ ├── ConversationManager         │
                           │ ├── VariableManagerModal        │
@@ -14,15 +14,15 @@
                           └─────────────────────────────────┘
 ```
 
-### 核心设计原则
-1. **最小侵入** - 基于现有架构进行最小化扩展
-2. **向后兼容** - 所有新功能都是可选的
-3. **职责分离** - UI层管理变量，Core层处理逻辑
-4. **类型安全** - 完整的TypeScript类型支持
+### Core Design Principles
+1. **Minimal Intrusion** - Minimal expansion based on the existing architecture
+2. **Backward Compatibility** - All new features are optional
+3. **Separation of Concerns** - UI layer manages variables, Core layer handles logic
+4. **Type Safety** - Complete TypeScript type support
 
-## 🧪 高级变量管理实现
+## 🧪 Advanced Variable Management Implementation
 
-### 1. VariableManager服务架构
+### 1. VariableManager Service Architecture
 ```typescript
 export class VariableManager implements IVariableManager {
   private customVariables: Record<string, string> = {};
@@ -30,10 +30,10 @@ export class VariableManager implements IVariableManager {
     'originalPrompt', 
     'lastOptimizedPrompt', 
     'iterateInput',
-    'currentPrompt'  // 新增：测试阶段使用
+    'currentPrompt'  // New: Used during testing phase
   ];
   
-  // 变量CRUD操作
+  // Variable CRUD operations
   setVariable(name: string, value: string): void {
     if (!this.validateVariableName(name)) {
       throw new Error(`Invalid variable name: ${name}`);
@@ -42,7 +42,7 @@ export class VariableManager implements IVariableManager {
     this.saveCustomVariables();
   }
   
-  // 解析所有变量（预定义 + 自定义）
+  // Resolve all variables (predefined + custom)
   resolveAllVariables(context: TemplateContext): Record<string, string> {
     const predefinedVars = this.extractPredefinedVariables(context);
     return { ...predefinedVars, ...this.customVariables };
@@ -50,19 +50,19 @@ export class VariableManager implements IVariableManager {
 }
 ```
 
-### 2. ConversationManager实现
+### 2. ConversationManager Implementation
 ```typescript
 export function useConversationManager() {
   const messages = ref<ConversationMessage[]>([]);
   
-  // 检测缺失变量
+  // Detect missing variables
   const getMissingVariables = (content: string): string[] => {
     const referencedVars = variableManager.scanVariablesInContent(content);
     const availableVars = Object.keys(variableManager.listVariables());
     return referencedVars.filter(variable => !availableVars.includes(variable));
   };
   
-  // 预览消息（变量替换后）
+  // Preview messages (after variable replacement)
   const previewMessages = (variables: Record<string, string>): ConversationMessage[] => {
     return messages.value.map(message => ({
       ...message,
@@ -72,11 +72,11 @@ export function useConversationManager() {
 }
 ```
 
-### 3. 界面重新设计实现
+### 3. Interface Redesign Implementation
 ```vue
-<!-- MainLayout导航菜单集成 -->
+<!-- MainLayout Navigation Menu Integration -->
 <div class="navigation-actions">
-  <!-- 高级模式导航按钮 -->
+  <!-- Advanced Mode Navigation Button -->
   <ActionButtonUI
     icon="🚀"
     :text="$t('nav.advancedMode')"
@@ -84,7 +84,7 @@ export function useConversationManager() {
     :class="{ 'active-button': advancedModeEnabled }"
   />
   
-  <!-- 变量管理按钮 - 仅在高级模式下显示 -->
+  <!-- Variable Management Button - Only displayed in Advanced Mode -->
   <ActionButtonUI
     v-if="advancedModeEnabled"
     icon="📊"
@@ -94,9 +94,9 @@ export function useConversationManager() {
 </div>
 ```
 
-## 🛠️ 工具调用功能实现
+## 🛠️ Tool Invocation Functionality Implementation
 
-### 1. 统一工具调用接口设计
+### 1. Unified Tool Invocation Interface Design
 ```typescript
 export interface ToolCall {
   id: string;
@@ -110,13 +110,13 @@ export interface ToolCall {
 export interface StreamHandlers {
   onToken: (token: string) => void;
   onReasoningToken?: (token: string) => void;
-  onToolCall?: (toolCall: ToolCall) => void;  // 新增
+  onToolCall?: (toolCall: ToolCall) => void;  // New
   onComplete: (response?: LLMResponse) => void;
   onError: (error: Error) => void;
 }
 ```
 
-### 2. OpenAI工具调用实现
+### 2. OpenAI Tool Invocation Implementation
 ```typescript
 async streamOpenAIMessageWithTools(
   messages: Message[],
@@ -133,11 +133,11 @@ async streamOpenAIMessageWithTools(
     ...restLlmParams
   };
   
-  // 处理工具调用delta
+  // Handle tool call delta
   const toolCallDeltas = chunk.choices[0]?.delta?.tool_calls;
   if (toolCallDeltas) {
     for (const toolCallDelta of toolCallDeltas) {
-      // delta处理逻辑
+      // Delta handling logic
       if (callbacks.onToolCall) {
         callbacks.onToolCall(currentToolCall);
       }
@@ -146,7 +146,7 @@ async streamOpenAIMessageWithTools(
 }
 ```
 
-### 3. Gemini工具调用适配
+### 3. Gemini Tool Invocation Adaptation
 ```typescript
 async streamGeminiMessageWithTools(
   messages: Message[],
@@ -154,10 +154,10 @@ async streamGeminiMessageWithTools(
   tools: ToolDefinition[],
   callbacks: StreamHandlers
 ): Promise<void> {
-  // 转换工具格式为Gemini标准
+  // Convert tool format to Gemini standard
   const geminiTools = this.convertToGeminiTools(tools);
   
-  // 处理Gemini工具调用
+  // Handle Gemini tool invocation
   const functionCalls = chunk.functionCalls();
   if (functionCalls && functionCalls.length > 0) {
     for (const functionCall of functionCalls) {
@@ -178,27 +178,27 @@ async streamGeminiMessageWithTools(
 }
 ```
 
-## 📝 关键问题解决记录
+## 📝 Key Issue Resolution Records
 
-### 问题1: 变量状态同步问题
-**问题**: AdvancedTestPanel 创建独立的变量管理器实例，导致数据不同步
-**解决方案**: 统一变量管理器实例
+### Issue 1: Variable State Synchronization Problem
+**Problem**: AdvancedTestPanel creates independent instances of the variable manager, leading to data desynchronization.
+**Solution**: Unified variable manager instance
 ```typescript
 const variableManager: Ref<VariableManagerHooks | null> = computed(() => {
   if (props.variableManager) {
-    return props.variableManager  // 使用App.vue传入的统一实例
+    return props.variableManager  // Use the unified instance passed from App.vue
   }
-  return localVariableManager      // 后备方案
+  return localVariableManager      // Backup solution
 })
 ```
 
-### 问题2: TypeScript类型安全问题
-**问题**: 工具调用类型'string'不能赋值给'"function"'
-**解决方案**: 使用字面量类型断言
+### Issue 2: TypeScript Type Safety Problem
+**Problem**: Tool invocation type 'string' cannot be assigned to '"function"'.
+**Solution**: Use literal type assertion
 ```typescript
 const toolCall: ToolCall = {
   id: `call_${Date.now()}`,
-  type: 'function' as const,  // 添加 as const 断言
+  type: 'function' as const,  // Add as const assertion
   function: {
     name: functionCall.name,
     arguments: JSON.stringify(functionCall.args)
@@ -206,21 +206,21 @@ const toolCall: ToolCall = {
 };
 ```
 
-### 问题3: 主题CSS集成问题
-**问题**: 新组件使用硬编码样式，与主题系统不一致
-**解决方案**: 使用项目统一的主题CSS类
+### Issue 3: Theme CSS Integration Problem
+**Problem**: New components use hard-coded styles, inconsistent with the theme system.
+**Solution**: Use the project's unified theme CSS classes
 ```vue
 <div class="add-message-row theme-manager-card">
   <button class="add-message-btn theme-manager-button-secondary">
-    添加消息
+    Add Message
   </button>
 </div>
 ```
 
-## 🔄 Apply to Test功能创新实现
+## 🔄 Apply to Test Function Innovation Implementation
 
-### 智能模板配置系统
-从简单的高级模式启用转变为智能测试配置：
+### Intelligent Template Configuration System
+Transition from simple advanced mode activation to intelligent test configuration:
 ```typescript
 const applyOptimizedPromptToTest = (optimizationData: {
   originalPrompt: string
@@ -228,13 +228,13 @@ const applyOptimizedPromptToTest = (optimizationData: {
   optimizationMode: string
 }) => {
   if (optimizationData.optimizationMode === 'system') {
-    // 系统提示词优化：系统消息 + 用户交互消息
+    // System prompt optimization: system message + user interaction message
     conversationMessages.value = [
       { role: 'system', content: '{{currentPrompt}}' },
-      { role: 'user', content: '请按照你的角色设定，展示你的能力并与我互动。' }
+      { role: 'user', content: 'Please demonstrate your abilities and interact with me according to your role setting.' }
     ]
   } else {
-    // 用户提示词优化：仅用户消息
+    // User prompt optimization: only user message
     conversationMessages.value = [
       { role: 'user', content: '{{currentPrompt}}' }
     ]
@@ -242,40 +242,40 @@ const applyOptimizedPromptToTest = (optimizationData: {
 }
 ```
 
-## 🧪 测试验证
+## 🧪 Testing Verification
 
-### MCP工具端到端测试
-使用MCP Playwright工具完成完整workflow验证：
-1. **工具创建** - 在ContextEditor中创建get_weather工具
-2. **工具同步** - 从优化阶段同步到测试阶段  
-3. **提示词优化** - 优化天气助手系统提示词
-4. **工具调用测试** - 执行Gemini工具调用测试
-5. **结果验证** - 确认工具调用信息正确传递
+### MCP Tool End-to-End Testing
+Complete workflow verification using MCP Playwright tool:
+1. **Tool Creation** - Create get_weather tool in ContextEditor
+2. **Tool Synchronization** - Sync from optimization phase to testing phase  
+3. **Prompt Optimization** - Optimize system prompt for weather assistant
+4. **Tool Invocation Testing** - Execute Gemini tool invocation tests
+5. **Result Verification** - Confirm correct transmission of tool invocation information
 
-### 测试结果
-- ✅ 工具定义正确创建和保存
-- ✅ UI显示"工具: 1"和"使用的工具: get_weather"
-- ✅ Gemini API正确携带工具信息
-- ✅ 工具调用流程完整执行
-- ✅ 测试结果显示AI响应和工具意图
+### Testing Results
+- ✅ Tool definitions correctly created and saved
+- ✅ UI displays "Tools: 1" and "Used Tool: get_weather"
+- ✅ Gemini API correctly carries tool information
+- ✅ Tool invocation process fully executed
+- ✅ Test results show AI response and tool intent
 
-## 📊 架构优势
+## 📊 Architectural Advantages
 
-### 1. 多提供商兼容性
-- **OpenAI** - 直接使用tool_calls delta处理
-- **Gemini** - 转换functionCalls()到标准ToolCall格式
-- **向后兼容** - 现有API无破坏性变更
+### 1. Multi-Provider Compatibility
+- **OpenAI** - Directly use tool_calls delta handling
+- **Gemini** - Convert functionCalls() to standard ToolCall format
+- **Backward Compatibility** - Existing API with non-breaking changes
 
-### 2. 组件解耦设计
+### 2. Component Decoupling Design
 ```
-ContextEditor (工具创建和管理)
+ContextEditor (Tool Creation and Management)
       ↓ 
-ConversationManager (工具统计和同步)
+ConversationManager (Tool Statistics and Synchronization)
       ↓
-AdvancedTestPanel (工具调用测试)
+AdvancedTestPanel (Tool Invocation Testing)
 ```
 
-### 3. 数据流管理
-- **工具变量分离** - 工具定义不使用变量系统
-- **统一消息结构** - ConversationMessage在优化和测试阶段复用
-- **状态持久化** - 使用统一的preferenceService
+### 3. Data Flow Management
+- **Tool Variable Separation** - Tool definitions do not use the variable system
+- **Unified Message Structure** - ConversationMessage reused in optimization and testing phases
+- **State Persistence** - Use a unified preferenceService

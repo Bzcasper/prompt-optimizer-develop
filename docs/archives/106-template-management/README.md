@@ -1,42 +1,42 @@
-# 106-template-management - 模板管理功能
+# 106-template-management - Template Management Functionality
 
-## 概述
-模板管理功能的开发、优化和问题排查，包括模板的增删改查和相关用户体验优化。
+## Overview
+The development, optimization, and troubleshooting of the template management functionality, including the addition, deletion, modification, and querying of templates, as well as related user experience optimizations.
 
-## 时间线
-- 开始时间：2024-12-30
-- 完成时间：进行中
-- 状态：🔄 开发中
+## Timeline
+- Start Date: 2024-12-30
+- Completion Date: Ongoing
+- Status: 🔄 In Development
 
-## 相关开发者
-- 主要开发者：项目团队
-- 代码审查：项目团队
+## Related Developers
+- Lead Developer: Project Team
+- Code Review: Project Team
 
-## 文档清单
-- [x] `troubleshooting.md` - 模板管理故障排除清单
-- [x] `event-propagation-fix.md` - 事件传播机制修复（内置模板语言切换bug）
-- [ ] `design.md` - 模板管理功能设计
-- [ ] `experience.md` - 开发经验总结（待从experience.md中提取）
+## Document List
+- [x] `troubleshooting.md` - Template Management Troubleshooting Checklist
+- [x] `event-propagation-fix.md` - Event Propagation Mechanism Fix (Built-in Template Language Switch Bug)
+- [ ] `design.md` - Template Management Functionality Design
+- [ ] `experience.md` - Development Experience Summary (To be extracted from experience.md)
 
-## 相关代码变更
-- 影响包：@prompt-optimizer/core, @prompt-optimizer/ui, @prompt-optimizer/web, @prompt-optimizer/extension
-- 主要变更：
-  - 模板管理功能实现
-  - 异步操作优化
-  - 错误处理改进
-  - **事件传播机制完善**：修复内置模板语言切换后迭代页面不更新的问题
+## Related Code Changes
+- Affected Packages: @prompt-optimizer/core, @prompt-optimizer/ui, @prompt-optimizer/web, @prompt-optimizer/extension
+- Major Changes:
+  - Implementation of Template Management Functionality
+  - Optimization of Asynchronous Operations
+  - Improvement of Error Handling
+  - **Event Propagation Mechanism Enhancement**: Fix the issue of the iteration page not updating after switching the built-in template language
 
-## 已知问题和解决方案
-- 模板删除错误"Template not found"：异步方法调用缺少await关键字
-- 模态框渲染问题：缺少v-if指令控制显示
-- 模板管理器调用逻辑：优化模式选择与模板管理的关联
-- **内置模板语言切换后迭代页面不更新**：事件传播机制缺失，需要建立完整的事件传播链
+## Known Issues and Solutions
+- Template Deletion Error "Template not found": Missing await keyword in asynchronous method calls
+- Modal Rendering Issue: Missing v-if directive to control display
+- Template Manager Call Logic: Optimize the association between mode selection and template management
+- **Iteration page not updating after switching built-in template language**: Missing event propagation mechanism, a complete event propagation chain needs to be established
 
-## 后续影响
-- 提升模板管理用户体验
-- 减少模板操作相关的错误
-- 为高级模板功能奠定基础
+## Subsequent Impact
+- Enhance user experience in template management
+- Reduce errors related to template operations
+- Lay the foundation for advanced template functionalities
 
-## 相关功能点
-- 前置依赖：105-output-display-v2
-- 后续功能：待规划
+## Related Functionality Points
+- Pre-requisite Dependency: 105-output-display-v2
+- Subsequent Features: To be planned

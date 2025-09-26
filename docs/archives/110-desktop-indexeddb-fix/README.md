@@ -1,105 +1,105 @@
-# Desktop IndexedDB问题修复任务总结
+# Desktop IndexedDB Issue Fix Task Summary
 
-## 📋 任务概述
-- **任务类型**：Bug修复 + 架构改进
-- **开始时间**：2025-01-01
-- **完成时间**：2025-01-01
-- **状态**：✅ 已完成
-- **优先级**：高（影响Desktop应用正常使用）
+## 📋 Task Overview
+- **Task Type**: Bug Fix + Architectural Improvement
+- **Start Date**: 2025-01-01
+- **Completion Date**: 2025-01-01
+- **Status**: ✅ Completed
+- **Priority**: High (Affects normal use of Desktop application)
 
-## 🎯 问题描述
-用户在Desktop应用中发现，即使在Electron环境下，开发者工具中仍然可以看到IndexedDB数据库，这违反了Desktop应用的架构设计（应该只使用主进程的memory storage）。
+## 🎯 Issue Description
+Users found that in the Desktop application, even in the Electron environment, the IndexedDB database can still be seen in the developer tools, which violates the architectural design of the Desktop application (it should only use memory storage in the main process).
 
-## 🔍 问题分析
+## 🔍 Issue Analysis
 
-### 根本原因
-1. **模块级存储创建**：`packages/core/src/services/prompt/factory.ts`中有模块级别的`StorageFactory.createDefault()`调用
-2. **TemplateLanguageService构造函数**：使用默认参数调用`createDefault()`
-3. **历史遗留数据**：之前创建的IndexedDB数据持久化存储在浏览器中
+### Root Cause
+1. **Module-level Storage Creation**: There is a module-level `StorageFactory.createDefault()` call in `packages/core/src/services/prompt/factory.ts`.
+2. **TemplateLanguageService Constructor**: Calls `createDefault()` with default parameters.
+3. **Legacy Data**: Previously created IndexedDB data is persistently stored in the browser.
 
-### 架构问题
-- **设计违反**：Electron渲染进程不应该有任何本地存储实例
-- **数据不一致**：渲染进程和主进程可能有不同的数据状态
-- **意外创建**：`createDefault()`方法在任何环境下都会创建IndexedDB
+### Architectural Issues
+- **Design Violation**: The Electron rendering process should not have any local storage instances.
+- **Data Inconsistency**: The rendering process and the main process may have different data states.
+- **Accidental Creation**: The `createDefault()` method creates IndexedDB in any environment.
 
-## 🛠️ 解决方案
+## 🛠️ Solution
 
-### 核心修复
-1. **彻底删除`StorageFactory.createDefault()`方法**
-2. **修复`TemplateLanguageService`构造函数**：改为必须传入storage参数
-3. **重构`prompt/factory.ts`**：移除模块级存储创建，改为依赖注入
-4. **修复API调用错误**：`getModels()` → `getAllModels()`
+### Core Fixes
+1. **Completely Remove `StorageFactory.createDefault()` Method**
+2. **Fix `TemplateLanguageService` Constructor**: Change to require a storage parameter.
+3. **Refactor `prompt/factory.ts`**: Remove module-level storage creation and switch to dependency injection.
+4. **Fix API Call Error**: `getModels()` → `getAllModels()`
 
-### 架构改进
-- **强制明确性**：所有存储创建都必须明确指定类型
-- **避免意外创建**：防止在不合适环境下自动创建IndexedDB
-- **代理架构完善**：Electron渲染进程完全使用代理服务
+### Architectural Improvements
+- **Enforce Explicitness**: All storage creation must explicitly specify the type.
+- **Prevent Accidental Creation**: Prevent automatic creation of IndexedDB in inappropriate environments.
+- **Proxy Architecture Enhancement**: The Electron rendering process fully uses proxy services.
 
-## 📁 修改的文件
+## 📁 Modified Files
 
-### Core包修改
-- `packages/core/src/services/storage/factory.ts` - 删除createDefault()和getCurrentDefault()
-- `packages/core/src/services/template/languageService.ts` - 构造函数改为必须传入storage
-- `packages/core/src/services/prompt/factory.ts` - 重构为依赖注入方式
-- `packages/core/src/services/prompt/service.ts` - 移除重复函数定义
-- `packages/core/src/index.ts` - 修复导出路径
-- `packages/core/tests/integration/storage-implementations.test.ts` - 更新测试
+### Core Package Modifications
+- `packages/core/src/services/storage/factory.ts` - Removed createDefault() and getCurrentDefault().
+- `packages/core/src/services/template/languageService.ts` - Constructor changed to require storage.
+- `packages/core/src/services/prompt/factory.ts` - Refactored to use dependency injection.
+- `packages/core/src/services/prompt/service.ts` - Removed duplicate function definitions.
+- `packages/core/src/index.ts` - Fixed export paths.
+- `packages/core/tests/integration/storage-implementations.test.ts` - Updated tests.
 
-### Desktop包修改
-- `packages/desktop/package.json` - 添加缺失依赖
-- `packages/desktop/main.js` - 修复API调用错误
-- `packages/desktop/build.js` - 创建跨平台构建脚本
+### Desktop Package Modifications
+- `packages/desktop/package.json` - Added missing dependencies.
+- `packages/desktop/main.js` - Fixed API call errors.
+- `packages/desktop/build.js` - Created cross-platform build script.
 
-### UI包修改
-- `packages/ui/src/composables/useAppInitializer.ts` - 修复Electron存储代理
+### UI Package Modifications
+- `packages/ui/src/composables/useAppInitializer.ts` - Fixed Electron storage proxy.
 
-### 清理的过度修复
-- 移除DexieStorageProvider中的Electron环境警告
-- 简化useAppInitializer中的详细调试信息
-- 删除不必要的listTemplatesByTypeAsync方法
+### Cleaned Up Over-Fixes
+- Removed Electron environment warnings in DexieStorageProvider.
+- Simplified detailed debug information in useAppInitializer.
+- Deleted unnecessary listTemplatesByTypeAsync method.
 
-## 🧪 测试验证
+## 🧪 Testing Verification
 
-### 测试结果
-- ✅ Desktop应用成功启动
-- ✅ 主进程正确使用memory storage
-- ✅ 渲染进程使用代理服务
-- ✅ 模板加载正常（7个模板）
-- ✅ Web开发服务器运行正常
-- ✅ 无IndexedDB自动创建
+### Test Results
+- ✅ Desktop application successfully launched.
+- ✅ Main process correctly uses memory storage.
+- ✅ Rendering process uses proxy services.
+- ✅ Templates loaded normally (7 templates).
+- ✅ Web development server runs normally.
+- ✅ No automatic creation of IndexedDB.
 
-### 用户验证
-- ✅ 手动删除IndexedDB后，重新启动应用不再创建IndexedDB
-- ✅ 应用功能正常，界面加载正常
+### User Verification
+- ✅ After manually deleting IndexedDB, restarting the application no longer creates IndexedDB.
+- ✅ Application functions normally, interface loads correctly.
 
-## 💡 关键收获
+## 💡 Key Takeaways
 
-### 架构原则
-1. **强制明确性比便利性更重要**：删除`createDefault()`强制开发者明确指定存储类型
-2. **避免模块级副作用**：模块导入不应该产生存储创建等副作用
-3. **依赖注入优于默认值**：明确的依赖传递比隐式的默认值更安全
+### Architectural Principles
+1. **Enforcing Explicitness is More Important than Convenience**: Removing `createDefault()` forces developers to explicitly specify storage types.
+2. **Avoid Module-Level Side Effects**: Module imports should not produce side effects like storage creation.
+3. **Dependency Injection is Better than Default Values**: Explicit dependency passing is safer than implicit default values.
 
-### 调试经验
-1. **历史数据影响**：修复代码后仍需清理历史遗留数据
-2. **环境检测时序**：Electron环境检测需要考虑preload脚本执行时序
-3. **过度修复识别**：修复过程中要避免不必要的复杂化
+### Debugging Experience
+1. **Impact of Legacy Data**: Historical data must be cleaned up even after code fixes.
+2. **Timing of Environment Detection**: Electron environment detection needs to consider the timing of preload script execution.
+3. **Identification of Over-Fixes**: Avoid unnecessary complexity during the fixing process.
 
-### 代码质量
-1. **及时清理无用代码**：如`getCurrentDefault()`等失效方法
-2. **避免过度防御**：如DexieStorageProvider中的环境警告
-3. **保持接口一致性**：Web和Electron版本应尽可能使用相同接口
+### Code Quality
+1. **Timely Cleanup of Useless Code**: Such as invalid methods like `getCurrentDefault()`.
+2. **Avoid Over-Defense**: Such as environment warnings in DexieStorageProvider.
+3. **Maintain Interface Consistency**: Web and Electron versions should use the same interfaces as much as possible.
 
-## 📚 相关文档
-- [Desktop模块修复详情](./desktop-module-fixes.md)
-- [架构设计文档](../archives/103-desktop-architecture/)
-- [故障排查清单](../developer/troubleshooting/general-checklist.md)
+## 📚 Related Documents
+- [Details of Desktop Module Fixes](./desktop-module-fixes.md)
+- [Architecture Design Document](../archives/103-desktop-architecture/)
+- [Troubleshooting Checklist](../developer/troubleshooting/general-checklist.md)
 
-## 🔄 后续行动
-- [ ] 将此次修复经验整理到故障排查清单中
-- [ ] 考虑添加自动化测试防止类似问题再次发生
-- [ ] 评估是否需要在其他地方应用类似的架构改进
+## 🔄 Next Steps
+- [ ] Organize the experience from this fix into the troubleshooting checklist.
+- [ ] Consider adding automated tests to prevent similar issues from occurring again.
+- [ ] Evaluate whether similar architectural improvements are needed elsewhere.
 
 ---
-**任务负责人**：AI Assistant  
-**审核状态**：已归档
-**归档时间**：2025-01-02 
+**Task Owner**: AI Assistant  
+**Review Status**: Archived  
+**Archive Date**: 2025-01-02

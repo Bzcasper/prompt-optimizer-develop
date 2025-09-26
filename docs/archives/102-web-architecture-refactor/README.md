@@ -1,36 +1,36 @@
-# 102-web-architecture-refactor - Web架构重构
+# 102-web-architecture-refactor - Web Architecture Refactor
 
-## 概述
-基于单例重构的基础，对Web应用和浏览器插件的架构进行全面重构，采用统一的Composable架构。
+## Overview
+Based on the singleton refactor, a comprehensive refactor of the architecture for web applications and browser extensions is conducted, adopting a unified Composable architecture.
 
-## 时间线
-- 开始时间：2024-12-29
-- 完成时间：2024-12-30
-- 状态：✅ 已完成
+## Timeline
+- Start Date: 2024-12-29
+- Completion Date: 2024-12-30
+- Status: ✅ Completed
 
-## 相关开发者
-- 主要开发者：项目团队
-- 代码审查：项目团队
+## Related Developers
+- Lead Developer: Project Team
+- Code Review: Project Team
 
-## 文档清单
-- [x] `plan.md` - Web架构重构计划
-- [x] `composables-plan.md` - Composables重构详细计划
-- [ ] `experience.md` - 重构过程中的经验总结（待从experience.md中提取）
+## Document Checklist
+- [x] `plan.md` - Web Architecture Refactor Plan
+- [x] `composables-plan.md` - Detailed Plan for Composables Refactor
+- [ ] `experience.md` - Summary of Experiences During Refactor (to be extracted from experience.md)
 
-## 相关代码变更
-- 影响包：@prompt-optimizer/web, @prompt-optimizer/extension
-- 主要变更：
-  - 修复应用启动失败问题
-  - 完全对齐上层应用与底层服务架构
-  - 简化App.vue，采用useAppInitializer进行服务初始化
-  - 采用最新的Composable架构
+## Related Code Changes
+- Affected Packages: @prompt-optimizer/web, @prompt-optimizer/extension
+- Major Changes:
+  - Fixed application startup failure issue
+  - Fully aligned upper-level applications with lower-level service architecture
+  - Simplified App.vue, using useAppInitializer for service initialization
+  - Adopted the latest Composable architecture
 
-## 后续影响
-- 应用能够正常启动和运行
-- 统一了Web和插件的架构模式
-- 提高了代码的一致性和可维护性
-- 为后续功能开发提供了稳定的架构基础
+## Subsequent Impact
+- The application can start and run normally
+- Unified the architectural patterns for web and extensions
+- Improved code consistency and maintainability
+- Provided a stable architectural foundation for future feature development
 
-## 相关功能点
-- 前置依赖：101-singleton-refactor
-- 后续功能：103-desktop-architecture
+## Related Functionality Points
+- Prerequisite Dependency: 101-singleton-refactor
+- Subsequent Functionality: 103-desktop-architecture

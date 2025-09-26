@@ -22,7 +22,7 @@ export class AdvancedTools {
         heyGenVideoTool.definition,
         heyGenVideoTool.handler
       );
-      
+
       console.log('✅ All advanced tools registered successfully');
     } catch (error) {
       console.error('❌ Failed to register advanced tools:', error);

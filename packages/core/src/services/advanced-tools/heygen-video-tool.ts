@@ -4,26 +4,25 @@
  */
 
 import {
-  ToolDefinition,
-  ToolHandler,
-  ToolExecutionContext,
-  ToolExecutionResult,
-  ToolCapabilities,
-  TOOL_CATEGORIES
+    TOOL_CATEGORIES,
+    ToolCapabilities,
+    ToolDefinition,
+    ToolExecutionContext,
+    ToolExecutionResult,
+    ToolHandler
 } from '../tool-registry';
 
-import { 
-  getHeyGenVideoPrompt, 
-  heygenVideoPrompts 
+import {
+    getHeyGenVideoPrompt
 } from '../advanced-prompts/heygen-video-prompts';
 
 export class HeyGenVideoTool implements ToolHandler {
   async execute(context: ToolExecutionContext): Promise<ToolExecutionResult> {
     try {
-      const { 
-        promptType, 
-        parameters, 
-        options = {} 
+      const {
+        promptType,
+        parameters,
+        options = {}
       } = context.parameters;
 
       // Get the appropriate prompt template
@@ -124,7 +123,7 @@ export class HeyGenVideoTool implements ToolHandler {
         avatarRecommendations = this.generateCorporateTrainingAvatarRecommendations(parameters);
         visualElements = this.generateCorporateTrainingVisualElements(parameters);
         break;
-      
+
       case 'heygen-marketing-promotional':
         script = this.generateMarketingPromotionalScript(parameters);
         productionPlan = this.generateMarketingPromotionalProductionPlan(parameters);
@@ -132,7 +131,7 @@ export class HeyGenVideoTool implements ToolHandler {
         avatarRecommendations = this.generateMarketingPromotionalAvatarRecommendations(parameters);
         visualElements = this.generateMarketingPromotionalVisualElements(parameters);
         break;
-      
+
       case 'heygen-educational-elearning':
         script = this.generateEducationalELearningScript(parameters);
         productionPlan = this.generateEducationalELearningProductionPlan(parameters);
@@ -140,7 +139,7 @@ export class HeyGenVideoTool implements ToolHandler {
         avatarRecommendations = this.generateEducationalELearningAvatarRecommendations(parameters);
         visualElements = this.generateEducationalELearningVisualElements(parameters);
         break;
-      
+
       case 'heygen-product-demonstration':
         script = this.generateProductDemonstrationScript(parameters);
         productionPlan = this.generateProductDemonstrationProductionPlan(parameters);
@@ -148,7 +147,7 @@ export class HeyGenVideoTool implements ToolHandler {
         avatarRecommendations = this.generateProductDemonstrationAvatarRecommendations(parameters);
         visualElements = this.generateProductDemonstrationVisualElements(parameters);
         break;
-      
+
       case 'heygen-social-media-content':
         script = this.generateSocialMediaContentScript(parameters);
         productionPlan = this.generateSocialMediaContentProductionPlan(parameters);
@@ -156,7 +155,7 @@ export class HeyGenVideoTool implements ToolHandler {
         avatarRecommendations = this.generateSocialMediaContentAvatarRecommendations(parameters);
         visualElements = this.generateSocialMediaContentVisualElements(parameters);
         break;
-      
+
       default:
         script = 'Generated script based on your parameters.';
         productionPlan = 'Standard production plan for your video content.';
@@ -702,7 +701,7 @@ export function createHeyGenVideoTool(): { definition: ToolDefinition; handler: 
               type: 'string',
               description: 'Preferred visual style for the video'
             },
-            
+
             // Corporate training specific
             trainingTopic: {
               type: 'string',
@@ -720,7 +719,7 @@ export function createHeyGenVideoTool(): { definition: ToolDefinition; handler: 
               type: 'string',
               description: 'Brand guidelines for the video'
             },
-            
+
             // Marketing specific
             productService: {
               type: 'string',
@@ -746,7 +745,7 @@ export function createHeyGenVideoTool(): { definition: ToolDefinition; handler: 
               type: 'string',
               description: 'Call to action for viewers'
             },
-            
+
             // Educational specific
             subjectArea: {
               type: 'string',
@@ -764,7 +763,7 @@ export function createHeyGenVideoTool(): { definition: ToolDefinition; handler: 
               type: 'string',
               description: 'Assessment requirements for the educational content'
             },
-            
+
             // Product demonstration specific
             productName: {
               type: 'string',
@@ -790,7 +789,7 @@ export function createHeyGenVideoTool(): { definition: ToolDefinition; handler: 
               type: 'string',
               description: 'Visual elements to include in demonstration'
             },
-            
+
             // Social media specific
             contentTopic: {
               type: 'string',
