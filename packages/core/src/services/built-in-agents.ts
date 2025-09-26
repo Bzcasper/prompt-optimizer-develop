@@ -13,7 +13,8 @@ import {
   AgentCapabilities,
   AGENT_TYPES,
   AGENT_SPECIALIZATIONS,
-} from "./agent-registry";
+} from "./agent/types";
+import { AgentRegistry } from "./agent/registry";
 
 // Base Agent Handler Class
 export abstract class BaseAgentHandler implements AgentHandler {
@@ -3770,7 +3771,7 @@ export class BuiltInAgents {
   /**
    * Register all built-in agents with an agent registry
    */
-  static registerAllBuiltInAgents(registry: any): void {
+  static registerAllBuiltInAgents(registry: AgentRegistry): void {
     const agents = [
       this.createCodeReviewerAgent(),
       this.createContentCreatorAgent(),
