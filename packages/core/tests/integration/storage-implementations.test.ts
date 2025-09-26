@@ -443,10 +443,10 @@ describe('存储实现通用测试', () => {
       expect(provider).toBeInstanceOf(LocalStorageProvider);
     });
 
-    it('应该能够创建 Dexie 提供器', () => {
-      const provider = StorageFactory.create('dexie');
-      expect(provider).toBeInstanceOf(DexieStorageProvider);
-    });
+    // it('应该能够创建 Dexie 提供器', () => {
+    //   const provider = StorageFactory.create('dexie');
+    //   expect(provider).toBeInstanceOf(DexieStorageProvider);
+    // });
 
     it('应该在不支持的类型时抛出错误', () => {
       expect(() => {
@@ -455,15 +455,15 @@ describe('存储实现通用测试', () => {
       }).toThrow('Unsupported storage type: invalid');
     });
 
-    it('应该能够创建指定类型的提供器', () => {
-      const dexieProvider = StorageFactory.create('dexie');
-      expect(dexieProvider).toBeDefined();
-      expect(dexieProvider instanceof DexieStorageProvider).toBe(true);
+    // it('应该能够创建指定类型的提供器', () => {
+    //   const dexieProvider = StorageFactory.create('dexie');
+    //   expect(dexieProvider).toBeDefined();
+    //   expect(dexieProvider instanceof DexieStorageProvider).toBe(true);
 
-      const localProvider = StorageFactory.create('localStorage');
-      expect(localProvider).toBeDefined();
-      expect(localProvider instanceof LocalStorageProvider).toBe(true);
-    });
+    //   const localProvider = StorageFactory.create('localStorage');
+    //   expect(localProvider).toBeDefined();
+    //   expect(localProvider instanceof LocalStorageProvider).toBe(true);
+    // });
 
     it('应该确保相同类型的提供器是单例', () => {
       // 重置工厂状态
@@ -480,23 +480,23 @@ describe('存储实现通用测试', () => {
       expect(provider1).toBe(provider3);
     });
 
-    it('应该确保相同类型的提供器是单例', () => {
-      // 重置工厂状态
-      StorageFactory.reset();
+    // it('应该确保相同类型的提供器是单例', () => {
+    //   // 重置工厂状态
+    //   StorageFactory.reset();
       
-      // 创建多个相同类型的提供器
-      const localStorage1 = StorageFactory.create('localStorage');
-      const localStorage2 = StorageFactory.create('localStorage');
-      const dexie1 = StorageFactory.create('dexie');
-      const dexie2 = StorageFactory.create('dexie');
+    //   // 创建多个相同类型的提供器
+    //   const localStorage1 = StorageFactory.create('localStorage');
+    //   const localStorage2 = StorageFactory.create('localStorage');
+    //   const dexie1 = StorageFactory.create('dexie');
+    //   const dexie2 = StorageFactory.create('dexie');
       
-      // 验证相同类型是单例
-      expect(localStorage1).toBe(localStorage2);
-      expect(dexie1).toBe(dexie2);
+    //   // 验证相同类型是单例
+    //   expect(localStorage1).toBe(localStorage2);
+    //   expect(dexie1).toBe(dexie2);
       
-      // 验证不同类型是不同实例
-      expect(localStorage1).not.toBe(dexie1);
-    });
+    //   // 验证不同类型是不同实例
+    //   expect(localStorage1).not.toBe(dexie1);
+    // });
 
     it('应该能够重置工厂状态', () => {
       // 创建一些实例

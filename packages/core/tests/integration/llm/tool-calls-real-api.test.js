@@ -10,8 +10,9 @@ const HAVE_PROVIDER_KEYS = !!process.env.OPENAI_API_KEY || !!process.env.VITE_OP
   !!process.env.VITE_CUSTOM_API_KEY || !!process.env.CUSTOM_API_KEY;
 if (!HAVE_PROVIDER_KEYS) {
   console.warn('Skipping tool-calls-real-api tests: no external LLM provider API keys found');
-  describe.skip('Tool Calls Real API Integration (skipped - no API keys)', () => {});
-  throw new Error('skip-suite');
+  describe.skip('Tool Calls Real API Integration (skipped - no API keys)', () => {
+    it.skip('noop', () => {});
+  });
 }
 
 // 加载环境变量

@@ -6,7 +6,7 @@ import {
 import { expect, describe, it, beforeEach, beforeAll, vi } from 'vitest';
 import dotenv from 'dotenv';
 import path from 'path';
-import { MemoryStorageProvider } from '../../src/services/storage/memoryStorageProvider';
+import { MemoryStorageProvider } from '../../../src/services/storage/memoryStorageProvider.ts';
 
 // Skip real-provider tests when required API keys are missing
 const HAVE_OPENAI_KEY = !!process.env.OPENAI_API_KEY || !!process.env.VITE_OPENAI_API_KEY;

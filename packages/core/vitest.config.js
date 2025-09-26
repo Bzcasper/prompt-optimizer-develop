@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     test: {
       globals: true,
-      environment: 'node',
+      environment: 'jsdom',
       setupFiles: ['./tests/setup.js'],
       // 设置测试超时时间
       testTimeout: 30000, // 默认30秒

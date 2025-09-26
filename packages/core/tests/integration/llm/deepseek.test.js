@@ -7,8 +7,9 @@ import path from 'path';
 const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
 if (!DEEPSEEK_KEY) {
   console.warn('Skipping Deepseek integration tests: DEEPSEEK API key not set');
-  describe.skip('Deepseek integration tests (skipped - no API key)', () => {});
-  return;
+  describe.skip('Deepseek integration tests (skipped - no API key)', () => {
+    it.skip('noop', () => {});
+  });
 }
 
 // 加载环境变量
