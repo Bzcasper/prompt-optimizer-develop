@@ -29,14 +29,33 @@ describe('TemplateManager with Mocked LanguageService', () => {
     
     templateManager = new TemplateManager(storageProvider, languageService);
     
-    // Spy on static loader methods to verify which templates are loaded
-    vi.spyOn(staticLoader, 'getDefaultTemplates').mockReturnValue({ 'test-zh': { id: 'test-zh', name: '测试模板', content: '你好', isBuiltin: true, metadata: { templateType: 'optimize', version: '1.0', lastModified: 0 } } });
-    vi.spyOn(staticLoader, 'getDefaultTemplatesEn').mockReturnValue({ 'test-en': { id: 'test-en', name: 'Test Template', content: 'Hello', isBuiltin: true, metadata: { templateType: 'optimize', version: '1.0', lastModified: 0 } } });
+    const mockZhTemplates = {
+      'test-zh': { id: 'test-zh', name: '测试模板', content: '你好', isBuiltin: true, metadata: { templateType: 'optimize', version: '1.0', lastModified: 0, language: 'zh-CN' } },
+      'analytical-optimize': { id: 'analytical-optimize', name: '分析优化', content: '分析内容', isBuiltin: true, metadata: { templateType: 'optimize', version: '1.0', lastModified: 0, language: 'zh-CN' } }
+    };
+    const mockEnTemplates = { 'test-en': { id: 'test-en', name: 'Test Template', content: 'Hello', isBuiltin: true, metadata: { templateType: 'optimize', version: '1.0', lastModified: 0, language: 'en-US' } } };
+
+    // Spy on static loader methods to provide consistent mock data
+    vi.spyOn(staticLoader, 'getDefaultTemplates').mockReturnValue(mockZhTemplates);
+    vi.spyOn(staticLoader, 'getDefaultTemplatesEn').mockReturnValue(mockEnTemplates);
+
+    // Mock loadTemplates to ensure the fix can be tested correctly
+    vi.spyOn(staticLoader, 'loadTemplates').mockReturnValue({
+      all: { ...mockEnTemplates, ...mockZhTemplates },
+      byLanguage: { 'en': mockEnTemplates, 'zh': mockZhTemplates },
+      byType: {
+        'optimize': {
+          'en': mockEnTemplates,
+          'zh': mockZhTemplates
+        },
+        'iterate': { 'en': {}, 'zh': {} },
+        'user-optimize': { 'en': {}, 'zh': {} }
+      }
+    });
     
     // Manually inject the mocked staticLoader into the private field for testing purposes
     (templateManager as any).staticLoader = staticLoader;
-
-    });
+  });
 
   it('should load English templates by default in a test environment', async () => {
     const templates = await templateManager.listTemplates();
@@ -134,5 +153,42 @@ describe('TemplateManager with Mocked LanguageService', () => {
   it('should not allow deleting a built-in template', async () => {
     await expect(templateManager.deleteTemplate('test-en'))
       .rejects.toThrow('Cannot delete built-in template: test-en');
+  });
+
+  it('should not delete a user template that conflicts with a built-in template in another language', async () => {
+    // Mock that 'analytical-optimize' is a built-in template in Chinese
+    vi.spyOn(staticLoader, 'getDefaultTemplates').mockReturnValue({
+      'analytical-optimize': {
+        id: 'analytical-optimize',
+        name: '分析优化',
+        content: '分析内容',
+        isBuiltin: true,
+        metadata: { templateType: 'optimize', version: '1.0', lastModified: 0, language: 'zh-CN' }
+      }
+    });
+    // Ensure English templates don't have this ID
+    vi.spyOn(staticLoader, 'getDefaultTemplatesEn').mockReturnValue({
+      'test-en': { id: 'test-en', name: 'Test Template', content: 'Hello', isBuiltin: true, metadata: { templateType: 'optimize', version: '1.0', lastModified: 0, language: 'en-US' } }
+    });
+
+
+    // Current language is English
+    vi.spyOn(languageService, 'getCurrentLanguage').mockReturnValue('en-US');
+
+    // Create a user template with an ID that conflicts with a Chinese built-in template
+    const conflictingTemplate: Template = {
+      id: 'analytical-optimize',
+      name: 'Conflicting User Template',
+      content: 'User Content',
+      isBuiltin: false,
+      metadata: { templateType: 'userOptimize', version: '1.0', lastModified: Date.now() }
+    };
+
+    // This save should succeed as the conflict is in another language
+    await templateManager.saveTemplate(conflictingTemplate);
+
+    // This delete should fail, but currently passes
+    await expect(templateManager.deleteTemplate('analytical-optimize'))
+      .rejects.toThrow('Cannot delete built-in template: analytical-optimize');
   });
 });
