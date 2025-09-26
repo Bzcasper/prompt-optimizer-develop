@@ -526,7 +526,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, nextTick, inject } from 'vue'
+import { ref, onMounted, computed, watch, nextTick, inject, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { 
   NModal, NCard, NTabs, NTabPane, NButton, NTag, NInput, NInputGroup, 
@@ -535,7 +535,7 @@ import {
 } from 'naive-ui'
 import { TemplateProcessor, type Template, type MessageTemplate } from '@prompt-optimizer/core'
 import { useToast } from '../composables/useToast'
-import MarkdownRenderer from './MarkdownRenderer.vue'
+const MarkdownRenderer = defineAsyncComponent(() => import('./MarkdownRenderer.vue'))
 import BuiltinTemplateLanguageSwitch from './BuiltinTemplateLanguageSwitch.vue'
 import { syntaxGuideContent } from '../docs/syntax-guide'
 import type { ITemplateManager, TemplateLanguageService } from '@prompt-optimizer/core'

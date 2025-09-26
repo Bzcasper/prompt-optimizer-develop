@@ -12,8 +12,31 @@ import { NScrollbar } from 'naive-ui'
 import { ref, watch, onMounted } from 'vue';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
-import hljs from 'highlight.js';
+// Reduce bundle size: import only highlight.js core and register common languages
+import hljs from 'highlight.js/lib/core'
+import javascript from 'highlight.js/lib/languages/javascript'
+import typescript from 'highlight.js/lib/languages/typescript'
+import json from 'highlight.js/lib/languages/json'
+import bash from 'highlight.js/lib/languages/bash'
+import shell from 'highlight.js/lib/languages/shell'
+import markdown from 'highlight.js/lib/languages/markdown'
+import yaml from 'highlight.js/lib/languages/yaml'
+import python from 'highlight.js/lib/languages/python'
+import xml from 'highlight.js/lib/languages/xml'
+import css from 'highlight.js/lib/languages/css'
 import 'highlight.js/styles/github.css';
+
+hljs.registerLanguage('javascript', javascript)
+hljs.registerLanguage('typescript', typescript)
+hljs.registerLanguage('json', json)
+hljs.registerLanguage('bash', bash)
+hljs.registerLanguage('shell', shell)
+hljs.registerLanguage('markdown', markdown)
+hljs.registerLanguage('yaml', yaml)
+hljs.registerLanguage('python', python)
+hljs.registerLanguage('xml', xml)
+hljs.registerLanguage('html', xml)
+hljs.registerLanguage('css', css)
 
 const props = defineProps({
   content: {

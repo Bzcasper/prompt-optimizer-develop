@@ -24,9 +24,20 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
+      cssCodeSplit: true,
+      sourcemap: false,
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html')
+        },
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('naive-ui')) return 'vendor-naive-ui'
+              if (id.includes('markdown-it') || id.includes('highlight.js') || id.includes('dompurify')) return 'vendor-markdown'
+              if (id.includes('/vue')) return 'vendor-vue'
+            }
+          }
         }
       }
     },
@@ -34,16 +45,8 @@ export default defineConfig(({ mode }) => {
     resolve: {
       preserveSymlinks: true,
       alias: {
-        '@': resolve(__dirname, 'src'),
-        '@prompt-optimizer/core': path.resolve(__dirname, '../core'),
-        '@prompt-optimizer/ui': path.resolve(__dirname, '../ui'),
-        '@prompt-optimizer/web': path.resolve(__dirname, '../web'),
-        '@prompt-optimizer/extension': path.resolve(__dirname, '../extension')
+        '@': resolve(__dirname, 'src')
       }
-    },
-    optimizeDeps: {
-      // 预构建依赖
-      include: ['element-plus'],
     },
     define: {
       'process.env': {
