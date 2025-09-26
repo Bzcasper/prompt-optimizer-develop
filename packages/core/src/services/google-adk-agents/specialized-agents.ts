@@ -999,13 +999,13 @@ export class SpecializedGoogleADKAgents {
     };
   }
 
-  static registerAllSpecializedAgents(registry: any, projectId: string, location: string): void {
+  static async registerAllSpecializedAgents(registry: any, projectId: string, location: string): Promise<void> {
     console.log('🤖 Registering specialized Google ADK agents...');
 
     try {
       // Register Content Creation Agent
       const contentAgent = this.createContentCreationAgent(projectId, location);
-      registry.registerAgent(
+      await registry.registerAgent(
         contentAgent.definition,
         contentAgent.handler,
         contentAgent.tools
@@ -1014,7 +1014,7 @@ export class SpecializedGoogleADKAgents {
 
       // Register Data Analysis Agent
       const analysisAgent = this.createDataAnalysisAgent(projectId, location);
-      registry.registerAgent(
+      await registry.registerAgent(
         analysisAgent.definition,
         analysisAgent.handler,
         analysisAgent.tools
@@ -1023,7 +1023,7 @@ export class SpecializedGoogleADKAgents {
 
       // Register Code Generation Agent
       const codeAgent = this.createCodeGenerationAgent(projectId, location);
-      registry.registerAgent(
+      await registry.registerAgent(
         codeAgent.definition,
         codeAgent.handler,
         codeAgent.tools

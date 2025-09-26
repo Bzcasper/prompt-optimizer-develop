@@ -5,7 +5,7 @@
 
 import type { Template, ITemplateManager } from './template/types';
 import { TemplateProcessor, TemplateContext } from './template/processor';
-import { AgentRegistry } from './agent-registry';
+import { AgentRegistry } from './agent/registry';
 import { SpecializedGoogleADKAgents } from './google-adk-agents';
 import { GoogleADKIntegration } from './google-adk';
 import { RegistryOrchestrator } from './registry-orchestrator';
@@ -57,13 +57,14 @@ export class ADKTemplateOrchestrator {
     void this.registryOrchestrator;
 
     if (adkConfig) {
+      // Initialize agents asynchronously - errors are logged in the method
       this.initializeADKAgents(adkConfig.projectId, adkConfig.location);
     }
   }
 
   private async initializeADKAgents(projectId: string, location: string): Promise<void> {
     try {
-      SpecializedGoogleADKAgents.registerAllSpecializedAgents(
+      await SpecializedGoogleADKAgents.registerAllSpecializedAgents(
         this.agentRegistry,
         projectId,
         location
@@ -148,13 +149,25 @@ export class ADKTemplateOrchestrator {
     );
   }
 
-  private selectADKAgent(agentType: string): Promise<string | null> {
+  private async selectADKAgent(agentType: string): Promise<string | null> {
     const agentMapping = {
       'content-creation': 'content-creation-agent',
       'data-analysis': 'data-analysis-agent',
       'code-generation': 'code-generation-agent'
     };
-    return Promise.resolve(agentMapping[agentType as keyof typeof agentMapping] || null);
+
+    const agentId = agentMapping[agentType as keyof typeof agentMapping];
+
+    // Verify agent exists and is available
+    if (agentId) {
+      try {
+        const agent = await this.agentRegistry.getAgent(agentId);
+        return agent ? agentId : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
   }
 
   private extractTaskFromTemplate(template: Template, _context: TemplateContext): string {
