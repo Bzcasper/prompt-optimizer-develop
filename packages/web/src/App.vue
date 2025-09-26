@@ -317,7 +317,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, watch, provide, computed, shallowRef, toRef, nextTick } from 'vue'
+  import { ref, watch, provide, computed, shallowRef, toRef, nextTick, defineAsyncComponent } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { NConfigProvider, NGlobalStyle, NButton, NText, NGrid, NGridItem, NCard, NFlex, useMessage } from 'naive-ui'
 import hljs from 'highlight.js/lib/core'
@@ -325,10 +325,10 @@ import jsonLang from 'highlight.js/lib/languages/json'
 hljs.registerLanguage('json', jsonLang)
   import {
     // UI Components
-    MainLayoutUI, ThemeToggleUI, ActionButtonUI, ModelManagerUI, TemplateManagerUI, HistoryDrawerUI,
-    LanguageSwitchDropdown, DataManagerUI, InputPanelUI, PromptPanelUI, OptimizationModeSelectorUI,
-    ModelSelectUI, TemplateSelectUI, TestAreaPanel, UpdaterIcon, VariableManagerModal,
-    ConversationManager, OutputDisplay, ContextEditor,
+    MainLayoutUI, ThemeToggleUI, ActionButtonUI,
+    LanguageSwitchDropdown, InputPanelUI, PromptPanelUI, OptimizationModeSelectorUI,
+    ModelSelectUI, TemplateSelectUI, TestAreaPanel, UpdaterIcon,
+    ConversationManager, OutputDisplay,
   
     // Composables
     usePromptOptimizer,
@@ -355,6 +355,13 @@ hljs.registerLanguage('json', jsonLang)
     // Quick Template Manager
     quickTemplateManager,
   } from '@prompt-optimizer/ui'
+  // Lazy-load heavy modals/drawers to reduce initial bundle
+  const ModelManagerUI = defineAsyncComponent(() => import('@prompt-optimizer/ui').then(m => m.ModelManagerUI))
+  const TemplateManagerUI = defineAsyncComponent(() => import('@prompt-optimizer/ui').then(m => m.TemplateManagerUI))
+  const HistoryDrawerUI = defineAsyncComponent(() => import('@prompt-optimizer/ui').then(m => m.HistoryDrawerUI))
+  const DataManagerUI = defineAsyncComponent(() => import('@prompt-optimizer/ui').then(m => m.DataManagerUI))
+  const VariableManagerModal = defineAsyncComponent(() => import('@prompt-optimizer/ui').then(m => m.VariableManagerModal))
+  const ContextEditor = defineAsyncComponent(() => import('@prompt-optimizer/ui').then(m => m.ContextEditor))
   import type { IPromptService } from '@prompt-optimizer/core'
   
   // 1. 基础 composables

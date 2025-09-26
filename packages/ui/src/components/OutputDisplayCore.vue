@@ -152,14 +152,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   NCard, NButton, NButtonGroup, NIcon, NCollapse, NCollapseItem,
   NInput, NEmpty, NSpin, NScrollbar, NFlex, NText, NSpace
 } from 'naive-ui'
 import { useClipboard } from '../composables/useClipboard'
-import MarkdownRenderer from './MarkdownRenderer.vue'
+const MarkdownRenderer = defineAsyncComponent(() => import('./MarkdownRenderer.vue'))
 import TextDiffUI from './TextDiff.vue'
 import type { CompareResult, ICompareService } from '@prompt-optimizer/core'
 

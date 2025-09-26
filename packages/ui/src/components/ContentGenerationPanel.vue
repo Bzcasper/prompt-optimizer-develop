@@ -181,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
 import { useMessage } from 'naive-ui'
 import {
   NCard,
@@ -197,7 +197,7 @@ import {
   NFlex
 } from 'naive-ui'
 
-import MarkdownRenderer from './MarkdownRenderer.vue'
+const MarkdownRenderer = defineAsyncComponent(() => import('./MarkdownRenderer.vue'))
 import VariableManagerModal from './VariableManagerModal.vue'
 import VariableImporter from './VariableImporter.vue'
 
