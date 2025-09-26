@@ -11,6 +11,8 @@ import {
   createCompareService,
   createContextRepo,
   createContentGenerationServiceFactory,
+  createADKTemplateOrchestrator,
+  createRegistryOrchestrator,
   ElectronContextRepoProxy,
   ElectronModelManagerProxy,
   ElectronTemplateManagerProxy,
@@ -214,6 +216,38 @@ export function useAppInitializer(): {
         // 创建 DataManager（需要contextRepo）
         dataManager = createDataManager(modelManagerInstance, templateManagerInstance, historyManagerInstance, preferenceService, contextRepo);
 
+        // ADK Configuration and Initialization
+        console.log('[AppInitializer] 初始化 ADK 服务...');
+        let adkOrchestrator = null;
+        let registryOrchestrator = null;
+
+        const adkConfig = {
+          projectId: import.meta.env.VITE_GOOGLE_ADK_PROJECT_ID,
+          location: import.meta.env.VITE_GOOGLE_ADK_LOCATION || 'us-central1'
+        };
+
+        const adkEnabled = import.meta.env.VITE_ADK_ENABLED === 'true' && adkConfig.projectId;
+
+        if (adkEnabled) {
+          try {
+            // 创建 Registry Orchestrator
+            registryOrchestrator = createRegistryOrchestrator(adkConfig);
+            console.log('[AppInitializer] Registry Orchestrator 创建成功');
+
+            // 创建 ADK Template Orchestrator
+            adkOrchestrator = createADKTemplateOrchestrator(
+              templateManagerInstance,
+              registryOrchestrator.agentRegistry,
+              adkConfig
+            );
+            console.log('[AppInitializer] ADK Template Orchestrator 创建成功');
+          } catch (adkError) {
+            console.warn('[AppInitializer] ADK 服务初始化失败，继续使用基础服务:', adkError);
+          }
+        } else {
+          console.log('[AppInitializer] ADK 未启用或配置不完整，跳过 ADK 服务初始化');
+        }
+
         // 将所有服务实例赋值给 services.value
         services.value = {
           modelManager: modelManagerAdapter, // 使用适配器
@@ -227,6 +261,9 @@ export function useAppInitializer(): {
           compareService, // 直接使用
           contextRepo, // 上下文仓库
           contentGenerationService,
+          // ADK Services (可选)
+          adkOrchestrator,
+          registryOrchestrator,
         };
 
         console.log('[AppInitializer] 所有服务初始化完成');

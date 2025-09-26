@@ -9,7 +9,9 @@ import type {
   ICompareService,
   IPreferenceService,
   ContextRepo,
-  IContentGenerationService
+  IContentGenerationService,
+  ADKTemplateOrchestrator,
+  RegistryOrchestrator
 } from '@prompt-optimizer/core'
 
 /**
@@ -27,4 +29,7 @@ export interface AppServices {
   compareService: ICompareService;
   contextRepo: ContextRepo;
   contentGenerationService: IContentGenerationService;
+  // ADK Services (optional)
+  adkOrchestrator?: ADKTemplateOrchestrator | null;
+  registryOrchestrator?: RegistryOrchestrator | null;
 }

@@ -144,8 +144,23 @@ export class ADKTemplateOrchestrator {
   async getADKTemplates(): Promise<Template[]> {
     const allTemplates = await this.templateManager.listTemplates();
     return allTemplates.filter(template =>
+      template.metadata.adkCompatible ||
       template.metadata.tags?.includes('adk') ||
       template.metadata.description?.toLowerCase().includes('adk')
+    );
+  }
+
+  async getADKTemplatesByAgentType(agentType: 'content-creation' | 'data-analysis' | 'code-generation'): Promise<Template[]> {
+    const adkTemplates = await this.getADKTemplates();
+    return adkTemplates.filter(template =>
+      template.metadata.supportedAgentTypes?.includes(agentType)
+    );
+  }
+
+  async getADKTemplatesByComplexity(complexity: 'simple' | 'moderate' | 'complex' | 'advanced'): Promise<Template[]> {
+    const adkTemplates = await this.getADKTemplates();
+    return adkTemplates.filter(template =>
+      template.metadata.complexity === complexity
     );
   }
 
