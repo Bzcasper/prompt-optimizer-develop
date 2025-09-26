@@ -121,3 +121,7 @@ export { createContentGenerationServiceFactory } from './services/content-genera
 export { ElectronContentGenerationServiceProxy } from './services/content-generation/electron-proxy'
 export * from './services/content-generation/types'
 export * from './services/content-generation/errors'
+
+// 导出ADK模板编排器相关
+export { ADKTemplateOrchestrator, createADKTemplateOrchestrator } from './services/adk-template-orchestrator'
+export type { ADKTemplateExecutionRequest, ADKTemplateExecutionResult } from './services/adk-template-orchestrator'
