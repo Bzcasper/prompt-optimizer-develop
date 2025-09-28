@@ -10,7 +10,7 @@ export interface TemplateMetadata {
   lastModified: number;     // 最后修改时间
   author?: string;          // 作者（可选）
   description?: string;     // 描述（可选）
-  templateType: 'optimize' | 'userOptimize' | 'iterate'; // 模板类型标识
+  templateType: 'optimize' | 'userOptimize' | 'iterate' | 'content-creation' | 'video-creation' | 'chained'; // 模板类型标识
   language?: 'zh' | 'en';   // 模板语言（可选，主要用于内置模板语言切换）
   tags?: string[];          // 标签（可选）
 
@@ -33,12 +33,22 @@ export interface MessageTemplate {
 }
 
 /**
+ * Chained Template Step Definition
+ */
+export interface ChainedStep {
+  stepId: string;
+  templateId: string;
+  inputs: Record<string, string>;
+}
+
+/**
  * 提示词定义
  */
 export interface Template {
   id: string;              // 提示词唯一标识
   name: string;            // 提示词名称
   content: string | MessageTemplate[];         // 提示词内容 - 支持字符串或消息数组
+  steps?: ChainedStep[];      // For chained templates
   metadata: TemplateMetadata;
   isBuiltin?: boolean;     // 是否为内置提示词
 }
@@ -87,7 +97,7 @@ export interface ITemplateManager extends IImportExportable {
   /**
    * List templates by type
    */
-  listTemplatesByType(type: 'optimize' | 'userOptimize' | 'iterate'): Promise<Template[]>;
+  listTemplatesByType(type: 'optimize' | 'userOptimize' | 'iterate' | 'content-creation' | 'video-creation' | 'chained'): Promise<Template[]>;
 
   /**
    * Change built-in template language
@@ -116,6 +126,15 @@ export const messageTemplateSchema = z.object({
 /**
  * 提示词验证Schema
  */
+/**
+ * Chained Step 验证Schema
+ */
+export const chainedStepSchema = z.object({
+  stepId: z.string().min(1),
+  templateId: z.string().min(1),
+  inputs: z.record(z.string())
+});
+
 export const templateSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -123,12 +142,13 @@ export const templateSchema = z.object({
     z.string().min(1),
     z.array(messageTemplateSchema).min(1)
   ]),
+  steps: z.array(chainedStepSchema).optional(),
   metadata: z.object({
     version: z.string(),
     lastModified: z.number(),
     author: z.string().optional(),
     description: z.string().optional(),
-    templateType: z.enum(['optimize', 'userOptimize', 'iterate']),
+    templateType: z.enum(['optimize', 'userOptimize', 'iterate', 'content-creation', 'video-creation', 'chained']),
     language: z.enum(['zh', 'en']).optional()
   }).passthrough(), // 允许额外字段通过验证
   isBuiltin: z.boolean().optional()

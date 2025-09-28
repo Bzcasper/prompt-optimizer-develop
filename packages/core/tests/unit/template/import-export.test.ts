@@ -4,12 +4,14 @@ import { Template } from '../../../src/services/template/types';
 import { MemoryStorageProvider } from '../../../src/services/storage/memoryStorageProvider';
 import { TemplateLanguageService } from '../../../src/services/template/languageService';
 import { PreferenceService } from '../../../src/services/preference/service';
+import { StaticLoader } from '../../../src/services/template/static-loader';
 
 describe('TemplateManager Import/Export', () => {
   let templateManager: TemplateManager;
   let storageProvider: MemoryStorageProvider;
   let languageService: TemplateLanguageService;
   let preferenceService: PreferenceService;
+  let staticLoader: StaticLoader;
 
   beforeEach(async () => {
     storageProvider = new MemoryStorageProvider();
@@ -18,7 +20,8 @@ describe('TemplateManager Import/Export', () => {
     preferenceService = new PreferenceService(storageProvider);
     languageService = new TemplateLanguageService(preferenceService);
     await languageService.initialize();
-    templateManager = new TemplateManager(storageProvider, languageService);
+    staticLoader = new StaticLoader(languageService);
+    templateManager = new TemplateManager(storageProvider, languageService, staticLoader);
   });
 
   afterEach(() => {

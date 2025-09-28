@@ -207,8 +207,8 @@ describe('ContextRepo', () => {
     it('rename() 应该更新updatedAt时间戳', async () => {
       const before = await repo.get(DEFAULT_CONTEXT_CONFIG.id);
       
-      // 等待一毫秒确保时间戳差异
-      await new Promise(resolve => setTimeout(resolve, 1));
+      // 等待确保时间戳差异
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       await repo.rename(DEFAULT_CONTEXT_CONFIG.id, '时间戳测试');
       

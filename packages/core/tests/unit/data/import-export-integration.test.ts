@@ -5,6 +5,7 @@ import { TemplateManager } from '../../../src/services/template/manager';
 import { HistoryManager } from '../../../src/services/history/manager';
 import { PreferenceService } from '../../../src/services/preference/service';
 import { TemplateLanguageService } from '../../../src/services/template/languageService';
+import { StaticLoader } from '../../../src/services/template/static-loader';
 import { MemoryStorageProvider } from '../../../src/services/storage/memoryStorageProvider';
 import { ModelConfig } from '../../../src/services/model/types';
 import { Template } from '../../../src/services/template/types';
@@ -31,7 +32,8 @@ describe('DataManager Import/Export Integration', () => {
 
     const languageService = new TemplateLanguageService(preferenceService);
     await languageService.initialize();
-    templateManager = new TemplateManager(storageProvider, languageService);
+    const staticLoader = new StaticLoader(languageService);
+    templateManager = new TemplateManager(storageProvider, languageService, staticLoader);
 
     historyManager = new HistoryManager(storageProvider, modelManager);
 

@@ -1,40 +1,57 @@
 import { Template } from '../../types';
 
 export const template: Template = {
-  id: 'youtube-script-en',
-  name: 'YouTube Script Writer',
-  content: `You are a professional YouTube scriptwriter. Please help me write a script for a YouTube video on the following topic and return it in the following format:
+  id: 'youtube-script_en',
+  name: 'YouTube Script Generation',
+  content: `
+You are a professional YouTube content creator and scriptwriter. Please create an engaging YouTube video script on the following topic.
 
-# Video Title: [Catchy and SEO-friendly title]
+# Topic: {{Topic}}
 
-## Hook
-- Opening Scene/Statement: [A strong, engaging opening to capture viewer attention in the first 15 seconds]
+## Video Structure
 
-## Introduction
-- Introduce Topic: [Briefly explain what the video is about and what the viewer will learn]
-- Introduce Yourself/Channel: [A quick introduction to the host or channel]
+### 1. Intro (0-30 seconds)
+- **Goal**: Quickly grab the viewer's attention and make them want to keep watching.
+- **Content**:
+  - **Hook**: Start with a compelling question, show a surprising result, or tell an interesting snippet.
+  - **Value Proposition**: Briefly explain what the viewer will gain from watching the video.
+  - **Teaser**: Briefly introduce the main points of the video.
 
-## Main Content
-- Segment 1: [Key point 1 with detailed explanation, examples, and visuals]
-- Segment 2: [Key point 2 with detailed explanation, examples, and visuals]
-- Segment 3: [Key point 3 with detailed explanation, examples, and visuals]
+### 2. Main Content (30 seconds - 4 minutes)
+- **Goal**: Clearly and logically deliver the core message.
+- **Structure**:
+  - **Point 1**:
+    - **Visuals**: [Describe the on-screen content, e.g., screen recording, animation, B-roll footage]
+    - **Narration/Dialogue**: [Elaborate on the first point in a conversational and easy-to-understand tone]
+  - **Point 2**:
+    - **Visuals**: [Describe the on-screen content]
+    - **Narration/Dialogue**: [Elaborate on the second point]
+  - **Point 3**:
+    - **Visuals**: [Describe the on-screen content]
+    - **Narration/Dialogue**: [Elaborate on the third point]
 
-## Call to Action
-- Mid-roll CTA: [e.g., "If you're finding this helpful, don't forget to subscribe!"]
-- End-screen CTA: [e.g., "Watch this video next!", "Check out the link in the description!"]
+### 3. Conclusion & Call to Action (Last 30 seconds)
+- **Goal**: Summarize the video's content and encourage viewer interaction.
+- **Content**:
+  - **Summary**: Briefly recap the video's key points.
+  - **Call to Action (CTA)**:
+    - Encourage viewers to like, comment, share, and subscribe.
+    - Direct viewers to a related video or your website/social media.
+  - **Outro**: End with a memorable catchphrase or closing statement.
 
-## Outro
-- Summary: [A quick recap of the main points]
-- Teaser: [Hint at what's coming in the next video]
-- Sign-off: [Your standard channel sign-off]
+## Technical Requirements
+- **Video Length**: [e.g., 5-8 minutes]
+- **Visual Style**: [e.g., fast-paced editing, cinematic look, minimalist animation]
+- **Background Music**: [e.g., upbeat background music, royalty-free tracks]
 
-Please write a YouTube script for the following topic based on the above template, ensuring the content is engaging, well-paced, and optimized for viewer retention. Do not include any leading words or explanations, and do not wrap in code blocks:
-      `,
+## Initialization
+As a professional YouTube scriptwriter, please strictly follow the structure and requirements above to create a high-quality video script on "{{Topic}}". Please output the script content directly.
+`,
   metadata: {
     version: '1.0.0',
-    lastModified: 1704067200000,
+    lastModified: 1727493628000,
     author: 'System',
-    description: 'A template for writing engaging YouTube video scripts.',
+    description: 'Generates a structured YouTube video script, including intro, main content, and outro.',
     templateType: 'video-creation',
     language: 'en'
   },
