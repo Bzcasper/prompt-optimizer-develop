@@ -1,20 +1,20 @@
-# PowerShell版本的pre-commit钩子
+# PowerShell version of pre-commit hook
 
-# 检查是否存在package-lock.json或yarn.lock文件
+# Check if package-lock.json or yarn.lock files exist
 if (Test-Path "package-lock.json") {
-  Write-Host "错误: 检测到package-lock.json文件。" -ForegroundColor Red
-  Write-Host "本项目强制使用pnpm作为包管理器，请删除package-lock.json并使用pnpm install安装依赖。" -ForegroundColor Red
+  Write-Host "Error: package-lock.json file detected." -ForegroundColor Red
+  Write-Host "This project mandates pnpm as the package manager. Please delete package-lock.json and use pnpm install to install dependencies." -ForegroundColor Red
   exit 1
 }
 
 if (Test-Path "yarn.lock") {
-  Write-Host "错误: 检测到yarn.lock文件。" -ForegroundColor Red
-  Write-Host "本项目强制使用pnpm作为包管理器，请删除yarn.lock并使用pnpm install安装依赖。" -ForegroundColor Red
+  Write-Host "Error: yarn.lock file detected." -ForegroundColor Red
+  Write-Host "This project mandates pnpm as the package manager. Please delete yarn.lock and use pnpm install to install dependencies." -ForegroundColor Red
   exit 1
 }
 
-# 确保pnpm-lock.yaml存在
+# Ensure pnpm-lock.yaml exists
 if (-not (Test-Path "pnpm-lock.yaml")) {
-  Write-Host "警告: 未检测到pnpm-lock.yaml文件。" -ForegroundColor Yellow
-  Write-Host "请确保使用pnpm install安装依赖。" -ForegroundColor Yellow
-} 
+  Write-Host "Warning: pnpm-lock.yaml file not detected." -ForegroundColor Yellow
+  Write-Host "Please ensure you use pnpm install to install dependencies." -ForegroundColor Yellow
+}

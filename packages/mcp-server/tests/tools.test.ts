@@ -50,7 +50,7 @@ describe('MCP Server Tools', () => {
       const error = new Error('提示词必须是非空字符串');
       const mcpError = MCPErrorHandler.convertCoreError(error);
 
-      expect(mcpError.code).toBe(MCP_ERROR_CODES.INVALID_PARAMS); // -32602
+      expect(mcpError.code).toBe(MCP_ERROR_CODES.VALIDATION_ERROR); // -32007
       expect(mcpError.message).toContain('提示词必须是非空字符串');
     });
 
@@ -74,7 +74,7 @@ describe('MCP Server Tools', () => {
     it('应该正确创建验证错误', () => {
       const mcpError = MCPErrorHandler.createValidationError('测试验证错误');
 
-      expect(mcpError.code).toBe(MCP_ERROR_CODES.INVALID_PARAMS);
+      expect(mcpError.code).toBe(MCP_ERROR_CODES.VALIDATION_ERROR);
       expect(mcpError.message).toContain('参数验证失败: 测试验证错误');
     });
 

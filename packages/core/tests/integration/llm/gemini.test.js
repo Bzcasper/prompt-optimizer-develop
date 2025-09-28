@@ -9,12 +9,11 @@ beforeAll(() => {
 });
 
 describe('Gemini API 测试', () => {
-  // 跳过没有设置 API 密钥的测试
-  const apiKey = process.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) {
-    console.log('跳过 Gemini 测试：未设置 VITE_GEMINI_API_KEY 环境变量');
-    it.skip('应该能正确调用 Gemini API', () => {});
-    it.skip('应该能正确处理多轮对话', () => {});
+  // Skip entire suite if Gemini API key is not present
+  const GEMINI_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+  if (!GEMINI_KEY) {
+    console.warn('Skipping Gemini integration tests: GEMINI API key not set (VITE_GEMINI_API_KEY or GEMINI_API_KEY)');
+    describe.skip('Gemini API 测试 (skipped - no API key)', () => {});
     return;
   }
 

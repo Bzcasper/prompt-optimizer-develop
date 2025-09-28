@@ -10,3 +10,7 @@ export { PromptDataConverter } from './PromptDataConverter'
 export { SmartVariableExtractor } from './SmartVariableExtractor'
 export { DataImportExportManager } from './DataImportExportManager'
 export { EnhancedTemplateProcessor } from './EnhancedTemplateProcessor'
+
+// MCP 客户端服务
+export { MCPClientService, mcpClient } from './mcp-client'
+export type { MCPOptimizeRequest, MCPIterateRequest, MCPContentRequest, MCPResponse } from './mcp-client'

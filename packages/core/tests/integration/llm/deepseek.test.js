@@ -3,6 +3,15 @@ import { expect, describe, it, beforeEach, beforeAll } from 'vitest';
 import dotenv from 'dotenv';
 import path from 'path';
 
+// Skip Deepseek tests when API key missing
+const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
+if (!DEEPSEEK_KEY) {
+  console.warn('Skipping Deepseek integration tests: DEEPSEEK API key not set');
+  describe.skip('Deepseek integration tests (skipped - no API key)', () => {
+    it.skip('noop', () => {});
+  });
+}
+
 // 加载环境变量
 beforeAll(() => {
   dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });

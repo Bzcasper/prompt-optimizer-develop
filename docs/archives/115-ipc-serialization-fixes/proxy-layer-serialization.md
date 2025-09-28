@@ -1,33 +1,33 @@
-# ElectronProxy层统一IPC序列化处理
+# Unified IPC Serialization Handling in ElectronProxy Layer
 
-## 📋 概述
+## 📋 Overview
 
-将IPC序列化处理从UI层移动到ElectronProxy层，实现统一的、对Vue组件透明的序列化处理机制。
+Move the IPC serialization handling from the UI layer to the ElectronProxy layer, achieving a unified and transparent serialization handling mechanism for Vue components.
 
-## 🚨 问题背景
+## 🚨 Problem Background
 
-### 原有方案的问题
-1. **需要在每个Vue组件中手动序列化** - 容易遗漏，维护成本高
-2. **开发者心智负担重** - 需要记住在每个IPC调用前序列化
-3. **架构不合理** - UI层需要关心底层IPC实现细节
-4. **容易出错** - 新增功能时容易忘记序列化处理
+### Issues with the Original Solution
+1. **Manual Serialization in Each Vue Component** - Easy to overlook, high maintenance cost.
+2. **Heavy Cognitive Load for Developers** - Need to remember to serialize before each IPC call.
+3. **Unreasonable Architecture** - The UI layer needs to care about the underlying IPC implementation details.
+4. **Prone to Errors** - Easy to forget serialization handling when adding new features.
 
-### 错误发生的真实原因
-虽然main.js中有`safeSerialize`处理，但错误发生在**IPC传输阶段**：
+### Real Causes of Errors
+Although there is `safeSerialize` handling in main.js, errors occur during the **IPC transmission phase**:
 ```
-Vue组件 → ElectronProxy → preload.js → [IPC传输] → main.js
+Vue Component → ElectronProxy → preload.js → [IPC Transmission] → main.js
                                         ↑
-                                   错误发生在这里
+                                   Errors occur here
 ```
 
-## ✅ 解决方案
+## ✅ Solution
 
-### 1. 统一序列化工具
-**文件**: `packages/core/src/utils/ipc-serialization.ts`
+### 1. Unified Serialization Tool
+**File**: `packages/core/src/utils/ipc-serialization.ts`
 
 ```typescript
 /**
- * 安全序列化函数，用于清理Vue响应式对象
+ * Safe serialization function to clean Vue reactive objects
  */
 export function safeSerializeForIPC<T>(obj: T): T {
   if (obj === null || obj === undefined) {
@@ -47,23 +47,23 @@ export function safeSerializeForIPC<T>(obj: T): T {
 }
 ```
 
-### 2. ElectronProxy层自动序列化
+### 2. Automatic Serialization in ElectronProxy Layer
 
-#### TemplateManager代理
+#### TemplateManager Proxy
 ```typescript
 // packages/core/src/services/template/electron-proxy.ts
 import { safeSerializeForIPC } from '../../utils/ipc-serialization';
 
 export class ElectronTemplateManagerProxy implements ITemplateManager {
   async saveTemplate(template: Template): Promise<void> {
-    // 自动序列化，防止Vue响应式对象IPC传递错误
+    // Automatic serialization to prevent errors in IPC transmission of Vue reactive objects
     const safeTemplate = safeSerializeForIPC(template);
     return this.electronAPI.createTemplate(safeTemplate);
   }
 }
 ```
 
-#### ModelManager代理
+#### ModelManager Proxy
 ```typescript
 // packages/core/src/services/model/electron-proxy.ts
 export class ElectronModelManagerProxy implements IModelManager {
@@ -79,7 +79,7 @@ export class ElectronModelManagerProxy implements IModelManager {
 }
 ```
 
-#### HistoryManager代理
+#### HistoryManager Proxy
 ```typescript
 // packages/core/src/services/history/electron-proxy.ts
 export class ElectronHistoryManagerProxy implements IHistoryManager {
@@ -100,7 +100,7 @@ export class ElectronHistoryManagerProxy implements IHistoryManager {
 }
 ```
 
-#### PromptService代理
+#### PromptService Proxy
 ```typescript
 // packages/core/src/services/prompt/electron-proxy.ts
 export class ElectronPromptServiceProxy implements IPromptService {
@@ -111,110 +111,110 @@ export class ElectronPromptServiceProxy implements IPromptService {
 }
 ```
 
-### 3. Vue组件简化
-现在Vue组件可以直接调用服务，无需关心序列化：
+### 3. Simplification of Vue Components
+Now Vue components can directly call services without worrying about serialization:
 
 ```typescript
-// TemplateManager.vue - 修复前
+// TemplateManager.vue - Before Fix
 import { createSafeTemplate } from '../utils/ipc-serialization'
 const safeTemplate = createSafeTemplate(updatedTemplate)
 await getTemplateManager.value.saveTemplate(safeTemplate)
 
-// TemplateManager.vue - 修复后
-await getTemplateManager.value.saveTemplate(updatedTemplate) // 自动序列化
+// TemplateManager.vue - After Fix
+await getTemplateManager.value.saveTemplate(updatedTemplate) // Automatic serialization
 ```
 
-## 🏗️ 架构优势
+## 🏗️ Architectural Advantages
 
-### 1. 分层清晰
+### 1. Clear Layering
 ```
-Vue组件层     - 业务逻辑，无需关心IPC细节
+Vue Component Layer     - Business logic, no need to care about IPC details
     ↓
-ElectronProxy层 - 自动序列化，IPC调用
+ElectronProxy Layer    - Automatic serialization, IPC calls
     ↓
-IPC传输层     - 纯净JavaScript对象传输
+IPC Transmission Layer  - Pure JavaScript object transmission
     ↓
-Main进程层    - 双重保护（safeSerialize）
+Main Process Layer      - Double protection (safeSerialize)
 ```
 
-### 2. 开发体验
-- ✅ **对Vue组件透明** - 组件无需关心序列化
-- ✅ **自动保护** - 新增功能自动获得序列化保护
-- ✅ **集中管理** - 所有序列化逻辑在一个地方
-- ✅ **不易遗漏** - 架构层面保证序列化处理
+### 2. Development Experience
+- ✅ **Transparent to Vue Components** - Components do not need to worry about serialization.
+- ✅ **Automatic Protection** - New features automatically gain serialization protection.
+- ✅ **Centralized Management** - All serialization logic is in one place.
+- ✅ **Less Prone to Omission** - Architectural level ensures serialization handling.
 
-### 3. 维护性
-- ✅ **统一工具** - 避免重复代码
-- ✅ **类型安全** - TypeScript类型检查
-- ✅ **错误处理** - 统一的错误处理机制
+### 3. Maintainability
+- ✅ **Unified Tool** - Avoids duplicate code.
+- ✅ **Type Safety** - TypeScript type checking.
+- ✅ **Error Handling** - Unified error handling mechanism.
 
-## 🛡️ 双重保护机制
+## 🛡️ Double Protection Mechanism
 
 ```
-Vue组件 → ElectronProxy序列化 → IPC传输 → Main.js序列化 → 业务逻辑
+Vue Component → ElectronProxy Serialization → IPC Transmission → Main.js Serialization → Business Logic
          ↑                              ↑
-    第一层保护                      第二层保护
-   (必需，解决传输问题)            (防御性，处理边缘情况)
+    First Layer Protection            Second Layer Protection
+   (Necessary, solves transmission issues) (Defensive, handles edge cases)
 ```
 
-## 📊 修复验证
+## 📊 Fix Verification
 
-### 修复的文件
-- ✅ `packages/core/src/utils/ipc-serialization.ts` - 统一序列化工具
-- ✅ `packages/core/src/services/template/electron-proxy.ts` - 模板管理代理
-- ✅ `packages/core/src/services/model/electron-proxy.ts` - 模型管理代理
-- ✅ `packages/core/src/services/history/electron-proxy.ts` - 历史记录代理
-- ✅ `packages/core/src/services/prompt/electron-proxy.ts` - 提示词服务代理
-- ✅ `packages/core/src/services/llm/electron-proxy.ts` - LLM服务代理
-- ✅ `packages/core/src/services/preference/electron-proxy.ts` - 偏好设置代理
-- ✅ `packages/core/src/index.ts` - 导出序列化工具
+### Fixed Files
+- ✅ `packages/core/src/utils/ipc-serialization.ts` - Unified serialization tool.
+- ✅ `packages/core/src/services/template/electron-proxy.ts` - Template management proxy.
+- ✅ `packages/core/src/services/model/electron-proxy.ts` - Model management proxy.
+- ✅ `packages/core/src/services/history/electron-proxy.ts` - History management proxy.
+- ✅ `packages/core/src/services/prompt/electron-proxy.ts` - Prompt service proxy.
+- ✅ `packages/core/src/services/llm/electron-proxy.ts` - LLM service proxy.
+- ✅ `packages/core/src/services/preference/electron-proxy.ts` - Preference settings proxy.
+- ✅ `packages/core/src/index.ts` - Export serialization tool.
 
-### 清理的文件
-- ✅ `packages/ui/src/utils/ipc-serialization.ts` - 删除UI层序列化工具
-- ✅ `packages/ui/src/components/TemplateManager.vue` - 移除手动序列化
-- ✅ `packages/ui/src/components/ModelManager.vue` - 移除手动序列化
-- ✅ `packages/ui/src/composables/usePromptOptimizer.ts` - 移除手动序列化
-- ✅ `packages/ui/src/composables/usePromptHistory.ts` - 移除手动序列化
+### Cleaned Files
+- ✅ `packages/ui/src/utils/ipc-serialization.ts` - Removed UI layer serialization tool.
+- ✅ `packages/ui/src/components/TemplateManager.vue` - Removed manual serialization.
+- ✅ `packages/ui/src/components/ModelManager.vue` - Removed manual serialization.
+- ✅ `packages/ui/src/composables/usePromptOptimizer.ts` - Removed manual serialization.
+- ✅ `packages/ui/src/composables/usePromptHistory.ts` - Removed manual serialization.
 
-### 测试场景
-- [ ] 模板迁移功能（原问题场景）
-- [ ] 模型添加/编辑功能
-- [ ] 历史记录保存功能
-- [ ] 提示词优化功能
+### Test Scenarios
+- [ ] Template migration feature (original problem scenario).
+- [ ] Model add/edit feature.
+- [ ] History record saving feature.
+- [ ] Prompt optimization feature.
 
-## 💡 最佳实践
+## 💡 Best Practices
 
-### 1. 新增ElectronProxy方法时
+### 1. When Adding New ElectronProxy Methods
 ```typescript
 async newMethod(complexObject: SomeType): Promise<ResultType> {
-  // 总是序列化复杂对象参数
+  // Always serialize complex object parameters
   const safeObject = safeSerializeForIPC(complexObject);
   return this.electronAPI.someService.newMethod(safeObject);
 }
 ```
 
-### 2. 基本类型参数无需序列化
+### 2. Basic Type Parameters Do Not Need Serialization
 ```typescript
 async simpleMethod(id: string, count: number): Promise<void> {
-  // 基本类型无需序列化
+  // Basic types do not need serialization
   return this.electronAPI.someService.simpleMethod(id, count);
 }
 ```
 
-### 3. 调试序列化问题
+### 3. Debugging Serialization Issues
 ```typescript
 import { debugIPCSerializability } from '@prompt-optimizer/core';
 
-// 开发时检查对象是否可序列化
+// Check if the object is serializable during development
 debugIPCSerializability(complexObject, 'MyObject');
 ```
 
-## 🎯 总结
+## 🎯 Summary
 
-这次修复实现了：
-1. **架构优化** - 将序列化处理移到正确的层级
-2. **开发体验提升** - Vue组件无需关心IPC细节
-3. **维护性改善** - 统一的序列化处理，避免重复代码
-4. **可靠性增强** - 双重保护机制，确保IPC传输安全
+This fix achieves:
+1. **Architectural Optimization** - Moves serialization handling to the correct layer.
+2. **Enhanced Development Experience** - Vue components do not need to worry about IPC details.
+3. **Improved Maintainability** - Unified serialization handling avoids duplicate code.
+4. **Increased Reliability** - Double protection mechanism ensures IPC transmission safety.
 
-通过这种方式，我们彻底解决了"An object could not be cloned"错误，同时建立了可持续的架构模式。
+In this way, we have completely resolved the "An object could not be cloned" error while establishing a sustainable architectural pattern.

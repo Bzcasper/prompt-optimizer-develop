@@ -1,36 +1,36 @@
-# AdvancedModeToggle 迁移实施详细过程
+# AdvancedModeToggle Migration Implementation Detailed Process
 
-## 🏗️ 实施概览
+## 🏗️ Implementation Overview
 
-**执行时间**: 2025年9月3日  
-**执行方式**: 基于MCP Spec Workflow的系统化迁移  
-**涉及文件**: `packages/ui/src/components/AdvancedModeToggle.vue`  
-**代码变更**: -55行代码，-86行CSS，+12行现代化实现  
+**Execution Date**: September 3, 2025  
+**Execution Method**: Systematic migration based on MCP Spec Workflow  
+**Involved File**: `packages/ui/src/components/AdvancedModeToggle.vue`  
+**Code Changes**: -55 lines of code, -86 lines of CSS, +12 lines of modernization implementation  
 
-## 📋 分阶段实施记录
+## 📋 Phased Implementation Records
 
-### Phase 1: 需求分析与规划
-**时间**: 13:36-13:41  
-**产出**: requirements.md, design.md
+### Phase 1: Requirement Analysis and Planning
+**Time**: 13:36-13:41  
+**Output**: requirements.md, design.md
 
-**关键需求识别**:
-1. 保持现有Props接口（enabled, disabled, loading等）
-2. 保持现有Events接口（update:enabled, change）  
-3. 集成Naive UI主题系统，移除所有自定义CSS
-4. 实现响应式设计支持
+**Key Requirement Identification**:
+1. Maintain existing Props interface (enabled, disabled, loading, etc.)
+2. Maintain existing Events interface (update:enabled, change)  
+3. Integrate Naive UI theme system, remove all custom CSS
+4. Implement responsive design support
 
-**设计决策**:
-- 选择 `NButton` 而非 `NSwitch`：保持按钮交互模式
-- 使用 `:type="buttonType"` 动态切换primary/default状态
-- 通过 `:ghost="!enabled"` 实现视觉状态切换
-- 保留SVG图标但集成到Naive UI的icon slot中
+**Design Decisions**:
+- Choose `NButton` instead of `NSwitch`: maintain button interaction mode
+- Use `:type="buttonType"` to dynamically switch between primary/default states
+- Achieve visual state switching through `:ghost="!enabled"`
+- Retain SVG icons but integrate them into Naive UI's icon slot
 
-### Phase 2: 核心组件迁移
-**时间**: 14:16-22:20  
+### Phase 2: Core Component Migration
+**Time**: 14:16-22:20  
 **Git Commit**: 9d3d9c7
 
-#### 2.1 模板层改造
-**原始结构**:
+#### 2.1 Template Layer Transformation
+**Original Structure**:
 ```vue
 <button class="advanced-mode-button" :class="{ 'active': props.enabled }">
   <svg class="icon" :class="{ 'icon-active': props.enabled }">...</svg>
@@ -39,7 +39,7 @@
 </button>
 ```
 
-**迁移后结构**:
+**Migrated Structure**:
 ```vue
 <NButton :type="buttonType" :ghost="!props.enabled" :loading="loading">
   <template #icon>
@@ -50,21 +50,21 @@
 </NButton>
 ```
 
-**关键变更**:
-1. `<button>` → `<NButton>` 组件替换
-2. 自定义类名 → Naive UI属性（type, ghost, loading）
-3. CSS类切换 → 动态属性绑定
-4. 手动图标 → `template #icon` slot
-5. 自定义状态点 → Tailwind CSS原子类
+**Key Changes**:
+1. `<button>` → `<NButton>` component replacement
+2. Custom class names → Naive UI properties (type, ghost, loading)
+3. CSS class switching → Dynamic property binding
+4. Manual icon → `template #icon` slot
+5. Custom status dot → Tailwind CSS atomic classes
 
-#### 2.2 逻辑层增强  
-**新增计算属性**:
+#### 2.2 Logic Layer Enhancement  
+**New Computed Properties**:
 ```typescript
 const buttonType = computed(() => props.enabled ? 'primary' : 'default')
 const buttonSize = computed(() => 'medium')
 ```
 
-**加载状态管理**:
+**Loading State Management**:
 ```typescript
 const handleToggle = async () => {
   if (props.disabled || loading.value) return
@@ -83,14 +83,14 @@ const handleToggle = async () => {
 }
 ```
 
-#### 2.3 样式层简化
-**删除的CSS代码** (98行 → 0行):
-- 所有自定义颜色变量 (`--color-text-secondary`, `--color-bg-hover`等)
-- 复杂的状态切换样式 (`.active`, `:hover`, `:disabled`等) 
-- 手动响应式媒体查询 (`@media (max-width: 768px)`)
-- 自定义动画和转换效果
+#### 2.3 Style Layer Simplification
+**Deleted CSS Code** (98 lines → 0 lines):
+- All custom color variables (`--color-text-secondary`, `--color-bg-hover`, etc.)
+- Complex state switching styles (`.active`, `:hover`, `:disabled`, etc.) 
+- Manual responsive media queries (`@media (max-width: 768px)`)
+- Custom animations and transition effects
 
-**保留的样式** (12行):
+**Retained Styles** (12 lines):
 ```css
 .advanced-mode-toggle {
   position: relative;
@@ -101,36 +101,36 @@ const handleToggle = async () => {
 }
 ```
 
-**响应式实现升级**:
-- 从 CSS `@media` 查询 → Tailwind `max-md:hidden` 工具类
-- 从手动 `display: none` → 语义化响应式类名
+**Responsive Implementation Upgrade**:
+- From CSS `@media` queries → Tailwind `max-md:hidden` utility classes
+- From manual `display: none` → Semantic responsive class names
 
-### Phase 3: 依赖问题修复
-**时间**: 21:13  
+### Phase 3: Dependency Issue Fixes
+**Time**: 21:13  
 **Git Commit**: bb2af6a
 
-#### 3.1 发现的问题
-在测试迁移结果时发现两个关联问题：
-1. `NFlex` 组件导入失败 - 影响布局组件正常显示
-2. Toast系统 inject() 上下文错误 - 影响用户反馈显示
+#### 3.1 Identified Issues
+Two related issues were discovered during testing of the migration results:
+1. `NFlex` component import failure - affecting the normal display of layout components
+2. Toast system inject() context error - affecting user feedback display
 
-#### 3.2 NFlex导出问题修复
-**问题根因**: `packages/ui/src/index.ts` 缺少 `NFlex` 组件的重导出
+#### 3.2 NFlex Export Issue Fix
+**Root Cause**: `packages/ui/src/index.ts` was missing the re-export of the `NFlex` component
 
-**修复方案**:
+**Fix Plan**:
 ```typescript
-// 导出 Naive UI 组件 (解决 NFlex 组件解析问题)
+// Export Naive UI components (resolve NFlex component parsing issue)
 export { NFlex } from 'naive-ui'
 ```
 
-**影响范围**: 影响所有使用弹性布局的组件，特别是响应式布局场景
+**Impact Scope**: Affects all components using flexible layouts, especially in responsive layout scenarios
 
-#### 3.3 Toast架构重构
-**问题根因**: Naive UI的MessageProvider需要在正确的Vue上下文中初始化
+#### 3.3 Toast Architecture Refactoring
+**Root Cause**: Naive UI's MessageProvider needs to be initialized in the correct Vue context
 
-**核心修复**:
+**Core Fix**:
 ```typescript
-// useToast.ts - 采用全局单例模式
+// useToast.ts - adopting a global singleton pattern
 let globalMessageApi: MessageApi | null = null
 
 export const useToast = () => {
@@ -141,100 +141,100 @@ export const useToast = () => {
 }
 ```
 
-**架构改进**:
-1. Toast.vue中添加MessageApiInitializer组件
-2. 移除降级处理逻辑，改为快速失败原则
-3. 清理App.vue中的遗留Toast实例和provide逻辑
+**Architectural Improvements**:
+1. Added MessageApiInitializer component in Toast.vue
+2. Removed downgrade handling logic, changed to fast-fail principle
+3. Cleaned up legacy Toast instances and provide logic in App.vue
 
-### Phase 4: 测试验证与确认
-**测试覆盖**:
-- [x] 不同主题下的按钮显示效果 (light, dark, blue, green, purple)
-- [x] 启用/禁用状态的视觉切换
-- [x] 加载状态的交互体验
-- [x] 移动端响应式文字隐藏
-- [x] 鼠标悬停动画效果  
-- [x] Props和Events的向后兼容性
-- [x] Toast消息正确显示测试
+### Phase 4: Testing Verification and Confirmation
+**Test Coverage**:
+- [x] Button display effects under different themes (light, dark, blue, green, purple)
+- [x] Visual switching of enabled/disabled states
+- [x] Interactive experience of loading state
+- [x] Responsive text hiding on mobile
+- [x] Mouse hover animation effects  
+- [x] Backward compatibility of Props and Events
+- [x] Correct display testing of Toast messages
 
-**验证结果**:
-- ✅ 所有原有功能保持正常
-- ✅ 新增loading防重复点击保护
-- ✅ 主题切换无缝适配
-- ✅ 移动端优化效果良好
-- ✅ 无控制台错误或警告
+**Verification Results**:
+- ✅ All original functionalities remain normal
+- ✅ Added loading protection against repeated clicks
+- ✅ Seamless adaptation to theme switching
+- ✅ Good optimization effects on mobile
+- ✅ No console errors or warnings
 
-## 🔍 技术实施细节
+## 🔍 Technical Implementation Details
 
-### 依赖管理策略
-**新增导入**:
+### Dependency Management Strategy
+**New Imports**:
 ```typescript
-import { NButton } from 'naive-ui'  // 核心按钮组件
-import { computed } from 'vue'      // 响应式计算属性
+import { NButton } from 'naive-ui'  // Core button component
+import { computed } from 'vue'      // Reactive computed properties
 ```
 
-**保持不变**:
+**Unchanged**:
 ```typescript
-import { ref } from 'vue'           // 基础响应式
-import { useI18n } from 'vue-i18n'  // 国际化支持
+import { ref } from 'vue'           // Basic reactivity
+import { useI18n } from 'vue-i18n'  // Internationalization support
 ```
 
-### 属性映射策略
-| 原始实现 | Naive UI实现 | 映射逻辑 |
-|----------|--------------|----------|
-| `class="active"` | `:type="buttonType"` | enabled ? 'primary' : 'default' |
-| `:disabled="loading"` | `:loading="loading"` | 原生loading状态支持 |
-| 自定义hover CSS | `:ghost="!enabled"` | 反向ghost效果 |
-| 媒体查询隐藏 | `max-md:hidden` | Tailwind响应式类 |
+### Property Mapping Strategy
+| Original Implementation | Naive UI Implementation | Mapping Logic |
+|-------------------------|-------------------------|---------------|
+| `class="active"`        | `:type="buttonType"`    | enabled ? 'primary' : 'default' |
+| `:disabled="loading"`   | `:loading="loading"`    | Native loading state support |
+| Custom hover CSS        | `:ghost="!enabled"`     | Inverse ghost effect |
+| Media query hiding      | `max-md:hidden`         | Tailwind responsive class |
 
-### 状态管理优化
-**原始状态**: 仅通过CSS类切换视觉状态  
-**优化后**: 多层状态管理
-1. **视觉状态**: NButton的type和ghost属性
-2. **交互状态**: loading防重复点击
-3. **功能状态**: enabled/disabled逻辑分离
-4. **响应状态**: Tailwind断点自动适配
+### State Management Optimization
+**Original State**: Visual state switched only through CSS classes  
+**Optimized**: Multi-layer state management
+1. **Visual State**: NButton's type and ghost properties
+2. **Interaction State**: Loading protection against repeated clicks
+3. **Functional State**: Separation of enabled/disabled logic
+4. **Responsive State**: Automatic adaptation of Tailwind breakpoints
 
-## 📈 性能影响分析
+## 📈 Performance Impact Analysis
 
-### 代码体积影响
-- **模板代码**: 29行 → 35行 (+20.7%)，但结构更清晰
-- **样式代码**: 98行 → 12行 (-87.8%)，大幅简化
-- **逻辑代码**: 15行 → 40行 (+166%)，但功能更完善
-- **总代码量**: 142行 → 87行 (-38.7%)
+### Code Size Impact
+- **Template Code**: 29 lines → 35 lines (+20.7%), but clearer structure
+- **Style Code**: 98 lines → 12 lines (-87.8%), significantly simplified
+- **Logic Code**: 15 lines → 40 lines (+166%), but more complete functionality
+- **Total Code Volume**: 142 lines → 87 lines (-38.7%)
 
-### 运行时性能
-- **CSS解析**: 大幅减少自定义CSS变量计算
-- **重绘优化**: 利用Naive UI内置优化机制
-- **内存占用**: 减少自定义样式的内存开销
-- **主题切换**: 从手动CSS变量 → 自动主题系统
+### Runtime Performance
+- **CSS Parsing**: Significantly reduced custom CSS variable calculations
+- **Repaint Optimization**: Utilizing Naive UI's built-in optimization mechanisms
+- **Memory Usage**: Reduced memory overhead from custom styles
+- **Theme Switching**: From manual CSS variables → Automatic theme system
 
-### 维护成本
-- **主题维护**: 从手动维护 → 0维护成本
-- **响应式调试**: 从CSS调试 → 可视化断点
-- **兼容性处理**: 从手动适配 → 框架自动处理
+### Maintenance Costs
+- **Theme Maintenance**: From manual maintenance → 0 maintenance cost
+- **Responsive Debugging**: From CSS debugging → Visual breakpoints
+- **Compatibility Handling**: From manual adaptation → Framework automatic handling
 
-## 🎯 最终交付物
+## 🎯 Final Deliverables
 
-### 核心文件变更
-1. **AdvancedModeToggle.vue**: 完全重构，保持接口兼容
-2. **index.ts**: 补充NFlex组件导出  
-3. **Toast相关文件**: 架构优化，解决上下文问题
+### Core File Changes
+1. **AdvancedModeToggle.vue**: Completely refactored while maintaining interface compatibility
+2. **index.ts**: Added NFlex component export  
+3. **Toast-related Files**: Architectural optimization to resolve context issues
 
-### 功能验证清单
-- [x] 基础点击切换功能
-- [x] Props接口向后兼容  
-- [x] Events事件正常触发
-- [x] 5种主题完美适配
-- [x] 移动端响应式优化
-- [x] 加载状态用户体验
-- [x] 无错误和警告信息
+### Functionality Verification Checklist
+- [x] Basic click toggle functionality
+- [x] Backward compatibility of Props interface  
+- [x] Normal triggering of Events
+- [x] Perfect adaptation to 5 themes
+- [x] Mobile responsive optimization
+- [x] User experience of loading state
+- [x] No error or warning messages
 
-### 文档产出
-- [x] Git提交记录完整详细
-- [x] 代码注释说明关键决策  
-- [x] 测试验证记录清晰
-- [x] 迁移经验总结完善
+### Documentation Output
+- [x] Complete and detailed Git commit records
+- [x] Code comments explaining key decisions  
+- [x] Clear testing verification records
+- [x] Comprehensive summary of migration experience
 
 ---
 
-**实施总结**: 此次迁移在保持100%功能兼容的前提下，实现了代码简化、性能优化和维护成本降低的多重目标，为项目UI标准化画下了完美句号。
+**Implementation Summary**: This migration achieved multiple goals of code simplification, performance optimization, and reduced maintenance costs while maintaining 100% functional compatibility, marking a perfect conclusion to the project's UI standardization.

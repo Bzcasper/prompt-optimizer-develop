@@ -1,98 +1,98 @@
-# 桌面应用架构重构计划
+# Desktop Application Architecture Refactoring Plan
 
-## 概述
+## Overview
 
-本文档记录了桌面应用从当前脆弱的"底层`fetch`代理"架构迁移到稳定、可维护的"高层服务代理"架构的完整重构计划。
+This document records the complete refactoring plan for migrating the desktop application from the current fragile "low-level `fetch` proxy" architecture to a stable and maintainable "high-level service proxy" architecture.
 
-## 问题分析
+## Problem Analysis
 
-### 当前架构问题
-1. **存储机制不兼容**：在 Node.js 环境（Electron 主进程）中错误地使用了 `localStorage`，导致 `StorageError: 获取存储项失败`
-2. **底层代理脆弱性**：通过模拟 `fetch` API 进行 IPC 通信，`AbortSignal` 和 `Headers` 对象序列化问题频发
-3. **模块导入问题**：`TypeError: createModelManager is not a function` 表明 CommonJS 导入解析失败
-4. **架构职责不清**：主进程和渲染进程职责混乱，难以维护和调试
+### Current Architecture Issues
+1. **Incompatible Storage Mechanism**: Incorrect use of `localStorage` in the Node.js environment (Electron main process), leading to `StorageError: Failed to retrieve storage item`
+2. **Low-Level Proxy Vulnerability**: Frequent serialization issues with `AbortSignal` and `Headers` objects during IPC communication simulated via the `fetch` API
+3. **Module Import Issues**: `TypeError: createModelManager is not a function` indicates a failure in CommonJS import resolution
+4. **Unclear Architecture Responsibilities**: Confusion between the responsibilities of the main process and the renderer process, making maintenance and debugging difficult
 
-### 目标架构
-- **主进程作为后端**：运行所有 `@prompt-optimizer/core` 核心服务，使用 Node.js 兼容的存储方案
-- **渲染进程作为前端**：纯粹的 Vue UI，通过代理类与主进程通信
-- **高层 IPC 接口**：稳定的服务级别通信，取代底层 `fetch` 代理
-- **统一存储策略**：为不同环境提供合适的存储实现
+### Target Architecture
+- **Main Process as Backend**: Runs all `@prompt-optimizer/core` core services, using a Node.js compatible storage solution
+- **Renderer Process as Frontend**: Pure Vue UI communicates with the main process through proxy classes
+- **High-Level IPC Interface**: Stable service-level communication to replace the low-level `fetch` proxy
+- **Unified Storage Strategy**: Provides appropriate storage implementations for different environments
 
-## 实施计划
+## Implementation Plan
 
-### 阶段一：核心改造 (`core` 包)
+### Phase One: Core Refactoring (`core` package)
 
-#### 1. 创建 `MemoryStorageProvider` ✅
-- **文件**: `packages/core/src/services/storage/memoryStorageProvider.ts` (已完成)
-- **目标**: 为 Node.js 环境和测试环境提供内存存储实现
-- **要求**:
-  - 实现 `IStorageProvider` 接口 ✅
-  - 使用 `Map` 对象模拟内存存储 ✅
-  - 支持序列化/反序列化以模拟真实存储行为 ✅
-- **测试结果**: 所有14个测试通过 ✅
+#### 1. Create `MemoryStorageProvider` ✅
+- **File**: `packages/core/src/services/storage/memoryStorageProvider.ts` (Completed)
+- **Goal**: Provide an in-memory storage implementation for Node.js and testing environments
+- **Requirements**:
+  - Implement `IStorageProvider` interface ✅
+  - Use `Map` object to simulate in-memory storage ✅
+  - Support serialization/deserialization to mimic real storage behavior ✅
+- **Test Results**: All 14 tests passed ✅
 
-#### 2. 集成新的存储提供者 ✅
-- **文件**: `packages/core/src/services/storage/factory.ts` ✅
-- **操作**: 在 `StorageFactory.create()` 中添加 `'memory'` 选项 ✅
-- **文件**: `packages/core/src/index.ts` ✅
-- **操作**: 导出 `MemoryStorageProvider` 类 ✅
+#### 2. Integrate New Storage Provider ✅
+- **File**: `packages/core/src/services/storage/factory.ts` ✅
+- **Action**: Add `'memory'` option in `StorageFactory.create()` ✅
+- **File**: `packages/core/src/index.ts` ✅
+- **Action**: Export `MemoryStorageProvider` class ✅
 
-#### 3. 创建工厂函数 ✅
-- **文件**: `packages/core/src/services/storage/factory.ts` ✅
-- **操作**: 在 `StorageFactory.create()` 中添加 `'memory'` 选项 ✅
-- **文件**: `packages/core/src/index.ts` ✅
-- **操作**: 导出 `MemoryStorageProvider` 类 ✅
+#### 3. Create Factory Functions ✅
+- **File**: `packages/core/src/services/storage/factory.ts` ✅
+- **Action**: Add `'memory'` option in `StorageFactory.create()` ✅
+- **File**: `packages/core/src/index.ts` ✅
+- **Action**: Export `MemoryStorageProvider` class ✅
 
-### 阶段二：后端改造 (主进程)
+### Phase Two: Backend Refactoring (Main Process)
 
-#### 4. 清理并重构主进程
-- **文件**: `packages/desktop/main.js`
-- **删除内容**:
-  - 所有 `ipcMain.handle('api-fetch', ...)` 处理器
-  - 模拟 `Response` 对象的辅助代码
-  - 复杂的 `AbortSignal` 和 `Headers` 处理逻辑
-- **新增内容**:
-  - 导入所有核心服务和工厂函数
-  - 使用 `StorageFactory.create('memory')` 创建存储实例
-  - 实例化所有核心服务 (`ModelManager`, `TemplateManager`, etc.)
+#### 4. Clean Up and Refactor Main Process
+- **File**: `packages/desktop/main.js`
+- **Remove Content**:
+  - All `ipcMain.handle('api-fetch', ...)` handlers
+  - Helper code simulating `Response` objects
+  - Complex `AbortSignal` and `Headers` handling logic
+- **Add Content**:
+  - Import all core services and factory functions
+  - Use `StorageFactory.create('memory')` to create storage instances
+  - Instantiate all core services (`ModelManager`, `TemplateManager`, etc.)
 
-#### 5. 建立高层服务 IPC 接口
-- **文件**: `packages/desktop/main.js`
-- **接口清单**:
+#### 5. Establish High-Level Service IPC Interface
+- **File**: `packages/desktop/main.js`
+- **Interface List**:
   ```javascript
-  // 模型管理
+  // Model Management
   ipcMain.handle('models:getAllModels', () => modelManager.getAllModels());
   ipcMain.handle('models:saveModel', (e, model) => modelManager.saveModel(model));
   ipcMain.handle('models:deleteModel', (e, key) => modelManager.deleteModel(key));
   ipcMain.handle('models:enableModel', (e, key) => modelManager.enableModel(key));
   ipcMain.handle('models:disableModel', (e, key) => modelManager.disableModel(key));
   
-  // 模板管理
+  // Template Management
   ipcMain.handle('templates:getAllTemplates', () => templateManager.getAllTemplates());
   ipcMain.handle('templates:saveTemplate', (e, template) => templateManager.saveTemplate(template));
   ipcMain.handle('templates:deleteTemplate', (e, id) => templateManager.deleteTemplate(id));
   
-  // 历史记录
+  // History
   ipcMain.handle('history:getHistory', () => historyManager.getHistory());
   ipcMain.handle('history:addHistory', (e, entry) => historyManager.addHistory(entry));
   ipcMain.handle('history:clearHistory', () => historyManager.clearHistory());
   
-  // LLM 服务
+  // LLM Service
   ipcMain.handle('llm:testConnection', (e, modelKey) => llmService.testConnection(modelKey));
   ipcMain.handle('llm:sendMessage', (e, params) => llmService.sendMessage(params));
   
-  // 提示词服务
+  // Prompt Service
   ipcMain.handle('prompt:optimize', (e, params) => promptService.optimize(params));
   ipcMain.handle('prompt:iterate', (e, params) => promptService.iterate(params));
   ```
 
-### 阶段三：通信与前端改造
+### Phase Three: Communication and Frontend Refactoring
 
-#### 6. 重构预加载脚本
-- **文件**: `packages/desktop/preload.js`
-- **删除内容**: 所有 `fetch` 拦截和模拟逻辑
-- **新增内容**: 结构化的 `electronAPI` 对象
-- **示例**:
+#### 6. Refactor Preload Script
+- **File**: `packages/desktop/preload.js`
+- **Remove Content**: All `fetch` interception and simulation logic
+- **Add Content**: Structured `electronAPI` object
+- **Example**:
   ```javascript
   contextBridge.exposeInMainWorld('electronAPI', {
     models: {
@@ -108,140 +108,140 @@
   });
   ```
 
-#### 7. 创建渲染进程服务代理类
-- **目标**: 为每个核心服务创建 Electron 代理类
-- **文件清单**:
+#### 7. Create Renderer Process Service Proxy Classes
+- **Goal**: Create Electron proxy classes for each core service
+- **File List**:
   - `packages/core/src/services/model/electron-proxy.ts`
   - `packages/core/src/services/template/electron-proxy.ts`
   - `packages/core/src/services/history/electron-proxy.ts`
   - `packages/core/src/services/prompt/electron-proxy.ts`
-- **要求**: 每个代理类实现对应服务的接口，内部调用 `window.electronAPI`
+- **Requirements**: Each proxy class implements the corresponding service interface, internally calling `window.electronAPI`
 
-#### 8. 改造UI服务初始化逻辑
-- **文件**: `packages/ui/src/composables/useAppInitializer.ts`
-- **逻辑**: `useAppInitializer` 会自动检测运行环境。
+#### 8. Refactor UI Service Initialization Logic
+- **File**: `packages/ui/src/composables/useAppInitializer.ts`
+- **Logic**: `useAppInitializer` will automatically detect the running environment.
   ```typescript
-  if (isRunningInElectron()) { // Electron 环境
-    // 初始化所有代理服务...
-  } else { // Web 环境
-    // 初始化所有真实服务...
+  if (isRunningInElectron()) { // Electron environment
+    // Initialize all proxy services...
+  } else { // Web environment
+    // Initialize all real services...
   }
   ```
 
-## 验证标准
+## Validation Criteria
 
-### 功能验证
-- [ ] 桌面应用能够正常启动，无存储相关错误
-- [ ] 所有核心功能正常工作（模型管理、模板管理、历史记录等）
-- [ ] LLM 服务连接测试成功
-- [ ] 提示词优化和迭代功能正常
+### Functional Validation
+- [ ] The desktop application can start normally without storage-related errors
+- [ ] All core functionalities work properly (model management, template management, history, etc.)
+- [ ] LLM service connection test is successful
+- [ ] Prompt optimization and iteration functionalities work correctly
 
-### 架构验证
-- [ ] 主进程和渲染进程职责清晰分离
-- [ ] IPC 通信基于稳定的高层接口
-- [ ] 不再有 `AbortSignal` 或 `Headers` 序列化问题
-- [ ] 代码结构清晰，易于维护和扩展
+### Architectural Validation
+- [ ] Clear separation of responsibilities between the main process and the renderer process
+- [ ] IPC communication based on stable high-level interfaces
+- [ ] No more serialization issues with `AbortSignal` or `Headers`
+- [ ] Clear code structure, easy to maintain and extend
 
-### 性能验证
-- [ ] 应用启动时间合理
-- [ ] IPC 通信延迟可接受
-- [ ] 内存使用稳定
+### Performance Validation
+- [ ] Reasonable application startup time
+- [ ] Acceptable IPC communication latency
+- [ ] Stable memory usage
 
-## 风险控制
+## Risk Control
 
-### 回滚策略
-- 保留当前 `main.js` 和 `preload.js` 的备份
-- 分阶段提交，确保每个阶段都可以独立回滚
-- 在完全验证新架构稳定性之前，保留旧的 IPC 处理器
+### Rollback Strategy
+- Keep backups of the current `main.js` and `preload.js`
+- Submit in phases to ensure each phase can be rolled back independently
+- Retain old IPC handlers until the stability of the new architecture is fully verified
 
-### 测试策略
-- 每完成一个阶段，立即进行功能测试
-- 重点测试存储操作和 IPC 通信
-- 确保 Web 端功能不受影响
+### Testing Strategy
+- Perform functional testing immediately after completing each phase
+- Focus on testing storage operations and IPC communication
+- Ensure that web functionality is not affected
 
-## 后续优化
+## Future Optimizations
 
-### 第二阶段：文件持久化存储
-- 将 `MemoryStorageProvider` 替换为基于文件的存储（如 `electron-store`）
-- 实现数据迁移和备份功能
+### Phase Two: File Persistent Storage
+- Replace `MemoryStorageProvider` with file-based storage (e.g., `electron-store`)
+- Implement data migration and backup functionalities
 
-### 第三阶段：性能优化
-- 优化 IPC 通信频率
-- 实现增量数据同步
-- 添加缓存机制
+### Phase Three: Performance Optimization
+- Optimize IPC communication frequency
+- Implement incremental data synchronization
+- Add caching mechanisms
 
 ---
 
-**状态**: 📋 计划制定完成，等待执行
-**负责人**: AI Assistant
-**预计完成时间**: 分阶段执行，每阶段约1-2小时
-## 实施进展
+**Status**: 📋 Plan completed, awaiting execution  
+**Responsible Person**: AI Assistant  
+**Estimated Completion Time**: Phased execution, approximately 1-2 hours per phase  
+## Implementation Progress
 
-### ✅ 已完成项目
+### ✅ Completed Projects
 
-#### 阶段一：核心改造 (core 包) - 100% 完成
-1. **✅ 创建 MemoryStorageProvider**
-   - 实现完整的 `IStorageProvider` 接口
-   - 通过所有14个单元测试
-   - 支持 Node.js 环境和测试环境
+#### Phase One: Core Refactoring (core package) - 100% Complete
+1. **✅ Created MemoryStorageProvider**
+   - Fully implemented `IStorageProvider` interface
+   - Passed all 14 unit tests
+   - Supported Node.js and testing environments
 
-2. **✅ 集成新的存储提供者**
-   - 在 `StorageFactory` 中添加 `'memory'` 选项
-   - 更新 `core` 包导出
+2. **✅ Integrated New Storage Provider**
+   - Added `'memory'` option in `StorageFactory`
+   - Updated `core` package exports
 
-3. **✅ 创建工厂函数**
-   - `createModelManager()` 工厂函数
-   - `createTemplateManager()` 工厂函数  
-   - `createHistoryManager()` 工厂函数
-   - 所有工厂函数正确导出
+3. **✅ Created Factory Functions**
+   - `createModelManager()` factory function
+   - `createTemplateManager()` factory function  
+   - `createHistoryManager()` factory function
+   - All factory functions correctly exported
 
-4. **✅ 接口完善与代理适配**
-   - 在 `ITemplateManager` 接口中添加 `isInitialized()` 方法
-   - 在 `ElectronTemplateManagerProxy` 类中实现 `isInitialized()` 方法
-   - 确保所有代理类正确实现了对应的接口
+4. **✅ Interface Improvement and Proxy Adaptation**
+   - Added `isInitialized()` method in `ITemplateManager` interface
+   - Implemented `isInitialized()` method in `ElectronTemplateManagerProxy` class
+   - Ensured all proxy classes correctly implemented their corresponding interfaces
 
-#### 阶段二：后端改造 (主进程) - 100% 完成
-5. **✅ 重构 main.js**
-   - 使用 `MemoryStorageProvider` 替代 `LocalStorageProvider`
-   - 实现完整的高层 IPC 服务接口
-   - 支持 LLM、Model、Template、History 所有服务
+#### Phase Two: Backend Refactoring (Main Process) - 100% Complete
+5. **✅ Refactored main.js**
+   - Used `MemoryStorageProvider` instead of `LocalStorageProvider`
+   - Implemented complete high-level IPC service interfaces
+   - Supported all services including LLM, Model, Template, and History
 
-6. **✅ 更新 preload.js**
-   - 提供完整的 `electronAPI` 接口
-   - 支持所有核心服务的 IPC 通信
-   - 正确的错误处理和类型安全
+6. **✅ Updated preload.js**
+   - Provided complete `electronAPI` interface
+   - Supported IPC communication for all core services
+   - Correct error handling and type safety
 
-7. **✅ 创建代理类**
-   - `ElectronLLMProxy` 适配 IPC 接口
-   - `ElectronModelManagerProxy` 实现模型管理
-   - 更新全局类型定义
+7. **✅ Created Proxy Classes**
+   - `ElectronLLMProxy` adapted IPC interface
+   - `ElectronModelManagerProxy` implemented model management
+   - Updated global type definitions
 
-### ✅ 重大成果
+### ✅ Major Achievements
 
-**桌面应用成功启动！** 从最新的测试结果显示：
+**The desktop application successfully starts!** The latest test results show:
 
-1. **✅ 架构重构成功**：从"底层 fetch 代理"成功迁移到"高层服务代理"
-2. **✅ 服务初始化正常**：所有核心服务（ModelManager、TemplateManager、HistoryManager、LLMService）正常创建
-3. **✅ IPC 通信建立**：高层服务接口正常工作
-4. **✅ UI 界面加载**：Electron 窗口成功启动，前端界面正常显示
-5. **✅ 功能测试正常**：可以进行 API 连接测试（失败是因为缺少 API 密钥，这是正常的）
+1. **✅ Architecture Refactoring Successful**: Successfully migrated from "low-level fetch proxy" to "high-level service proxy"
+2. **✅ Service Initialization Normal**: All core services (ModelManager, TemplateManager, HistoryManager, LLMService) created successfully
+3. **✅ IPC Communication Established**: High-level service interfaces are functioning normally
+4. **✅ UI Interface Loaded**: Electron window started successfully, frontend interface displayed correctly
+5. **✅ Functional Testing Normal**: API connection tests can be performed (failure is due to missing API key, which is normal)
 
-### 🔧 待优化项目
+### 🔧 Pending Optimization Projects
 
-1. **存储统一性**：部分模块仍在使用默认存储，需要确保全部使用 `MemoryStorageProvider`
-2. **错误处理优化**：改进存储错误的中文显示
-3. **第二阶段存储**：实现文件持久化存储（可选）
+1. **Storage Uniformity**: Some modules are still using default storage, need to ensure all use `MemoryStorageProvider`
+2. **Error Handling Optimization**: Improve the Chinese display of storage errors
+3. **Phase Two Storage**: Implement file persistent storage (optional)
 
-### 📊 架构对比
+### 📊 Architecture Comparison
 
-| 方面 | 旧架构（底层 fetch 代理） | 新架构（高层服务代理） |
+| Aspect | Old Architecture (Low-Level Fetch Proxy) | New Architecture (High-Level Service Proxy) |
 |------|-------------------------|----------------------|
-| **稳定性** | ❌ 脆弱，IPC 传输问题频发 | ✅ 稳定，高层接口通信 |
-| **可维护性** | ❌ 复杂的 Response 模拟 | ✅ 清晰的职责分离 |
-| **存储兼容性** | ❌ Node.js 环境不支持 localStorage | ✅ 专用的 MemoryStorageProvider |
-| **代码复用** | ❌ 重复的代理逻辑 | ✅ 主进程直接消费 core 包 |
-| **类型安全** | ❌ 复杂的类型适配 | ✅ 完整的 TypeScript 支持 |
+| **Stability** | ❌ Fragile, frequent IPC transmission issues | ✅ Stable, high-level interface communication |
+| **Maintainability** | ❌ Complex Response simulation | ✅ Clear responsibility separation |
+| **Storage Compatibility** | ❌ Node.js environment does not support localStorage | ✅ Dedicated MemoryStorageProvider |
+| **Code Reuse** | ❌ Duplicate proxy logic | ✅ Main process directly consumes core package |
+| **Type Safety** | ❌ Complex type adaptation | ✅ Complete TypeScript support |
 
-**架构结论**: 本次重构已**圆满完成**。随着统一初始化器 `useAppInitializer` 的引入和应用，桌面端的"高层服务代理"架构已完全落地，实现了各平台间架构的统一和代码的高度复用。
+**Architecture Conclusion**: This refactoring has been **successfully completed**. With the introduction of the unified initializer `useAppInitializer` and its application, the desktop "high-level service proxy" architecture has been fully implemented, achieving unification across platforms and high code reuse.
 
-**最后更新**: 2024年12月29日 
+**Last Updated**: December 29, 2024

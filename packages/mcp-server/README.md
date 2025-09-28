@@ -1,168 +1,538 @@
-# 提示词优化器 MCP 服务器
+<!-- @format -->
 
-为提示词优化器项目提供的 MCP (Model Context Protocol) 服务器。提供提示词优化工具，支持通过 HTTP 协议连接，可被任何 MCP 兼容客户端使用。
+# Prompt Optimizer MCP Server
 
-> **用户部署和使用指南**：请查看 [MCP 服务器用户指南](../../docs/user/mcp-server.md)
+A Model Context Protocol (MCP) server that provides prompt optimization and content generation capabilities.
 
-## 功能特性
-
-- **optimize-user-prompt**: 优化用户提示词以提升 LLM 性能
-- **optimize-system-prompt**: 优化系统提示词以提升 LLM 性能
-- **iterate-prompt**: 基于特定需求迭代改进成熟的提示词
-
-## 快速开始
-
-### 开发模式（推荐）
+## Features
 
 ```bash
-# 安装依赖
 pnpm install
-
-# 开发模式：自动监听文件变化，自动重新编译和重启服务器
-pnpm dev
 ```
 
-服务器将在 `http://localhost:3000/mcp` 启动，修改代码后自动重启。
+## Configuration
 
-### 生产模式
+- **Prompt Optimization**: Optimize user and system prompts for better AI interactions
+- **Iterative Improvement**: Refine existing prompts based on specific requirements
+- **Content Generation**: Generate various types of content using professional templates
+- **Multi-Model Support**: Works with various AI models (OpenAI, Gemini, DeepSeek, etc.)
+- **Template System**: Pre-built templates for different optimization scenarios
+
+## Installation
+
+### Prerequisites
+
+- Node.js 18 or higher
+- npm or pnpm
+
+### Local Installation
 
 ```bash
-# 1. 构建项目
-pnpm build
+# Clone the repository
+git clone <repository-url>
+cd prompt-optimizer-develop
 
-# 2. 启动服务器
-pnpm start
+# Install dependencies
+pnpm install
 ```
 
-服务器将在 `http://localhost:3000/mcp` 启动。
+### Global Installation
 
-### 根目录快捷命令
-
-如果你在项目根目录，可以使用以下快捷命令：
+The MCP server can be installed globally as a CLI tool:
 
 ```bash
-# 开发模式
-pnpm mcp:dev
+# Install globally from the project directory
+cd prompt-optimizer-develop
+pnpm install -g @prompt-optimizer/mcp-server
 
-# 构建项目
-pnpm mcp:build
-
-# 启动服务器（默认已启用 debug 日志）
-pnpm mcp:start
-
-# 如需调整日志级别
-MCP_LOG_LEVEL=info pnpm mcp:start
-
-# 运行测试
-pnpm mcp:test
+# Or install from npm registry (when published)
+npm install -g @prompt-optimizer/mcp-server
 ```
 
-## 开发配置
+After global installation, you can use the `prompt-optimizer-mcp` command from anywhere:
 
-### 环境变量
-
-开发时需要在项目根目录配置 `.env.local` 文件。详细的配置说明请参考 [用户指南](../../docs/user/mcp-server.md#环境变量配置)。
-
-开发环境最小配置示例：
 ```bash
-# 至少配置一个 API 密钥
-VITE_OPENAI_API_KEY=your-openai-key
+# Run the MCP server globally
+prompt-optimizer-mcp
+
+# Run with HTTP transport
+prompt-optimizer-mcp --transport=http --port=3000
+```
+
+## Configuration
+
+### Environment Variables
+
+#### Local Development
+
+The MCP server requires API keys for the AI models you want to use. Create a `.env` file in the project root:
+
+The MCP server requires API keys for the AI models you want to use. Create a `.env` file in the project root:
+
+```bash
+# OpenAI
+VITE_OPENAI_API_KEY=your_openai_api_key
+
+# Gemini
+VITE_GEMINI_API_KEY=your_gemini_api_key
+
+# DeepSeek
+VITE_DEEPSEEK_API_KEY=your_deepseek_api_key
+
+# SiliconFlow
+VITE_SILICONFLOW_API_KEY=your_siliconflow_api_key
+
+# Zhipu AI
+VITE_ZHIPU_API_KEY=your_zhipu_api_key
+
+# Custom API
+VITE_CUSTOM_API_KEY=your_custom_api_key
+VITE_CUSTOM_API_BASE_URL=https://your-api-endpoint.com/v1
+VITE_CUSTOM_API_MODEL=your_model_name
+```
+
+#### Global CLI Configuration
+
+When using the globally installed CLI, you need to configure environment variables in one of the following locations:
+
+**Unix/macOS:**
+- `~/.prompt-optimizer.env`
+- `~/.config/prompt-optimizer/.env`
+
+**Windows:**
+- `%USERPROFILE%\.prompt-optimizer.env`
+- `%APPDATA%\prompt-optimizer\.env`
+
+You can copy the template from `packages/mcp-server/global-config-template.env`:
+
+```bash
+# Copy the template to your home directory
+cp packages/mcp-server/global-config-template.env ~/.prompt-optimizer.env
+
+# Edit the file with your API keys
+nano ~/.prompt-optimizer.env
+```
+
+Example global configuration:
+```bash
+# OpenAI
+MCP_OPENAI_API_KEY=your_openai_api_key
+
+# Gemini
+MCP_GEMINI_API_KEY=your_gemini_api_key
+
+# Server settings
 MCP_DEFAULT_MODEL_PROVIDER=openai
-MCP_LOG_LEVEL=debug
+MCP_HTTP_PORT=3000
+MCP_LOG_LEVEL=info
 ```
 
-## 日志配置
+### Custom Models
 
-MCP 服务器默认启用 `debug` 级别日志，可通过 `MCP_LOG_LEVEL` 环境变量调整：
+You can configure additional custom models using environment variables with the pattern `VITE_CUSTOM_API_KEY_{MODEL_NAME}`:
 
 ```bash
-# 默认 debug 级别（显示所有日志）
+# Qwen model
+VITE_CUSTOM_API_KEY_qwen=your_qwen_api_key
+VITE_CUSTOM_API_BASE_URL_qwen=https://dashscope.aliyuncs.com/compatible-mode/v1
+VITE_CUSTOM_API_MODEL_qwen=qwen-turbo
+
+# Claude model
+VITE_CUSTOM_API_KEY_claude=your_claude_api_key
+VITE_CUSTOM_API_BASE_URL_claude=https://api.anthropic.com/v1
+VITE_CUSTOM_API_MODEL_claude=claude-3-sonnet-20240229
+```
+
+## Usage
+
+### Running the Server
+
+#### Development Mode
+
+```bash
+pnpm run dev
+```
+
+#### Production Mode
+
+```bash
 pnpm start
-
-# 调整为 info 级别
-MCP_LOG_LEVEL=info pnpm start
-
-# 调整为 warn 级别
-MCP_LOG_LEVEL=warn pnpm start
-
-# 调整为 error 级别
-MCP_LOG_LEVEL=error pnpm start
 ```
 
-### 日志级别说明
+### HTTP Server Mode
 
-- `debug` - 调试信息（默认，开发时使用）
-- `info` - 一般信息（服务启动、配置等）
-- `warn` - 警告信息（非致命问题）
-- `error` - 错误信息（需要关注的问题）
-
-
-
-## 开发
+For HTTP transport (useful for Docker):
 
 ```bash
-# 开发模式（自动监听文件变化，自动重启服务器）
-pnpm dev
+pnpm run dev -- --transport=http --port=3000
+```
 
-# 运行测试
+### Available Tools
+
+#### 1. optimize-user-prompt
+
+Optimize user prompts for better AI interactions.
+
+**Parameters:**
+
+- `prompt` (required): The user prompt to optimize
+- `template` (optional): Optimization template ID
+
+**Example:**
+
+```json
+{
+  "name": "optimize-user-prompt",
+  "arguments": {
+    "prompt": "帮我写个文章",
+    "template": "user-prompt-basic"
+  }
+}
+```
+
+#### 2. optimize-system-prompt
+
+Optimize system prompts for better AI role definition and behavior control.
+
+**Parameters:**
+
+- `prompt` (required): The system prompt to optimize
+- `template` (optional): Optimization template ID
+
+**Example:**
+
+```json
+{
+  "name": "optimize-system-prompt",
+  "arguments": {
+    "prompt": "你是一个助手",
+    "template": "system-prompt-basic"
+  }
+}
+```
+
+#### 3. iterate-prompt
+
+Iteratively improve an existing prompt based on specific requirements.
+
+**Parameters:**
+
+- `prompt` (required): The existing prompt to improve
+- `requirements` (required): Specific improvement requirements
+- `template` (optional): Iteration template ID
+
+**Example:**
+
+```json
+{
+  "name": "iterate-prompt",
+  "arguments": {
+    "prompt": "写一篇关于人工智能的文章",
+    "requirements": "使语言更专业，增加技术细节",
+    "template": "iterate-basic"
+  }
+}
+```
+
+#### 4. generate-content
+
+Generate content using professional templates.
+
+**Parameters:**
+
+- `templateId` (required): Content generation template ID
+- `variables` (required): Template variables
+- `systemPrompt` (optional): Custom system prompt
+
+**Example:**
+
+```json
+{
+  "name": "generate-content",
+  "arguments": {
+    "templateId": "article-writer",
+    "variables": {
+      "topic": "人工智能",
+      "audience": "技术人员",
+      "wordCount": 1500
+    }
+  }
+}
+```
+
+#### 5. generate-content-iterative
+
+Generate content through iterative refinement.
+
+**Parameters:**
+
+- `templateId` (required): Content generation template ID
+- `variables` (required): Template variables
+- `refinementPrompt` (required): Refinement instructions
+- `maxIterations` (optional): Maximum refinement iterations (default: 3)
+- `systemPrompt` (optional): Custom system prompt
+
+**Example:**
+
+```json
+{
+  "name": "generate-content-iterative",
+  "arguments": {
+    "templateId": "article-writer",
+    "variables": {
+      "topic": "人工智能",
+      "audience": "技术人员",
+      "wordCount": 1500
+    },
+    "refinementPrompt": "使语言更专业，增加更多技术细节",
+    "maxIterations": 3
+  }
+}
+```
+
+## Available Templates
+
+### Prompt Optimization Templates
+
+#### User Prompt Templates
+
+- `user-prompt-basic`: Basic user prompt optimization
+- `user-prompt-context-aware`: Context-aware user prompt optimization
+- `user-prompt-detailed`: Detailed user prompt optimization
+
+#### System Prompt Templates
+
+- `system-prompt-basic`: Basic system prompt optimization
+- `system-prompt-role-focused`: Role-focused system prompt optimization
+- `system-prompt-comprehensive`: Comprehensive system prompt optimization
+
+#### Iteration Templates
+
+- `iterate-basic`: Basic prompt iteration
+- `iterate-context-aware`: Context-aware prompt iteration
+- `iterate-output-format`: Output format focused iteration
+
+### Content Generation Templates
+
+- `article-writer`: Article writing template
+- `marketing-copy`: Marketing copy template
+- `technical-documentation`: Technical documentation template
+- `social-media-post`: Social media post template
+- `email-newsletter`: Email newsletter template
+
+## Docker Usage
+
+### Using Docker Compose
+
+```bash
+# Start the MCP server
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the server
+docker-compose down
+```
+
+### Using Docker Directly
+
+```bash
+# Build the image
+docker build -t prompt-optimizer-mcp-server .
+
+# Run the container
+docker run -d \
+  --name mcp-server \
+  -p 3000:3000 \
+  -e VITE_OPENAI_API_KEY=your_api_key \
+  prompt-optimizer-mcp-server
+```
+
+### Environment Configuration for Docker
+
+You can use the provided `.env.multi-agent.example` file as a template for Docker configuration:
+
+```bash
+# Copy the example file
+cp .env.multi-agent.example .env.multi-agent
+
+# Edit the file with your API keys
+nano .env.multi-agent
+
+# Start with Docker Compose
+docker-compose -f docker-compose.multi-agent.yml up -d
+```
+
+## MCP Client Integration
+
+### Claude Desktop App
+
+Add the following to your Claude Desktop configuration:
+
+```json
+{
+  "mcpServers": {
+    "prompt-optimizer": {
+      "command": "node",
+      "args": ["/path/to/prompt-optimizer/packages/mcp-server/dist/index.js"],
+      "env": {
+        "VITE_OPENAI_API_KEY": "your_openai_api_key",
+        "VITE_GEMINI_API_KEY": "your_gemini_api_key"
+      }
+    }
+  }
+}
+```
+
+### HTTP Client
+
+For HTTP transport, send requests to:
+
+```
+POST http://localhost:3000/mcp
+Content-Type: application/json
+MCP-Session-ID: your-session-id
+```
+
+## Error Handling
+
+The MCP server provides detailed error information with specific error codes:
+
+- `-32000`: Internal error
+- `-32001`: Prompt optimization failed
+- `-32002`: Model not configured
+- `-32003`: Template not found
+- `-32004`: Content generation failed
+- `-32005`: Rate limit exceeded
+- `-32006`: Network error
+- `-32007`: Validation error
+
+## Development
+
+### Building the Project
+
+```bash
+# Build the TypeScript project
+pnpm run build
+
+# Run tests
 pnpm test
 
-# 类型检查
-pnpm type-check
-
-# 代码检查
+# Run linting
 pnpm lint
 ```
 
-## 测试与调试
+### Project Structure
 
-### 使用 MCP Inspector 测试
-
-MCP Inspector 是官方提供的可视化测试工具，支持通过 Web UI 测试 MCP 服务器。
-
-#### 使用 MCP Inspector 测试
-
-```bash
-# 1. 启动 MCP 服务器
-pnpm start
-
-# 2. 在另一个终端启动 Inspector
-npx @modelcontextprotocol/inspector
+```
+packages/mcp-server/
+├── src/
+│   ├── adapters/          # Core service adapters
+│   ├── config/           # Configuration management
+│   ├── utils/            # Utility functions
+│   └── index.ts          # Main server file
+├── dist/                 # Compiled JavaScript output
+├── package.json          # Package configuration
+└── README.md            # This file
 ```
 
-然后在 Inspector Web UI 中：
-1. 选择传输方式：`Streamable HTTP`
-2. 服务器 URL：`http://localhost:3000/mcp`
-3. 点击 "Connect" 连接服务器
-4. 测试可用的工具：`optimize-user-prompt`、`optimize-system-prompt`、`iterate-prompt`
+## Troubleshooting
 
-#### 其他测试方法
+### Common Issues
 
-**重要提示**：MCP 协议不是简单的 REST API，不能直接用 curl 测试。
+1. **Model Configuration Errors**
 
-**推荐的测试方式**：
-1. **MCP Inspector**（官方工具）- 最佳选择
-2. **Claude Desktop** - 实际使用场景
-3. **自定义 MCP 客户端** - 使用 `@modelcontextprotocol/sdk`
+   - Ensure API keys are correctly set in environment variables
+   - Verify the model is enabled in the configuration
 
-**为什么不能用 curl**：
-- MCP 使用 JSON-RPC 2.0 协议
-- 需要特殊的握手和初始化过程
-- HTTP 传输使用流式连接，不是简单的请求-响应
+2. **Template Not Found**
 
-## 📚 相关文档
+   - Check if the template ID is correct
+   - Verify the template is available in the template manager
 
-- [MCP 服务器用户指南](../../docs/user/mcp-server.md) - 用户部署和使用指南
-- [MCP 服务器开发经验](../../docs/archives/120-mcp-server-module/experience.md) - 开发经验和最佳实践
-- [项目主页](../../README.md) - 项目概述和快速开始
+3. **Network Errors**
 
-## 架构设计
+   - Check your internet connection
+   - Verify API endpoints are accessible
 
-此 MCP 服务器遵循零侵入设计原则：
-- 仅使用现有 Core 模块 API，无需修改
-- 采用内存存储实现无状态操作
-- 提供 MCP 和 Core 格式之间的参数适配
+4. **Rate Limiting**
+   - Wait for the rate limit to reset
+   - Consider using multiple API keys
 
-## 许可证
+### Debug Mode
 
-MIT
+Enable debug logging by setting the environment variable:
+
+```bash
+DEBUG=mcp-server:* pnpm run dev
+```
+
+## Global CLI Troubleshooting
+
+### Common Global Installation Issues
+
+1. **Environment Variables Not Loading**
+
+   If the global CLI doesn't load your environment variables:
+
+   ```bash
+   # Check if the global config file exists
+   ls -la ~/.prompt-optimizer.env
+   
+   # Or check the config directory
+   ls -la ~/.config/prompt-optimizer/.env
+   ```
+
+   Ensure the configuration file is in the correct location and contains valid API keys.
+
+2. **Command Not Found**
+
+   If `prompt-optimizer-mcp` command is not found:
+
+   ```bash
+   # Check if the package is installed globally
+   npm list -g @prompt-optimizer/mcp-server
+   
+   # If not installed, install it globally
+   pnpm install -g @prompt-optimizer/mcp-server
+   ```
+
+3. **Permission Issues**
+
+   If you encounter permission errors:
+
+   ```bash
+   # Install with correct permissions
+   pnpm install -g @prompt-optimizer/mcp-server --unsafe-perm=true
+   ```
+
+4. **Global vs Local Conflicts**
+
+   If you have both local and global installations, the global installation takes precedence when running from outside the project directory.
+
+5. **Checking Global Installation Status**
+
+   To verify your global installation is working:
+
+   ```bash
+   # Check if the CLI is properly installed
+   prompt-optimizer-mcp --version
+   
+   # Test environment variable loading
+   prompt-optimizer-mcp --transport=http --port=3000
+   ```
+
+### Global Configuration File Locations
+
+The global CLI looks for configuration files in the following order:
+
+1. Current working directory: `.env.local`, `.env`
+2. User's home directory: `~/.prompt-optimizer.env`, `~/.prompt-optimizer.env.local`
+3. User config directory: `~/.config/prompt-optimizer/.env`, `~/.config/prompt-optimizer/.env.local`
+4. System config directory: `/etc/prompt-optimizer/.env` (Linux/macOS)
+5. Windows app data: `%APPDATA%\prompt-optimizer\.env` (Windows)
+
+## License
+
+This project is licensed under the MIT License.

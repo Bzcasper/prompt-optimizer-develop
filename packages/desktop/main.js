@@ -1745,7 +1745,9 @@ async function setupUpdateHandlers() {
       mainWindow.webContents.send(IPC_EVENTS.UPDATE_ERROR, {
         message: detailedErrorResponse.error,
         code: error.code || 'UNKNOWN_ERROR',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        severity: 'error',
+        recoverable: true
       });
     }
   });
@@ -2307,7 +2309,9 @@ async function setupUpdateHandlers() {
               mainWindow.webContents.send(IPC_EVENTS.UPDATE_ERROR, {
                 message: downloadError.message || 'Download failed',
                 error: downloadError,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                severity: 'error',
+                recoverable: true
               });
             }
           });
@@ -2362,3 +2366,5 @@ async function setupUpdateHandlers() {
 
   console.log('[Main Process] Auto-update handlers ready.');
 }
+
+console.log('[Main Process] Auto-update handlers ready.');

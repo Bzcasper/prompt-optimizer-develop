@@ -17,26 +17,26 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+       - name: Checkout code
+         uses: actions/checkout@v4
 
-      - name: 安装 pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.5.2
-          run_install: false
+       - name: Install pnpm
+         uses: pnpm/action-setup@v2
+         with:
+           version: 10.5.2
+           run_install: false
 
-      - name: 设置 Node.js 环境
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
+       - name: Setup Node.js environment
+         uses: actions/setup-node@v4
+         with:
+           node-version: '22'
+           cache: 'pnpm'
 
-      - name: 安装依赖
-        run: pnpm install
+       - name: Install dependencies
+         run: pnpm install
 
-      - name: 运行构建
-        run: pnpm build
+       - name: Run build
+         run: pnpm build
 
-      - name: 运行测试
-        run: pnpm test 
+       - name: Run tests
+         run: pnpm test

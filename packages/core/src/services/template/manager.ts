@@ -121,19 +121,24 @@ export class TemplateManager implements ITemplateManager {
    */
   async deleteTemplate(id: string): Promise<void> {
     this.validateTemplateId(id);
-    
-    // Check if template is built-in
-    const builtinTemplates = await this.getBuiltinTemplates();
-    if (builtinTemplates[id]) {
+
+    // Unified check against all built-in templates, regardless of language
+    const allBuiltinTemplates = this.staticLoader.loadTemplates().all;
+    if (allBuiltinTemplates[id] && allBuiltinTemplates[id].isBuiltin) {
       throw new TemplateError(`Cannot delete built-in template: ${id}`);
     }
-    
+
     // Get current user templates
     const userTemplates = await this.getUserTemplates();
-    
+
     // Remove the template
+    const initialLength = userTemplates.length;
     const filteredTemplates = userTemplates.filter(t => t.id !== id);
-    
+
+    if (filteredTemplates.length === initialLength) {
+      throw new TemplateError(`User template ${id} not found, cannot delete.`);
+    }
+
     // Save to storage
     await this.persistUserTemplates(filteredTemplates);
   }

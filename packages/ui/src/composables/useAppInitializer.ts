@@ -10,6 +10,9 @@ import {
   createTemplateLanguageService,
   createCompareService,
   createContextRepo,
+  createContentGenerationServiceFactory,
+  createADKTemplateOrchestrator,
+  createRegistryOrchestrator,
   ElectronContextRepoProxy,
   ElectronModelManagerProxy,
   ElectronTemplateManagerProxy,
@@ -18,13 +21,14 @@ import {
   ElectronLLMProxy,
   ElectronPromptServiceProxy,
   ElectronTemplateLanguageServiceProxy,
+  ElectronContentGenerationServiceProxy,
   isRunningInElectron,
   waitForElectronApi,
   ElectronPreferenceServiceProxy,
   createPreferenceService,
 } from '../'; // 从UI包的index导入所有核心模块
 import type { AppServices } from '../types/services';
-import type { IModelManager, ITemplateManager, IHistoryManager, ILLMService, IPromptService, IDataManager, IPreferenceService } from '@prompt-optimizer/core';
+import type { IModelManager, ITemplateManager, IHistoryManager, ILLMService, IPromptService, IDataManager, IPreferenceService, IContentGenerationService } from '@prompt-optimizer/core';
 
 /**
  * 应用服务统一初始化器。
@@ -52,6 +56,7 @@ export function useAppInitializer(): {
       let llmService: ILLMService;
       let promptService: IPromptService;
       let preferenceService: IPreferenceService;
+      let contentGenerationService: IContentGenerationService;
 
       if (isRunningInElectron()) {
         console.log('[AppInitializer] 检测到Electron环境，等待API就绪...');
@@ -81,6 +86,9 @@ export function useAppInitializer(): {
         // 使用真正的 Electron 模板语言服务代理
         const templateLanguageService = new ElectronTemplateLanguageServiceProxy();
 
+        // 创建内容生成服务代理
+        contentGenerationService = new ElectronContentGenerationServiceProxy((window as any).electronAPI);
+
         // 创建 CompareService（直接使用，无需代理）
         const compareService = createCompareService();
 
@@ -98,6 +106,7 @@ export function useAppInitializer(): {
           preferenceService, // 使用从core包导入的ElectronPreferenceServiceProxy
           compareService, // 直接使用，无需代理
           contextRepo, // 使用Electron代理
+          contentGenerationService,
         };
         console.log('[AppInitializer] Electron代理服务初始化完成');
 
@@ -201,8 +210,43 @@ export function useAppInitializer(): {
         // 创建 ContextRepo（使用相同的存储提供器）
         const contextRepo = createContextRepo(storageProvider);
 
+        // 创建内容生成服务
+        contentGenerationService = createContentGenerationServiceFactory(llmService, templateManagerInstance);
+
         // 创建 DataManager（需要contextRepo）
         dataManager = createDataManager(modelManagerInstance, templateManagerInstance, historyManagerInstance, preferenceService, contextRepo);
+
+        // ADK Configuration and Initialization
+        console.log('[AppInitializer] 初始化 ADK 服务...');
+        let adkOrchestrator = null;
+        let registryOrchestrator = null;
+
+        const adkConfig = {
+          projectId: import.meta.env.VITE_GOOGLE_ADK_PROJECT_ID,
+          location: import.meta.env.VITE_GOOGLE_ADK_LOCATION || 'us-central1'
+        };
+
+        const adkEnabled = import.meta.env.VITE_ADK_ENABLED === 'true' && adkConfig.projectId;
+
+        if (adkEnabled) {
+          try {
+            // 创建 Registry Orchestrator
+            registryOrchestrator = createRegistryOrchestrator(adkConfig);
+            console.log('[AppInitializer] Registry Orchestrator 创建成功');
+
+            // 创建 ADK Template Orchestrator
+            adkOrchestrator = createADKTemplateOrchestrator(
+              templateManagerInstance,
+              registryOrchestrator.agentRegistry,
+              adkConfig
+            );
+            console.log('[AppInitializer] ADK Template Orchestrator 创建成功');
+          } catch (adkError) {
+            console.warn('[AppInitializer] ADK 服务初始化失败，继续使用基础服务:', adkError);
+          }
+        } else {
+          console.log('[AppInitializer] ADK 未启用或配置不完整，跳过 ADK 服务初始化');
+        }
 
         // 将所有服务实例赋值给 services.value
         services.value = {
@@ -216,6 +260,10 @@ export function useAppInitializer(): {
           preferenceService, // 使用从core包导入的PreferenceService
           compareService, // 直接使用
           contextRepo, // 上下文仓库
+          contentGenerationService,
+          // ADK Services (可选)
+          adkOrchestrator,
+          registryOrchestrator,
         };
 
         console.log('[AppInitializer] 所有服务初始化完成');

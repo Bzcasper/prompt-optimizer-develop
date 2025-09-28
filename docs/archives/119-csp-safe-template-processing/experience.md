@@ -1,53 +1,53 @@
-# CSP安全模板处理 - 开发经验总结
+# CSP Security Template Processing - Development Experience Summary
 
-## 🎯 核心经验
+## 🎯 Core Experience
 
-### 1. CSP问题诊断经验
+### 1. CSP Issue Diagnosis Experience
 
-#### 问题识别技巧
-- **错误特征**: "unsafe-eval" 关键词是CSP问题的明确标识
-- **环境特异性**: 只在浏览器扩展中出现，其他环境正常
-- **代码定位**: 通过错误堆栈快速定位到`Handlebars.compile()`调用
+#### Problem Identification Techniques
+- **Error Characteristic**: The keyword "unsafe-eval" is a clear indicator of CSP issues.
+- **Environment Specificity**: Issues only occur in browser extensions, normal in other environments.
+- **Code Localization**: Quickly locate the `Handlebars.compile()` call through the error stack.
 
-#### 根因分析方法
+#### Root Cause Analysis Method
 ```javascript
-// 验证CSP限制的简单测试
+// Simple test to validate CSP restrictions
 try {
   new Function('return 1')();
-  console.log('CSP允许动态代码执行');
+  console.log('CSP allows dynamic code execution');
 } catch (e) {
-  console.log('CSP禁止动态代码执行:', e.message);
+  console.log('CSP prohibits dynamic code execution:', e.message);
 }
 ```
 
-### 2. 环境检测设计经验
+### 2. Environment Detection Design Experience
 
-#### 多重检测的必要性
-**问题**: 单一检测条件容易误判
+#### Necessity of Multiple Checks
+**Problem**: A single detection condition can lead to false positives.
 ```typescript
-// ❌ 不够准确的检测
+// ❌ Inaccurate detection
 static isExtensionEnvironment(): boolean {
   return typeof chrome !== 'undefined';
 }
 ```
 
-**解决**: 多层验证确保准确性
+**Solution**: Multi-layer validation ensures accuracy.
 ```typescript
-// ✅ 准确的检测逻辑
+// ✅ Accurate detection logic
 static isExtensionEnvironment(): boolean {
-  // 1. 环境排除
-  // 2. API存在性检查  
-  // 3. 功能有效性验证
-  // 4. 异常处理保护
+  // 1. Environment exclusion
+  // 2. API existence check  
+  // 3. Functionality validation
+  // 4. Exception handling protection
 }
 ```
 
-#### Electron环境排除的重要性
-**经验**: Electron应用可能注入Chrome API，导致误判
-**解决**: 优先检测Electron特征，明确排除
+#### Importance of Excluding Electron Environment
+**Experience**: Electron applications may inject Chrome APIs, leading to false positives.
+**Solution**: Prioritize detection of Electron features for clear exclusion.
 
 ```typescript
-// 多种Electron检测方式
+// Various Electron detection methods
 const electronIndicators = [
   'window.require',
   'window.electronAPI', 
@@ -56,45 +56,45 @@ const electronIndicators = [
 ];
 ```
 
-### 3. 向后兼容设计经验
+### 3. Backward Compatibility Design Experience
 
-#### 渐进增强策略
-**原则**: 新功能不能破坏现有功能
-**实现**: 
-- 默认使用原有方案（Handlebars）
-- 仅在特定环境使用新方案（CSP安全）
-- 异常时回退到安全状态
+#### Progressive Enhancement Strategy
+**Principle**: New features must not break existing functionality.
+**Implementation**: 
+- Default to the original solution (Handlebars).
+- Use the new solution (CSP safe) only in specific environments.
+- Fall back to a safe state in case of exceptions.
 
-#### 异常处理的重要性
+#### Importance of Exception Handling
 ```typescript
-// ✅ 防御性编程
+// ✅ Defensive programming
 try {
-  // 环境检测逻辑
+  // Environment detection logic
 } catch (error) {
-  // 任何错误都返回false，确保其他平台正常工作
+  // Return false for any error to ensure other platforms work normally
   return false;
 }
 ```
 
-**经验**: 宁可功能受限，也不能影响其他平台的正常运行
+**Experience**: It is better to limit functionality than to disrupt the normal operation of other platforms.
 
-### 4. 测试驱动开发经验
+### 4. Test-Driven Development Experience
 
-#### 测试优先的价值
-1. **需求澄清**: 通过测试用例明确功能边界
-2. **回归保护**: 确保修改不破坏现有功能
-3. **文档作用**: 测试即文档，展示使用方式
+#### Value of Test Priority
+1. **Requirement Clarification**: Clearly define functional boundaries through test cases.
+2. **Regression Protection**: Ensure modifications do not break existing functionality.
+3. **Documentation Role**: Tests serve as documentation, demonstrating usage.
 
-#### 环境模拟技巧
+#### Environment Simulation Techniques
 ```typescript
-// 模拟不同环境的技巧
+// Techniques for simulating different environments
 beforeEach(() => {
-  // 清理全局状态
+  // Clean up global state
   delete (global as any).chrome;
   delete (global as any).window;
 });
 
-// 精确模拟浏览器扩展环境
+// Precisely simulate browser extension environment
 (global as any).chrome = {
   runtime: {
     getManifest: vi.fn(() => ({ manifest_version: 3 }))
@@ -102,52 +102,52 @@ beforeEach(() => {
 };
 ```
 
-## 🔧 技术实现经验
+## 🔧 Technical Implementation Experience
 
-### 1. 正则表达式设计
+### 1. Regular Expression Design
 
-#### 模式选择考虑
-- **简单性**: `/\{\{([^}]+)\}\}/g` 足够处理基本需求
-- **性能**: 全局匹配比多次单独匹配更高效
-- **容错性**: 处理空格和边界情况
+#### Considerations for Pattern Selection
+- **Simplicity**: `/\{\{([^}]+)\}\}/g` is sufficient for basic needs.
+- **Performance**: Global matching is more efficient than multiple individual matches.
+- **Fault Tolerance**: Handle whitespace and boundary cases.
 
-#### 替换逻辑优化
+#### Replacement Logic Optimization
 ```typescript
-// ✅ 安全的替换逻辑
+// ✅ Safe replacement logic
 result.replace(/\{\{([^}]+)\}\}/g, (match, variableName) => {
   const trimmedName = variableName.trim();
   const value = context[trimmedName];
   
-  // 类型安全 + 默认值处理
+  // Type safety + default value handling
   return value !== undefined ? String(value) : '';
 });
 ```
 
-### 2. 类型安全实践
+### 2. Type Safety Practices
 
-#### 接口复用策略
-**经验**: 复用现有接口比创建新接口更好
-- 减少维护成本
-- 保持API一致性
-- 自动获得类型检查
+#### Interface Reuse Strategy
+**Experience**: Reusing existing interfaces is better than creating new ones.
+- Reduces maintenance costs.
+- Maintains API consistency.
+- Automatically gains type checking.
 
-#### 类型转换处理
+#### Type Conversion Handling
 ```typescript
-// ✅ 安全的类型转换
+// ✅ Safe type conversion
 return value !== undefined ? String(value) : '';
 
-// ❌ 可能出问题的方式
-return value || '';  // 0, false会被转换为空字符串
+// ❌ Potentially problematic approach
+return value || '';  // 0, false will be converted to an empty string
 ```
 
-### 3. 性能优化经验
+### 3. Performance Optimization Experience
 
-#### 避免重复检测
-**问题**: 每次模板处理都进行环境检测
-**优化**: 可考虑缓存检测结果（当前未实现）
+#### Avoiding Redundant Detection
+**Problem**: Environment detection is performed every time the template is processed.
+**Optimization**: Consider caching detection results (currently not implemented).
 
 ```typescript
-// 未来优化方向
+// Future optimization direction
 class CSPSafeTemplateProcessor {
   private static _isExtension: boolean | null = null;
   
@@ -160,33 +160,33 @@ class CSPSafeTemplateProcessor {
 }
 ```
 
-#### 内存使用优化
-- 避免创建不必要的中间对象
-- 使用原地替换而非创建新字符串
-- 及时释放大型临时变量
+#### Memory Usage Optimization
+- Avoid creating unnecessary intermediate objects.
+- Use in-place replacement instead of creating new strings.
+- Release large temporary variables in a timely manner.
 
-## 🚨 常见陷阱与解决
+## 🚨 Common Traps and Solutions
 
-### 1. 环境检测陷阱
+### 1. Environment Detection Traps
 
-#### 陷阱1: 过度依赖单一特征
+#### Trap 1: Over-reliance on a Single Feature
 ```typescript
-// ❌ 容易误判
+// ❌ Prone to false positives
 if (typeof chrome !== 'undefined') {
-  // Electron也可能有chrome对象
+  // Electron may also have a chrome object
 }
 ```
 
-#### 陷阱2: 忽略异常处理
+#### Trap 2: Ignoring Exception Handling
 ```typescript
-// ❌ 可能导致其他平台崩溃
+// ❌ May cause crashes on other platforms
 const manifest = chrome.runtime.getManifest();
 return manifest.manifest_version !== undefined;
 ```
 
-#### 解决方案: 多重验证 + 异常保护
+#### Solution: Multiple Validations + Exception Protection
 ```typescript
-// ✅ 安全的检测方式
+// ✅ Safe detection method
 try {
   if (isElectronEnvironment()) return false;
   if (hasChromeAPI()) {
@@ -194,48 +194,48 @@ try {
   }
   return false;
 } catch (error) {
-  return false; // 保护其他平台
+  return false; // Protect other platforms
 }
 ```
 
-### 2. 模板处理陷阱
+### 2. Template Processing Traps
 
-#### 陷阱1: 变量名处理不当
+#### Trap 1: Improper Variable Name Handling
 ```typescript
-// ❌ 没有处理空格
+// ❌ Did not handle whitespace
 const variableName = match[1];
 
-// ✅ 正确处理
+// ✅ Correct handling
 const variableName = match[1].trim();
 ```
 
-#### 陷阱2: 类型转换问题
+#### Trap 2: Type Conversion Issues
 ```typescript
-// ❌ 可能返回undefined字符串
+// ❌ May return an undefined string
 return context[variableName];
 
-// ✅ 安全转换
+// ✅ Safe conversion
 return value !== undefined ? String(value) : '';
 ```
 
-### 3. 测试相关陷阱
+### 3. Testing Related Traps
 
-#### 陷阱1: 全局状态污染
+#### Trap 1: Global State Pollution
 ```typescript
-// ❌ 测试间相互影响
+// ❌ Tests affecting each other
 it('test1', () => {
   (global as any).chrome = mockChrome;
-  // 测试逻辑
+  // Test logic
 });
 
 it('test2', () => {
-  // chrome对象仍然存在，影响测试结果
+  // chrome object still exists, affecting test results
 });
 ```
 
-#### 解决方案: 完整的清理机制
+#### Solution: Complete Cleanup Mechanism
 ```typescript
-// ✅ 每个测试独立
+// ✅ Each test is independent
 beforeEach(() => {
   delete (global as any).chrome;
   delete (global as any).window;
@@ -243,25 +243,25 @@ beforeEach(() => {
 });
 ```
 
-## 📈 性能优化建议
+## 📈 Performance Optimization Suggestions
 
-### 1. 当前性能特点
-- **优势**: 比Handlebars更轻量，启动更快
-- **限制**: 功能简化，仅支持基本变量替换
-- **适用**: 浏览器扩展的CSP限制环境
+### 1. Current Performance Characteristics
+- **Advantages**: Lighter than Handlebars, faster startup.
+- **Limitations**: Simplified functionality, only supports basic variable replacement.
+- **Applicable**: CSP-restricted environments in browser extensions.
 
-### 2. 进一步优化方向
+### 2. Further Optimization Directions
 
-#### 缓存优化
+#### Caching Optimizations
 ```typescript
-// 环境检测结果缓存
-// 正则表达式对象缓存
-// 编译结果缓存（如果需要）
+// Cache environment detection results
+// Cache regular expression objects
+// Cache compilation results (if needed)
 ```
 
-#### 批量处理
+#### Batch Processing
 ```typescript
-// 对于大量模板，可考虑批量处理
+// For a large number of templates, consider batch processing
 static processBatch(templates: Template[], context: TemplateContext) {
   const isExtension = this.isExtensionEnvironment();
   return templates.map(template => 
@@ -271,56 +271,56 @@ static processBatch(templates: Template[], context: TemplateContext) {
 }
 ```
 
-## 🔮 未来扩展方向
+## 🔮 Future Expansion Directions
 
-### 1. 功能增强
-- **简单条件**: 支持基本的if/else逻辑
-- **格式化**: 支持日期、数字格式化
-- **自定义函数**: 允许注册简单的处理函数
+### 1. Feature Enhancements
+- **Simple Conditions**: Support basic if/else logic.
+- **Formatting**: Support date and number formatting.
+- **Custom Functions**: Allow registration of simple processing functions.
 
-### 2. 工具支持
-- **模板验证**: 构建时检查模板兼容性
-- **转换工具**: Handlebars到CSP安全格式的转换
-- **调试工具**: 模板处理过程的可视化
+### 2. Tool Support
+- **Template Validation**: Check template compatibility at build time.
+- **Conversion Tools**: Convert Handlebars to CSP-safe format.
+- **Debugging Tools**: Visualize the template processing process.
 
-### 3. 架构演进
-- **插件化**: 支持不同的模板引擎插件
-- **配置化**: 允许用户配置处理行为
-- **监控**: 添加性能和错误监控
+### 3. Architectural Evolution
+- **Plugin Architecture**: Support different template engine plugins.
+- **Configurability**: Allow users to configure processing behavior.
+- **Monitoring**: Add performance and error monitoring.
 
 ---
 
-**💡 核心经验总结**:
-1. **安全第一**: 任何新功能都不能影响现有平台的稳定性
-2. **测试驱动**: 完整的测试覆盖是质量保证的基础
-3. **渐进增强**: 在限制环境中提供基本功能，在完整环境中提供全功能
-4. **防御编程**: 多重检测和异常处理确保系统健壮性
+**💡 Core Experience Summary**:
+1. **Safety First**: Any new feature must not affect the stability of existing platforms.
+2. **Test-Driven**: Comprehensive test coverage is the foundation of quality assurance.
+3. **Progressive Enhancement**: Provide basic functionality in restricted environments and full functionality in complete environments.
+4. **Defensive Programming**: Multiple checks and exception handling ensure system robustness.
 
-## 🎉 架构演进更新（2025-08-29）
+## 🎉 Architectural Evolution Update (2025-08-29)
 
-### 从"兼容方案"到"原生方案"的演进
+### Evolution from "Compatibility Solution" to "Native Solution"
 
-**核心启发**: 经过CSP安全处理的实践，我们意识到"环境特定的兼容性方案"虽然解决了问题，但增加了系统复杂性。最佳实践是**选择原生支持目标环境的技术栈**。
+**Core Insight**: Through the practice of CSP-safe processing, we realized that "environment-specific compatibility solutions," while solving problems, increased system complexity. The best practice is to **choose a technology stack that natively supports the target environment**.
 
-**关键决策**: Mustache.js迁移
-- **技术原因**: Mustache天然不使用`eval()`，原生支持CSP环境
-- **架构原因**: 统一的模板引擎消除了环境差异处理
-- **维护原因**: 单一代码路径，降低测试和维护成本
+**Key Decision**: Migration to Mustache.js
+- **Technical Reason**: Mustache naturally does not use `eval()`, natively supporting CSP environments.
+- **Architectural Reason**: A unified template engine eliminates handling of environmental differences.
+- **Maintenance Reason**: A single code path reduces testing and maintenance costs.
 
-**经验升华**:
-1. **技术选型**: 优先选择跨平台、无限制的技术方案
-2. **架构设计**: 避免环境特定的处理逻辑，追求统一性
-3. **问题解决**: 从"兼容现有技术"转向"选择合适技术"
+**Experience Elevation**:
+1. **Technology Selection**: Prioritize cross-platform, unrestricted technology solutions.
+2. **Architectural Design**: Avoid environment-specific handling logic, pursuing uniformity.
+3. **Problem Solving**: Shift from "compatible with existing technology" to "choosing the right technology."
 
-**实际效果**:
-- 📉 **代码复杂度**: 从双处理器架构简化为单处理器
-- 📈 **可维护性**: 消除环境检测逻辑，统一测试覆盖
-- 🎯 **性能表现**: Mustache比环境检测+分支处理更高效
-- 🔒 **安全保障**: 原生CSP支持比兼容层更可靠
+**Actual Effects**:
+- 📉 **Code Complexity**: Simplified from a dual-processor architecture to a single processor.
+- 📈 **Maintainability**: Eliminated environment detection logic, unified test coverage.
+- 🎯 **Performance**: Mustache is more efficient than environment detection + branching processing.
+- 🔒 **Security Assurance**: Native CSP support is more reliable than compatibility layers.
 
-**对后续项目的指导**:
-- 遇到环境限制问题时，首先评估是否有原生支持的替代方案
-- 兼容性方案应作为临时解决方案，目标是找到统一的最终方案
-- 架构简化往往比功能兼容更有价值
+**Guidance for Future Projects**:
+- When encountering environmental restrictions, first assess if there are native-supported alternatives.
+- Compatibility solutions should serve as temporary fixes, with the goal of finding a unified final solution.
+- Architectural simplification is often more valuable than functional compatibility.
 
-这次从Handlebars到Mustache的迁移，完美诠释了"**选择正确的技术比完善错误的技术更重要**"这一架构原则。
+The migration from Handlebars to Mustache perfectly illustrates the architectural principle of "**choosing the right technology is more important than perfecting the wrong technology**."

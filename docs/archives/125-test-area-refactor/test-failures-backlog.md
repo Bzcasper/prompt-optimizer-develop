@@ -1,18 +1,18 @@
-# 测试失败问题记录 - 历史遗留待处理项
+# Test Failure Issue Record - Historical Legacy Items Pending Processing
 
-## 概述
+## Overview
 
-在TestArea组件系统重构完成后的测试验证过程中，发现了一些与重构项目无关的历史遗留测试问题。这些问题不影响TestArea重构的质量和完成度，但需要在后续的维护工作中处理。
+During the testing and validation process after the refactoring of the TestArea component system was completed, several historical legacy testing issues unrelated to the refactoring project were discovered. These issues do not affect the quality and completeness of the TestArea refactoring but need to be addressed in future maintenance work.
 
-## 详细问题清单
+## Detailed Issue List
 
-### 1. OptimizationModeSelector 组件测试失败 (7/9 测试失败)
+### 1. OptimizationModeSelector Component Test Failures (7/9 Tests Failed)
 
-**问题类别**: 历史遗留组件测试问题  
-**影响范围**: 优化模式选择器组件  
-**失败原因**: 测试代码与实际组件实现不匹配
+**Issue Category**: Historical Legacy Component Testing Issue  
+**Impact Scope**: Optimization Mode Selector Component  
+**Failure Reason**: Test code does not match the actual component implementation
 
-#### 具体失败测试
+#### Specific Failed Tests
 1. `emits update:modelValue when user prompt button is clicked`
 2. `emits change event when optimization mode changes`  
 3. `applies correct styles for active system prompt`
@@ -21,85 +21,85 @@
 6. `handles rapid clicks correctly`
 7. `switches between modes correctly`
 
-#### 根本原因
-- **组件实现**: 使用 Naive UI 的 `NRadioGroup` 和 `NRadioButton`
-- **测试期望**: 测试代码期望原生 `<button>` 元素
-- **选择器不匹配**: `wrapper.findAll('button')` 返回空数组，导致后续操作失败
+#### Root Cause
+- **Component Implementation**: Uses Naive UI's `NRadioGroup` and `NRadioButton`
+- **Test Expectations**: Test code expects native `<button>` elements
+- **Selector Mismatch**: `wrapper.findAll('button')` returns an empty array, causing subsequent operations to fail
 
-#### 修复方案
+#### Fix Proposal
 ```typescript
-// 当前错误的测试写法
+// Current incorrect test code
 const buttons = wrapper.findAll('button')
 const userButton = buttons[1] // undefined
 
-// 应该修改为
+// Should be modified to
 const radioButtons = wrapper.findAllComponents(NRadioButton)
 const userButton = radioButtons.find(btn => btn.props().value === 'user')
 
-// 或者使用属性选择器
+// Or use attribute selector
 const userButton = wrapper.find('[value="user"]')
 ```
 
-### 2. OutputDisplay 组件测试失败 (6/12 测试失败)
+### 2. OutputDisplay Component Test Failures (6/12 Tests Failed)
 
-**问题类别**: 历史遗留组件测试问题  
-**影响范围**: 输出显示组件  
-**失败原因**: CSS类名和组件行为期望不匹配
+**Issue Category**: Historical Legacy Component Testing Issue  
+**Impact Scope**: Output Display Component  
+**Failure Reason**: CSS class names and component behavior expectations do not match
 
-#### 具体失败测试
-1. `应该能处理编辑模式`
-2. `应该能处理流式状态`
-3. `应该能处理加载状态` 
-4. `应该能根据 reasoningMode 控制推理内容显示`
-5. `应该能正确处理只读模式下的长文本滚动`
-6. `应该能同时处理长推理内容和长文本内容`
+#### Specific Failed Tests
+1. `should handle edit mode`
+2. `should handle streaming state`
+3. `should handle loading state` 
+4. `should control reasoning content display based on reasoningMode`
+5. `should correctly handle long text scrolling in read-only mode`
+6. `should handle both long reasoning content and long text content simultaneously`
 
-#### 根本原因
-- **CSS类名不匹配**: 测试期望的类名（如 `output-display-core--streaming`）在实际组件中不存在
-- **组件状态检测失败**: 测试无法正确检测组件的内部状态变化
-- **DOM结构变化**: 组件重构后DOM结构与测试期望不符
+#### Root Cause
+- **CSS Class Name Mismatch**: Expected class names (e.g., `output-display-core--streaming`) do not exist in the actual component
+- **Component State Detection Failure**: Tests cannot correctly detect internal state changes of the component
+- **DOM Structure Changes**: The DOM structure after component refactoring does not match test expectations
 
-#### 修复方案
-1. **更新CSS类名检测**:
+#### Fix Proposal
+1. **Update CSS Class Name Detection**:
 ```typescript
-// 检查实际渲染的类名
-console.log(wrapper.classes()) // 查看实际的class列表
-// 更新测试期望的类名
+// Check the actual rendered class names
+console.log(wrapper.classes()) // View the actual class list
+// Update the expected class names in tests
 ```
 
-2. **使用数据属性检测状态**:
+2. **Use Data Attributes to Detect State**:
 ```typescript
-// 在组件中添加数据属性
+// Add data attributes in the component
 <div :data-streaming="isStreaming" :data-loading="isLoading">
 
-// 在测试中检测
+// In tests, check
 expect(wrapper.attributes('data-streaming')).toBe('true')
 ```
 
-### 3. useResponsiveTestLayout Composable 测试警告
+### 3. useResponsiveTestLayout Composable Test Warnings
 
-**问题类别**: Composable测试环境配置问题  
-**影响范围**: 响应式布局管理hook  
-**失败原因**: 生命周期钩子在测试环境中的上下文问题
+**Issue Category**: Composable Testing Environment Configuration Issue  
+**Impact Scope**: Responsive Layout Management Hook  
+**Failure Reason**: Context issues with lifecycle hooks in the testing environment
 
-#### 具体警告
+#### Specific Warnings
 ```
 [Vue warn]: onMounted is called when there is no active component instance
 [Vue warn]: onUnmounted is called when there is no active component instance  
 [Vue warn]: Cannot unmount an app that is not mounted
 ```
 
-#### 根本原因
-- **测试方式不当**: 直接在测试中调用composable，而非在Vue组件上下文中
-- **生命周期钩子依赖**: `onMounted` 和 `onUnmounted` 需要组件实例支持
-- **清理时机问题**: 测试清理逻辑在某些情况下执行顺序有问题
+#### Root Cause
+- **Improper Testing Method**: Directly calling the composable in tests instead of within a Vue component context
+- **Lifecycle Hook Dependencies**: `onMounted` and `onUnmounted` require component instance support
+- **Cleanup Timing Issues**: The order of execution for cleanup logic in tests has issues in certain cases
 
-#### 修复方案
+#### Fix Proposal
 ```typescript
-// 错误的测试方式
+// Incorrect testing method
 const layout = useResponsiveTestLayout()
 
-// 正确的测试方式 - 在组件中测试
+// Correct testing method - test within a component
 const TestComponent = defineComponent({
   setup() {
     return useResponsiveTestLayout()
@@ -108,81 +108,81 @@ const TestComponent = defineComponent({
 })
 
 const wrapper = mount(TestComponent)
-// 然后测试wrapper.vm中的响应式数据
+// Then test the reactive data in wrapper.vm
 ```
 
-### 4. User Prompt Optimization Workflow Integration 测试失败
+### 4. User Prompt Optimization Workflow Integration Test Failures
 
-**问题类别**: 工作流集成测试问题  
-**影响范围**: 用户提示词优化工作流  
-**失败原因**: 验证逻辑期望与实际行为不匹配
+**Issue Category**: Workflow Integration Testing Issue  
+**Impact Scope**: User Prompt Optimization Workflow  
+**Failure Reason**: Validation logic expectations do not match actual behavior
 
-#### 具体失败测试
+#### Specific Failed Tests
 - `should validate optimization mode selection` 
-- 期望错误数组长度为2，实际为0
+- Expected error array length is 2, but actual is 0
 
-#### 修复方案
-需要检查验证逻辑的具体实现，确认是业务逻辑变更还是测试期望错误。
+#### Fix Proposal
+Need to check the specific implementation of the validation logic to confirm whether it is a business logic change or a test expectation error.
 
-## 修复优先级
+## Fix Prioritization
 
-### 高优先级 (影响核心功能)
-1. **OptimizationModeSelector** - 影响模式切换核心功能
-2. **OutputDisplay** - 影响测试结果显示体验
+### High Priority (Affects Core Functionality)
+1. **OptimizationModeSelector** - Affects core functionality of mode switching
+2. **OutputDisplay** - Affects the display experience of test results
 
-### 中等优先级 (影响开发体验)
-3. **useResponsiveTestLayout** - 仅影响测试环境，不影响生产功能
-4. **Workflow Integration** - 需要具体分析业务影响
+### Medium Priority (Affects Development Experience)
+3. **useResponsiveTestLayout** - Only affects the testing environment, does not impact production functionality
+4. **Workflow Integration** - Requires specific analysis of business impact
 
-### 低优先级 (测试环境优化)
-- 测试环境的警告和提示优化
+### Low Priority (Testing Environment Optimization)
+- Optimization of warnings and prompts in the testing environment
 
-## 修复工作量评估
+## Fix Workload Assessment
 
-| 组件/问题 | 预估工作量 | 复杂度 | 备注 |
-|-----------|------------|---------|------|
-| OptimizationModeSelector | 2-3小时 | 中等 | 需要重写测试选择器逻辑 |
-| OutputDisplay | 4-5小时 | 较高 | 需要分析组件变更和更新测试 |
-| useResponsiveTestLayout | 1-2小时 | 低 | 调整测试方式即可 |
-| Workflow Integration | 1-2小时 | 低 | 需要确认业务逻辑 |
+| Component/Issue | Estimated Workload | Complexity | Notes |
+|------------------|--------------------|------------|-------|
+| OptimizationModeSelector | 2-3 hours | Medium | Needs to rewrite test selector logic |
+| OutputDisplay | 4-5 hours | High | Needs to analyze component changes and update tests |
+| useResponsiveTestLayout | 1-2 hours | Low | Just needs adjustment of testing method |
+| Workflow Integration | 1-2 hours | Low | Needs to confirm business logic |
 
-**总计**: 约8-12小时工作量
+**Total**: Approximately 8-12 hours of workload
 
-## 影响评估
+## Impact Assessment
 
-### 对TestArea重构项目的影响
-- **无直接影响** - 所有TestArea相关测试都通过 ✅
-- **不影响功能完整性** - 重构项目所有功能正常工作 ✅
-- **不影响性能表现** - 性能优化目标已达成 ✅
+### Impact on TestArea Refactoring Project
+- **No Direct Impact** - All TestArea related tests passed ✅
+- **Does Not Affect Functional Integrity** - All functionalities of the refactoring project are working normally ✅
+- **Does Not Affect Performance** - Performance optimization goals have been achieved ✅
 
-### 对整体项目的影响
-- **开发体验**: 测试失败会在CI/CD中产生噪音
-- **代码质量**: 测试覆盖率统计不准确
-- **维护成本**: 开发者需要手动筛选真实的测试失败
+### Impact on Overall Project
+- **Development Experience**: Test failures create noise in CI/CD
+- **Code Quality**: Test coverage statistics are inaccurate
+- **Maintenance Costs**: Developers need to manually filter real test failures
 
-## 建议处理策略
+## Suggested Handling Strategy
 
-### 短期策略
-1. **文档记录** - 将这些问题记录在项目的技术债务清单中 ✅
-2. **标记跳过** - 在CI配置中临时跳过这些失败的测试
-3. **优先级排序** - 按照业务影响优先级安排修复计划
+### Short-term Strategy
+1. **Document Record** - Record these issues in the project's technical debt list ✅
+2. **Mark as Skipped** - Temporarily skip these failed tests in CI configuration
+3. **Prioritize** - Arrange the repair plan according to business impact priority
 
-### 长期策略
-1. **测试重构** - 建立更好的组件测试标准和实践
-2. **组件标准化** - 确保组件实现与测试期望保持一致
-3. **自动化检测** - 建立测试与组件实现一致性的自动检查
+### Long-term Strategy
+1. **Test Refactoring** - Establish better standards and practices for component testing
+2. **Component Standardization** - Ensure consistency between component implementation and test expectations
+3. **Automated Detection** - Establish automated checks for consistency between tests and component implementations
 
-## 责任归属
+## Responsibility Assignment
 
-这些问题属于**项目维护范畴**，不属于TestArea重构项目的交付范围。建议：
+These issues fall under the **project maintenance category** and are not part of the delivery scope of the TestArea refactoring project. Recommendations:
 
-1. **创建独立的维护任务** - 在项目管理系统中创建这些问题的修复任务
-2. **分配给维护团队** - 由专门负责项目维护的开发人员处理
-3. **制定修复时间表** - 根据优先级制定合理的修复计划
+1. **Create Independent Maintenance Tasks** - Create repair tasks for these issues in the project management system
+2. **Assign to Maintenance Team** - Handled by developers specifically responsible for project maintenance
+3. **Establish Repair Timeline** - Develop a reasonable repair plan based on priority
 
 ---
 
-**记录时间**: 2025-01-20  
-**记录人**: Claude Code AI Assistant  
-**问题状态**: 待处理  
-**预计解决时间**: 1-2个开发周期  
+**Record Date**: 2025-01-20  
+**Recorder**: Claude Code AI Assistant  
+**Issue Status**: Pending Processing  
+**Estimated Resolution Time**: 1-2 Development Cycles

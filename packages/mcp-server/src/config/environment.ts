@@ -81,6 +81,10 @@ export interface MCPServerConfig {
   logLevel: 'debug' | 'info' | 'warn' | 'error';
   defaultLanguage: string;
   preferredModelProvider?: string;
+  enableContentGeneration: boolean;
+  contentGenerationTimeout: number;
+  maxContentIterations: number;
+  contentTemplateCacheSize: number;
 }
 
 export function loadConfig(): MCPServerConfig {
@@ -88,7 +92,11 @@ export function loadConfig(): MCPServerConfig {
     httpPort: parseInt(process.env.MCP_HTTP_PORT || '3000'),
     logLevel: (process.env.MCP_LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error') || 'debug',
     defaultLanguage: process.env.MCP_DEFAULT_LANGUAGE || 'zh',
-    preferredModelProvider: process.env.MCP_DEFAULT_MODEL_PROVIDER
+    preferredModelProvider: process.env.MCP_DEFAULT_MODEL_PROVIDER,
+    enableContentGeneration: process.env.ENABLE_CONTENT_GENERATION !== 'false',
+    contentGenerationTimeout: parseInt(process.env.CONTENT_GENERATION_TIMEOUT || '120000'),
+    maxContentIterations: parseInt(process.env.MAX_CONTENT_ITERATIONS || '10'),
+    contentTemplateCacheSize: parseInt(process.env.CONTENT_TEMPLATE_CACHE_SIZE || '50')
   };
 }
 

@@ -1,4 +1,4 @@
-# Prompt Optimizer (提示词优化器) 🚀
+# Prompt Optimizer 🚀
 
 <div align="center">
 
@@ -14,140 +14,140 @@
 ![GitHub forks](https://img.shields.io/github/forks/linshenkx/prompt-optimizer?style=flat)
 [![Deploy with Vercel](https://img.shields.io/badge/Vercel-indigo?style=flat&logo=vercel)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flinshenkx%2Fprompt-optimizer)
 
-[在线体验](https://prompt.always200.com) | [快速开始](#快速开始) | [常见问题](#常见问题) | [Chrome插件](https://chromewebstore.google.com/detail/prompt-optimizer/cakkkhboolfnadechdlgdcnjammejlna) | [💖赞助支持](images/other/sponsor_wx.jpg)
+[Online Demo](https://prompt.always200.com) | [Quick Start](#quick-start) | [FAQ](#faq) | [Chrome Extension](https://chromewebstore.google.com/detail/prompt-optimizer/cakkkhboolfnadechdlgdcnjammejlna) | [💖Sponsor](images/other/sponsor_wx.jpg)
 
-[开发文档](dev.md) | [Vercel部署指南](docs/user/deployment/vercel.md) | [MCP部署使用说明](docs/user/mcp-server.md) | [DeepWiki文档](https://deepwiki.com/linshenkx/prompt-optimizer) | [ZRead文档](https://zread.ai/linshenkx/prompt-optimizer)
+[Development Documentation](dev.md) | [Vercel Deployment Guide](docs/user/deployment/vercel.md) | [MCP Server Usage Guide](docs/user/mcp-server.md) | [DeepWiki Documentation](https://deepwiki.com/linshenkx/prompt-optimizer) | [ZRead Documentation](https://zread.ai/linshenkx/prompt-optimizer)
 
 </div>
 
-## 📖 项目简介
+## 📖 Project Introduction
 
-Prompt Optimizer是一个强大的AI提示词优化工具，帮助你编写更好的AI提示词，提升AI输出质量。支持Web应用、桌面应用、Chrome插件和Docker部署四种使用方式。
+Prompt Optimizer is a powerful AI prompt optimization tool that helps you write better AI prompts and improve AI output quality. It supports four deployment methods: web application, desktop application, Chrome extension, and Docker deployment.
 
-### 🎥 功能演示
+### 🎥 Feature Demonstrations
 
 <div align="center">
-  <p><b>1. 角色扮演对话：激发小模型潜力</b></p>
-  <p>在追求成本效益的生产或注重隐私的本地化场景中，结构化的提示词能让小模型稳定地进入角色，提供沉浸式、高一致性的角色扮演体验，有效激发其潜力。</p>
-  <img src="images/demo/cat-maid-roleplay.png" alt="猫女仆角色扮演演示" width="85%">
+  <p><b>1. Role-playing Dialogue: Unleash Small Model Potential</b></p>
+  <p>In cost-effective production environments or privacy-focused localized scenarios, structured prompts enable small models to consistently enter roles, providing immersive and highly consistent role-playing experiences that effectively unleash their potential.</p>
+  <img src="images/demo/cat-maid-roleplay.png" alt="Cat Maid Roleplay Demo" width="85%">
   <br>
-  <p><b>2. 知识图谱提取：保障生产环境的稳定性</b></p>
-  <p>在需要程序化处理的生产环境中，高质量的提示词能显著降低对模型智能程度的要求，使得更经济的小模型也能稳定输出可靠的指定格式。本工具旨在辅助开发者快速达到此目的，从而加速开发、保障稳定，实现降本增效。</p>
-  <img src="images/demo/knowledge-graph-extractor.png" alt="知识图谱提取演示" width="85%">
+  <p><b>2. Knowledge Graph Extraction: Ensuring Production Stability</b></p>
+  <p>In production environments requiring programmatic processing, high-quality prompts can significantly reduce the intelligence requirements for models, allowing more economical small models to reliably output specified formats. This tool aims to help developers achieve this quickly, accelerating development, ensuring stability, and reducing costs while increasing efficiency.</p>
+  <img src="images/demo/knowledge-graph-extractor.png" alt="Knowledge Graph Extraction Demo" width="85%">
   <br>
-  <p><b>3. 诗歌写作：辅助创意探索与需求定制</b></p>
-  <p>当面对一个强大的AI，我们的目标不只是得到一个“好”答案，而是得到一个“我们想要的”独特答案。本工具能帮助用户将一个模糊的灵感（如“写首诗”）细化为具体的需求（关于什么主题、何种意象、何种情感），辅助您探索、发掘并精确表达自己的创意，与AI共创独一无二的作品。</p>
-  <img src="images/demo/poetry-writing.png" alt="诗歌创作演示" width="85%">
+  <p><b>3. Poetry Writing: Assisting Creative Exploration and Customized Requirements</b></p>
+  <p>When facing a powerful AI, our goal is not just to get a "good" answer, but a unique answer that we want. This tool helps users refine a vague inspiration (like "write a poem") into specific requirements (about themes, imagery, emotions), assisting you in exploring, discovering, and precisely expressing your creativity, co-creating unique works with AI.</p>
+  <img src="images/demo/poetry-writing.png" alt="Poetry Writing Demo" width="85%">
 </div>
 
-## ✨ 核心特性
+## ✨ Core Features
 
-- 🎯 **智能优化**：一键优化提示词，支持多轮迭代改进，提升AI回复准确度
-- 📝 **双模式优化**：支持系统提示词优化和用户提示词优化，满足不同使用场景
-- 🔄 **对比测试**：支持原始提示词和优化后提示词的实时对比，直观展示优化效果
-- 🤖 **多模型集成**：支持OpenAI、Gemini、DeepSeek、智谱AI、SiliconFlow等主流AI模型
-- 🔒 **安全架构**：纯客户端处理，数据直接与AI服务商交互，不经过中间服务器
-- 📱 **多端支持**：同时提供Web应用、桌面应用、Chrome插件和Docker部署四种使用方式
-- 🔐 **访问控制**：支持密码保护功能，保障部署安全
-- 🧩 **MCP协议支持**：支持Model Context Protocol (MCP) 协议，可与Claude Desktop等MCP兼容应用集成
+- 🎯 **Smart Optimization**: One-click prompt optimization with multi-round iterative improvements to enhance AI response accuracy
+- 📝 **Dual-Mode Optimization**: Supports both system prompt optimization and user prompt optimization for different use cases
+- 🔄 **Comparative Testing**: Real-time comparison between original and optimized prompts to visually demonstrate optimization effects
+- 🤖 **Multi-Model Integration**: Supports mainstream AI models including OpenAI, Gemini, DeepSeek, Zhipu AI, SiliconFlow, and more
+- 🔒 **Secure Architecture**: Pure client-side processing with direct interaction between data and AI service providers, no intermediate servers
+- 📱 **Multi-Platform Support**: Provides four deployment methods: web application, desktop application, Chrome extension, and Docker deployment
+- 🔐 **Access Control**: Password protection functionality to ensure deployment security
+- 🧩 **MCP Protocol Support**: Supports Model Context Protocol (MCP) for integration with MCP-compatible applications like Claude Desktop
 
-## 🚀 高级功能预览 (Beta)
+## 🚀 Advanced Features Preview (Beta)
 
-> **预览环境**：[https://prompt-dev.always200.com](https://prompt-dev.always200.com) | 欢迎体验新功能并反馈
+> **Preview Environment**: [https://prompt-dev.always200.com](https://prompt-dev.always200.com) | Welcome to experience new features and provide feedback
 
-- 📊 **上下文变量管理**：自定义变量、多轮会话测试、变量替换预览
-- 🛠️ **工具调用支持**：Function Calling集成，支持OpenAI和Gemini工具调用
-- 🎯 **高级测试模式**：更灵活的提示词测试和调试能力
+- 📊 **Context Variable Management**: Custom variables, multi-turn conversation testing, variable replacement preview
+- 🛠️ **Tool Calling Support**: Function Calling integration, supports OpenAI and Gemini tool calls
+- 🎯 **Advanced Testing Mode**: More flexible prompt testing and debugging capabilities
 
-*注：高级功能正在开发完善中，未来版本将正式集成到主版本*
+*Note: Advanced features are under development and will be officially integrated in future versions*
 
-## 快速开始
+## Quick Start
 
-### 1. 使用在线版本（推荐）
+### 1. Use Online Version (Recommended)
 
-直接访问：[https://prompt.always200.com](https://prompt.always200.com)
+Direct access: [https://prompt.always200.com](https://prompt.always200.com)
 
-项目是纯前端项目，所有数据只存储在浏览器本地，不会上传至任何服务器，因此直接使用在线版本也是安全可靠的
+This project is a pure frontend application. All data is stored locally in the browser and never uploaded to any server, so using the online version is also secure and reliable.
 
-### 2. Vercel部署
-方式1：一键部署到自己的Vercel(方便，但后续无法自动更新)：
-   [![部署到 Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flinshenkx%2Fprompt-optimizer)
+### 2. Vercel Deployment
+Method 1: One-click deployment to your own Vercel (convenient, but cannot automatically update later):
+   [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flinshenkx%2Fprompt-optimizer)
 
-方式2: Fork项目后在Vercel中导入（推荐，但需参考部署文档进行手动设置）：
-   - 先Fork项目到自己的GitHub
-   - 然后在Vercel中导入该项目
-   - 可跟踪源项目更新，便于同步最新功能和修复
-- 配置环境变量：
-  - `ACCESS_PASSWORD`：设置访问密码，启用访问限制
-  - `VITE_OPENAI_API_KEY`等：配置各AI服务商的API密钥
+Method 2: Fork the project and import to Vercel (recommended, but requires manual setup following deployment documentation):
+   - First fork the project to your GitHub
+   - Then import the project in Vercel
+   - Can track upstream project updates for easier synchronization of latest features and fixes
+- Configure environment variables:
+  - `ACCESS_PASSWORD`: Set access password to enable access restrictions
+  - `VITE_OPENAI_API_KEY`, etc.: Configure API keys for various AI service providers
 
-更多详细的部署步骤和注意事项，请查看：
-- [Vercel部署指南](docs/user/deployment/vercel.md)
+For more detailed deployment steps and precautions, please see:
+- [Vercel Deployment Guide](docs/user/deployment/vercel.md)
 
-### 3. 下载桌面应用
-从 [GitHub Releases](https://github.com/linshenkx/prompt-optimizer/releases) 下载最新版本。我们为各平台提供**安装程序**和**压缩包**两种格式。
+### 3. Download Desktop Application
+Download the latest version from [GitHub Releases](https://github.com/linshenkx/prompt-optimizer/releases). We provide both **installer** and **archive** formats for all platforms.
 
-- **安装程序 (推荐)**: 如 `*.exe`, `*.dmg`, `*.AppImage` 等。**强烈推荐使用此方式，因为它支持自动更新**。
-- **压缩包**: 如 `*.zip`。解压即用，但无法自动更新。
+- **Installer (Recommended)**: Such as `*.exe`, `*.dmg`, `*.AppImage`, etc. **Strongly recommended because it supports automatic updates**.
+- **Archive**: Such as `*.zip`. Extract and use, but cannot auto-update.
 
-**桌面应用核心优势**:
-- ✅ **无跨域限制**：作为原生桌面应用，它能彻底摆脱浏览器跨域（CORS）问题的困扰。这意味着您可以直接连接任何AI服务提供商的API，包括本地部署的Ollama或有严格安全策略的商业API，获得最完整、最稳定的功能体验。
-- ✅ **自动更新**：通过安装程序（如 `.exe`, `.dmg`）安装的版本，能够自动检查并更新到最新版。
-- ✅ **独立运行**：无需依赖浏览器，提供更快的响应和更佳的性能。
+**Desktop Application Core Advantages**:
+- ✅ **No CORS restrictions**: As a native desktop application, it completely eliminates browser CORS issues. This means you can directly connect to any AI service provider's API, including locally deployed Ollama or commercial APIs with strict security policies, for the most complete and stable functionality.
+- ✅ **Automatic updates**: Versions installed via installer (such as `.exe`, `.dmg`) can automatically check for and update to the latest version.
+- ✅ **Standalone operation**: No browser dependency, providing faster response and better performance.
 
-### 4. 安装Chrome插件
-1. 从Chrome商店安装（由于审批较慢，可能不是最新的）：[Chrome商店地址](https://chromewebstore.google.com/detail/prompt-optimizer/cakkkhboolfnadechdlgdcnjammejlna)
-2. 点击图标即可打开提示词优化器
+### 4. Install Chrome Extension
+1. Install from Chrome Web Store (may not be the latest due to approval delays): [Chrome Web Store Link](https://chromewebstore.google.com/detail/prompt-optimizer/cakkkhboolfnadechdlgdcnjammejlna)
+2. Click the icon to open the prompt optimizer
 
-### 5. Docker部署
+### 5. Docker Deployment
 <details>
-<summary>点击查看 Docker 部署命令</summary>
+<summary>Click to view Docker deployment commands</summary>
 
 ```bash
-# 运行容器（默认配置）
+# Run container (default configuration)
 docker run -d -p 8081:80 --restart unless-stopped --name prompt-optimizer linshen/prompt-optimizer
 
-# 运行容器（配置API密钥和访问密码）
+# Run container (configure API keys and access password)
 docker run -d -p 8081:80 \
   -e VITE_OPENAI_API_KEY=your_key \
-  -e ACCESS_USERNAME=your_username \  # 可选，默认为"admin"
-  -e ACCESS_PASSWORD=your_password \  # 设置访问密码
+  -e ACCESS_USERNAME=your_username \  # Optional, defaults to "admin"
+  -e ACCESS_PASSWORD=your_password \  # Set access password
   --restart unless-stopped \
   --name prompt-optimizer \
   linshen/prompt-optimizer
 ```
 </details>
 
-> **国内镜像**: 如果Docker Hub访问较慢，可以将上述命令中的 `linshen/prompt-optimizer` 替换为 `registry.cn-guangzhou.aliyuncs.com/prompt-optimizer/prompt-optimizer`
+> **China Mirror**: If Docker Hub access is slow, you can replace `linshen/prompt-optimizer` in the commands above with `registry.cn-guangzhou.aliyuncs.com/prompt-optimizer/prompt-optimizer`
 
-### 6. Docker Compose部署
+### 6. Docker Compose Deployment
 <details>
-<summary>点击查看 Docker Compose 部署步骤</summary>
+<summary>Click to view Docker Compose deployment steps</summary>
 
 ```bash
-# 1. 克隆仓库
+# 1. Clone repository
 git clone https://github.com/linshenkx/prompt-optimizer.git
 cd prompt-optimizer
 
-# 2. 可选：创建.env文件配置API密钥和访问认证
+# 2. Optional: Create .env file to configure API keys and access authentication
 cp env.local.example .env
-# 编辑 .env 文件，填入实际的 API 密钥和配置
+# Edit .env file, fill in actual API keys and configuration
 
-# 3. 启动服务
+# 3. Start services
 docker compose up -d
 
-# 4. 查看日志
+# 4. View logs
 docker compose logs -f
 
-# 5. 访问服务
-Web 界面：http://localhost:8081
-MCP 服务器：http://localhost:8081/mcp
+# 5. Access services
+Web Interface: http://localhost:8081
+MCP Server: http://localhost:8081/mcp
 ```
 </details>
 
-你还可以直接编辑docker-compose.yml文件，自定义配置：
+You can also directly edit the docker-compose.yml file for custom configuration:
 <details>
-<summary>点击查看 docker-compose.yml 示例</summary>
+<summary>Click to view docker-compose.yml example</summary>
 
 ```yaml
 services:
@@ -170,29 +170,29 @@ services:
 ```
 </details>
 
-### 7. MCP Server 使用说明
+### 7. MCP Server Usage Guide
 <details>
-<summary>点击查看 MCP Server 使用说明</summary>
+<summary>Click to view MCP Server usage guide</summary>
 
-Prompt Optimizer 现在支持 Model Context Protocol (MCP) 协议，可以与 Claude Desktop 等支持 MCP 的 AI 应用集成。
+Prompt Optimizer now supports the Model Context Protocol (MCP), which can be integrated with MCP-compatible AI applications like Claude Desktop.
 
-当通过 Docker 运行时，MCP Server 会自动启动，并可通过 `http://ip:port/mcp` 访问。
+When running through Docker, the MCP Server automatically starts and can be accessed via `http://ip:port/mcp`.
 
-#### 环境变量配置
+#### Environment Variable Configuration
 
-MCP Server 需要配置 API 密钥才能正常工作。主要的 MCP 专属配置：
+The MCP Server requires API key configuration to function properly. Main MCP-specific configurations:
 
 ```bash
-# MCP 服务器配置
-MCP_DEFAULT_MODEL_PROVIDER=openai  # 可选值：openai, gemini, deepseek, siliconflow, zhipu, custom
-MCP_LOG_LEVEL=info                 # 日志级别
+# MCP Server configuration
+MCP_DEFAULT_MODEL_PROVIDER=openai  # Options: openai, gemini, deepseek, siliconflow, zhipu, custom
+MCP_LOG_LEVEL=info                 # Log level
 ```
 
-#### Docker 环境下使用 MCP
+#### Using MCP in Docker Environment
 
-在 Docker 环境中，MCP Server 会与 Web 应用一起运行，您可以通过 Web 应用的相同端口访问 MCP 服务，路径为 `/mcp`。
+In a Docker environment, the MCP Server runs alongside the web application. You can access the MCP service through the same port as the web application, using the path `/mcp`.
 
-例如，如果您将容器的 80 端口映射到主机的 8081 端口：
+For example, if you map the container's 80 port to the host's 8081 port:
 ```bash
 docker run -d -p 8081:80 \
   -e VITE_OPENAI_API_KEY=your-openai-key \
@@ -201,18 +201,18 @@ docker run -d -p 8081:80 \
   linshen/prompt-optimizer
 ```
 
-那么 MCP Server 将可以通过 `http://localhost:8081/mcp` 访问。
+Then the MCP Server will be accessible via `http://localhost:8081/mcp`.
 
-#### Claude Desktop 集成示例
+#### Claude Desktop Integration Example
 
-要在 Claude Desktop 中使用 Prompt Optimizer，您需要在 Claude Desktop 的配置文件中添加服务配置。
+To use Prompt Optimizer in Claude Desktop, you need to add service configuration to Claude Desktop's configuration file.
 
-1. 找到 Claude Desktop 的配置目录：
+1. Find Claude Desktop's configuration directory:
    - Windows: `%APPDATA%\Claude\services`
    - macOS: `~/Library/Application Support/Claude/services`
    - Linux: `~/.config/Claude/services`
 
-2. 编辑或创建 `services.json` 文件，添加以下内容：
+2. Edit or create the `services.json` file and add the following content:
 
 ```json
 {
@@ -225,42 +225,78 @@ docker run -d -p 8081:80 \
 }
 ```
 
-请确保将 `localhost:8081` 替换为您实际部署 Prompt Optimizer 的地址和端口。
+Make sure to replace `localhost:8081` with the actual address and port where you deployed Prompt Optimizer.
 
-#### 可用工具
+#### Available Tools
 
-- **optimize-user-prompt**: 优化用户提示词以提高 LLM 性能
-- **optimize-system-prompt**: 优化系统提示词以提高 LLM 性能
-- **iterate-prompt**: 对已经成熟/完善的提示词进行定向迭代优化
+- **optimize-user-prompt**: Optimize user prompts to improve LLM performance
+- **optimize-system-prompt**: Optimize system prompts to improve LLM performance
+- **iterate-prompt**: Perform targeted iterative optimization on mature/refined prompts
 
-更多详细信息，请查看 [MCP 服务器用户指南](docs/user/mcp-server.md)。
+For more detailed information, please see [MCP Server User Guide](docs/user/mcp-server.md).
 </details>
 
-## ⚙️ API密钥配置
+### 8. Multi-Agent Docker Compose Deployment
+<details>
+<summary>Click to view Multi-Agent Docker Compose deployment steps</summary>
+
+For advanced users who want to run a multi-agent system, a separate Docker Compose file is provided. This setup includes an agent orchestrator, two agent runners (a task agent and a tool agent), and a monitoring service.
+
+**Prerequisites:**
+
+1.  **Create a `.env.multi-agent` file:**
+    Copy the example file and fill in your details:
+    ```bash
+    cp env.multi-agent.example .env.multi-agent
+    ```
+    **Important:** You must fill in the required API keys and other secrets in this file for the services to work correctly.
+
+2.  **Create `agents` and `tools` directories:**
+    These directories are mounted as volumes for the agent services.
+    ```bash
+    mkdir -p agents tools
+    ```
+
+**Running the services:**
+
+```bash
+docker compose -f docker-compose.multi-agent.yml up --build -d
+```
+
+**Services:**
+
+*   `agent-orchestrator`: Manages and coordinates the other agents.
+*   `agent-runner-task`: An agent dedicated to performing specific tasks.
+*   `agent-runner-tool`: An agent specialized in using tools.
+*   `monitor`: A Prometheus node exporter for monitoring.
+
+</details>
+
+## ⚙️ API Key Configuration
 
 <details>
-<summary>点击查看API密钥配置方法</summary>
+<summary>Click to view API key configuration methods</summary>
 
-### 方式一：通过界面配置（推荐）
-1. 点击界面右上角的"⚙️设置"按钮
-2. 选择"模型管理"选项卡
-3. 点击需要配置的模型（如OpenAI、Gemini、DeepSeek等）
-4. 在弹出的配置框中输入对应的API密钥
-5. 点击"保存"即可
+### Method 1: Configure via Interface (Recommended)
+1. Click the "⚙️ Settings" button in the top right corner of the interface
+2. Select the "Model Management" tab
+3. Click on the model you want to configure (such as OpenAI, Gemini, DeepSeek, etc.)
+4. Enter the corresponding API key in the configuration popup
+5. Click "Save"
 
-支持的模型：OpenAI、Gemini、DeepSeek、Zhipu智谱、SiliconFlow、自定义API（OpenAI兼容接口）
+Supported models: OpenAI, Gemini, DeepSeek, Zhipu AI, SiliconFlow, Custom API (OpenAI-compatible interface)
 
-除了API密钥，您还可以在模型配置界面为每个模型单独设置高级LLM参数。这些参数通过一个名为 `llmParams` 的字段进行配置，它允许您以键值对的形式指定LLM SDK支持的任何参数，从而更精细地控制模型行为。
+In addition to API keys, you can also configure advanced LLM parameters for each model individually in the model configuration interface. These parameters are configured through a field called `llmParams`, which allows you to specify any parameters supported by the LLM SDK in key-value pairs for more precise control over model behavior.
 
-**高级LLM参数配置示例：**
-- **OpenAI/兼容API**: `{"temperature": 0.7, "max_tokens": 4096, "timeout": 60000}`
+**Advanced LLM Parameter Configuration Examples:**
+- **OpenAI/Compatible API**: `{"temperature": 0.7, "max_tokens": 4096, "timeout": 60000}`
 - **Gemini**: `{"temperature": 0.8, "maxOutputTokens": 2048, "topP": 0.95}`
 - **DeepSeek**: `{"temperature": 0.5, "top_p": 0.9, "frequency_penalty": 0.1}`
 
-有关 `llmParams` 的更详细说明和配置指南，请参阅 [LLM参数配置指南](docs/developer/llm-params-guide.md)。
+For more detailed explanations and configuration guides for `llmParams`, please refer to [LLM Parameters Configuration Guide](docs/developer/llm-params-guide.md).
 
-### 方式二：通过环境变量配置
-Docker部署时通过 `-e` 参数配置环境变量：
+### Method 2: Configure via Environment Variables
+Configure environment variables with `-e` parameter during Docker deployment:
 
 ```bash
 -e VITE_OPENAI_API_KEY=your_key
@@ -269,62 +305,62 @@ Docker部署时通过 `-e` 参数配置环境变量：
 -e VITE_ZHIPU_API_KEY=your_key
 -e VITE_SILICONFLOW_API_KEY=your_key
 
-# 多自定义模型配置（支持无限数量）
+# Multi-custom model configuration (supports unlimited quantity)
 -e VITE_CUSTOM_API_KEY_ollama=dummy_key
 -e VITE_CUSTOM_API_BASE_URL_ollama=http://localhost:11434/v1
 -e VITE_CUSTOM_API_MODEL_ollama=qwen2.5:7b
 ```
 
-> 📖 **详细配置指南**: 查看 [多自定义模型配置文档](./docs/user/multi-custom-models.md) 了解完整的配置方法和高级用法
+> 📖 **Detailed Configuration Guide**: See [Multi-Custom Models Configuration Document](./docs/user/multi-custom-models.md) for complete configuration methods and advanced usage
 
 </details>
 
-## 本地开发
-详细文档可查看 [开发文档](dev.md)
+## Local Development
+Detailed documentation can be found in [Development Documentation](dev.md)
 
 <details>
-<summary>点击查看本地开发命令</summary>
+<summary>Click to view local development commands</summary>
 
 ```bash
-# 1. 克隆项目
+# 1. Clone project
 git clone https://github.com/linshenkx/prompt-optimizer.git
 cd prompt-optimizer
 
-# 2. 安装依赖
+# 2. Install dependencies
 pnpm install
 
-# 3. 启动开发服务
-pnpm dev               # 主开发命令：构建core/ui并运行web应用
-pnpm dev:web          # 仅运行web应用
-pnpm dev:fresh        # 完整重置并重新启动开发环境
+# 3. Start development server
+pnpm dev               # Main development command: build core/ui and run web application
+pnpm dev:web          # Run web application only
+pnpm dev:fresh        # Complete reset and restart development environment
 ```
 </details>
 
-## 🗺️ 开发路线
+## 🗺️ Development Roadmap
 
-- [x] 基础功能开发
-- [x] Web应用发布
-- [x] Chrome插件发布
-- [x] 国际化支持
-- [x] 支持系统提示词优化和用户提示词优化
-- [x] 桌面应用发布
-- [x] MCP服务发布
-- [x] 高级模式：变量管理、上下文测试、工具调用
-- [ ] 支持图片输入和多模态处理
-- [ ] 支持工作区/项目管理
-- [ ] 支持提示词收藏和模板管理
+- [x] Basic functionality development
+- [x] Web application release
+- [x] Chrome extension release
+- [x] Internationalization support
+- [x] Support for system prompt optimization and user prompt optimization
+- [x] Desktop application release
+- [x] MCP service release
+- [x] Advanced mode: variable management, context testing, tool calling
+- [ ] Support for image input and multimodal processing
+- [ ] Support for workspace/project management
+- [ ] Support for prompt collection and template management
 
-详细的项目状态可查看 [项目状态文档](docs/project-status.md)
+Detailed project status can be viewed in [Project Status Document](docs/project-status.md)
 
-## 📖 相关文档
+## 📖 Related Documentation
 
-- [文档索引](docs/README.md) - 所有文档的索引
-- [技术开发指南](docs/developer/technical-development-guide.md) - 技术栈和开发规范
-- [LLM参数配置指南](docs/developer/llm-params-guide.md) - 高级LLM参数配置详细说明
-- [项目结构](docs/developer/project-structure.md) - 详细的项目结构说明
-- [项目状态](docs/project/project-status.md) - 当前进度和计划
-- [产品需求](docs/project/prd.md) - 产品需求文档
-- [Vercel部署指南](docs/user/deployment/vercel.md) - Vercel部署详细说明
+- [Documentation Index](docs/README.md) - Index of all documentation
+- [Technical Development Guide](docs/developer/technical-development-guide.md) - Tech stack and development standards
+- [LLM Parameters Configuration Guide](docs/developer/llm-params-guide.md) - Detailed advanced LLM parameter configuration
+- [Project Structure](docs/developer/project-structure.md) - Detailed project structure explanation
+- [Project Status](docs/project/project-status.md) - Current progress and plans
+- [Product Requirements](docs/project/prd.md) - Product requirements document
+- [Vercel Deployment Guide](docs/user/deployment/vercel.md) - Detailed Vercel deployment instructions
 
 
 ## Star History
@@ -337,91 +373,91 @@ pnpm dev:fresh        # 完整重置并重新启动开发环境
  </picture>
 </a>
 
-## 常见问题
+## FAQ
 
 <details>
-<summary>点击查看常见问题解答</summary>
+<summary>Click to view frequently asked questions</summary>
 
-### API连接问题
+### API Connection Issues
 
-#### Q1: 为什么配置好API密钥后仍然无法连接到模型服务？
-**A**: 大多数连接失败是由**跨域问题**（CORS）导致的。由于本项目是纯前端应用，浏览器出于安全考虑会阻止直接访问不同源的API服务。模型服务如未正确配置CORS策略，会拒绝来自浏览器的直接请求。
+#### Q1: Why can't I connect to model services even after configuring API keys?
+**A**: Most connection failures are caused by **cross-origin issues (CORS)**. Since this project is a pure frontend application, browsers block direct access to APIs from different origins for security reasons. Model services that haven't properly configured CORS policies will reject requests from browsers.
 
-#### Q2: 如何解决本地Ollama的连接问题？
-**A**: Ollama完全支持OpenAI标准接口，只需配置正确的跨域策略：
-1. 设置环境变量 `OLLAMA_ORIGINS=*` 允许任意来源的请求
-2. 如仍有问题，设置 `OLLAMA_HOST=0.0.0.0:11434` 监听任意IP地址
+#### Q2: How to solve local Ollama connection issues?
+**A**: Ollama fully supports OpenAI standard interface, just configure the correct CORS policy:
+1. Set environment variable `OLLAMA_ORIGINS=*` to allow requests from any origin
+2. If issues persist, set `OLLAMA_HOST=0.0.0.0:11434` to listen on any IP address
 
-#### Q3: 如何解决商业API（如Nvidia的DS API、字节跳动的火山API）的跨域问题？
-**A**: 这些平台通常有严格的跨域限制，推荐以下解决方案：
+#### Q3: How to solve CORS issues with commercial APIs (like Nvidia DS API, ByteDance Volcano API)?
+**A**: These platforms usually have strict CORS restrictions. The following solutions are recommended:
 
-1. **使用Vercel代理**（便捷方案）
-   - 使用在线版本：[prompt.always200.com](https://prompt.always200.com)
-   - 或自行部署到Vercel平台
-   - 在模型设置中勾选"使用Vercel代理"选项
-   - 请求流向：浏览器→Vercel→模型服务提供商
-   - 详细步骤请参考 [Vercel部署指南](docs/user/deployment/vercel.md)
+1. **Use Vercel Proxy** (Convenient solution)
+   - Use the online version: [prompt.always200.com](https://prompt.always200.com)
+   - Or deploy to Vercel platform yourself
+   - Check "Use Vercel Proxy" option in model settings
+   - Request flow: Browser → Vercel → Model service provider
+   - For detailed steps, refer to [Vercel Deployment Guide](docs/user/deployment/vercel.md)
 
-2. **使用自部署的API中转服务**（可靠方案）
-   - 部署如OneAPI等开源API聚合/代理工具
-   - 在设置中配置为自定义API端点
-   - 请求流向：浏览器→中转服务→模型服务提供商
+2. **Use self-deployed API relay service** (Reliable solution)
+   - Deploy open-source API aggregation/proxy tools like OneAPI
+   - Configure as custom API endpoint in settings
+   - Request flow: Browser → Relay service → Model service provider
 
-#### Q4: Vercel代理有什么缺点或风险？
-**A**: 使用Vercel代理可能会触发某些模型服务提供商的风控机制。部分厂商可能会将来自Vercel的请求判定为代理行为，从而限制或拒绝服务。如遇此问题，建议使用自部署的中转服务。
+#### Q4: What are the disadvantages or risks of using Vercel proxy?
+**A**: Using Vercel proxy may trigger risk control mechanisms of some model service providers. Some vendors may identify requests from Vercel as proxy behavior and restrict or deny service. If this happens, it's recommended to use a self-deployed relay service.
 
-#### Q5: 我已正确配置本地模型（如Ollama）的跨域策略，为什么使用在线版依然无法连接？
-**A**: 这是由浏览器的**混合内容（Mixed Content）安全策略**导致的。出于安全考虑，浏览器会阻止安全的HTTPS页面（如在线版）向不安全的HTTP地址（如您的本地Ollama服务）发送请求。
+#### Q5: I've correctly configured CORS policy for local models (like Ollama), why can't I still connect using the online version?
+**A**: This is caused by the browser's **Mixed Content security policy**. For security reasons, browsers block secure HTTPS pages (like the online version) from sending requests to insecure HTTP addresses (like your local Ollama service).
 
-**解决方案**：
-为了绕过此限制，您需要让应用和API处于同一种协议下（例如，都是HTTP）。推荐以下几种方式：
-1. **使用桌面版**：桌面应用没有浏览器限制，是连接本地模型最稳定可靠的方式。
-2. **docker部署**：docker部署也是http
-3. **使用Chrome插件**：插件在某些情况下也可以绕过部分安全限制。
+**Solutions**:
+To bypass this restriction, you need to have the application and API under the same protocol (for example, both HTTP). The following methods are recommended:
+1. **Use Desktop Version**: Desktop applications don't have browser restrictions, making them the most stable and reliable way to connect to local models.
+2. **Docker deployment**: Docker deployment also uses HTTP
+3. **Use Chrome Extension**: Extensions can sometimes bypass some security restrictions.
 
 </details>
 
 
-## 🤝 参与贡献
+## 🤝 Contributing
 
 <details>
-<summary>点击查看贡献指南</summary>
+<summary>Click to view contribution guidelines</summary>
 
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m '添加某个特性'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 提交 Pull Request
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Submit a Pull Request
 
-提示：使用cursor工具开发时，建议在提交前:
-1. 使用"code_review"规则进行代码审查
-2. 按照审查报告格式检查:
-   - 变更的整体一致性
-   - 代码质量和实现方式
-   - 测试覆盖情况
-   - 文档完善程度
-3. 根据审查结果进行优化后再提交
+Tip: When developing with cursor tools, it's recommended to:
+1. Use "code_review" rules for code review before committing
+2. Check according to the review report format:
+   - Overall consistency of changes
+   - Code quality and implementation approach
+   - Test coverage
+   - Documentation completeness
+3. Optimize based on review results before submitting
 
 </details>
 
-## 👏 贡献者名单
+## 👏 Contributors
 
-感谢所有为项目做出贡献的开发者！
+Thank you to all developers who have contributed to this project!
 
 <a href="https://github.com/linshenkx/prompt-optimizer/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=linshenkx/prompt-optimizer" alt="贡献者" />
+ <img src="https://contrib.rocks/image?repo=linshenkx/prompt-optimizer" alt="Contributors" />
 </a>
 
-## 📄 开源协议
+## 📄 Open Source License
 
-本项目采用 [MIT](LICENSE) 协议开源。
+This project is open source under the [MIT](LICENSE) license.
 
 ---
 
-如果这个项目对你有帮助，请考虑给它一个 Star ⭐️
+If this project helps you, please consider giving it a Star ⭐️
 
-## 👥 联系我们
+## 👥 Contact Us
 
-- 提交 Issue
-- 发起 Pull Request
-- 加入讨论组
+- Submit Issue
+- Create Pull Request
+- Join discussion group

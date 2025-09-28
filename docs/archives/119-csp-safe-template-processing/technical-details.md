@@ -1,57 +1,57 @@
 # CSP-Safe Template Processing
 
-## 问题背景
+## Problem Background
 
-浏览器扩展环境中存在严格的内容安全策略(CSP)限制，禁止使用 `unsafe-eval`。这导致 Handlebars.compile() 无法在浏览器扩展中正常工作，因为它在内部使用了 `Function` 构造函数或 `eval()` 来动态编译模板。
+There are strict Content Security Policy (CSP) restrictions in the browser extension environment that prohibit the use of `unsafe-eval`. This prevents Handlebars.compile() from functioning properly in browser extensions, as it internally uses the `Function` constructor or `eval()` to dynamically compile templates.
 
-## 错误信息
+## Error Message
 
 ```
 OptimizationError: Optimization failed: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'self'".
 ```
 
-## 解决方案
+## Solution
 
-我们实现了一个CSP兼容的模板处理器，专门用于浏览器扩展环境：
+We have implemented a CSP-compatible template processor specifically for the browser extension environment:
 
 ### 1. CSPSafeTemplateProcessor
 
-位置：`packages/core/src/services/template/csp-safe-processor.ts`
+Location: `packages/core/src/services/template/csp-safe-processor.ts`
 
-**功能特性：**
-- 支持基本的 `{{variable}}` 变量替换
-- 不使用 `eval()` 或 `Function` 构造函数
-- 自动检测浏览器扩展环境
-- 对不支持的 Handlebars 功能提供警告
+**Features:**
+- Supports basic `{{variable}}` variable replacement
+- Does not use `eval()` or the `Function` constructor
+- Automatically detects the browser extension environment
+- Provides warnings for unsupported Handlebars features
 
-**支持的语法：**
-- ✅ `{{variableName}}` - 基本变量替换
-- ✅ `{{ variableName }}` - 带空格的变量
-- ✅ 预定义变量：`{{originalPrompt}}`、`{{lastOptimizedPrompt}}`、`{{iterateInput}}`
+**Supported Syntax:**
+- ✅ `{{variableName}}` - Basic variable replacement
+- ✅ `{{ variableName }}` - Variable with spaces
+- ✅ Predefined variables: `{{originalPrompt}}`, `{{lastOptimizedPrompt}}`, `{{iterateInput}}`
 
-**不支持的语法：**
-- ❌ `{{#if condition}}` - 条件语句
-- ❌ `{{#each items}}` - 循环语句
-- ❌ `{{#unless condition}}` - 否定条件
-- ❌ `{{> partial}}` - 部分模板
-- ❌ `{{{unescaped}}}` - 非转义输出
+**Unsupported Syntax:**
+- ❌ `{{#if condition}}` - Conditional statements
+- ❌ `{{#each items}}` - Loop statements
+- ❌ `{{#unless condition}}` - Negation condition
+- ❌ `{{> partial}}` - Partial templates
+- ❌ `{{{unescaped}}}` - Unescaped output
 
-### 2. 自动环境检测
+### 2. Automatic Environment Detection
 
-`TemplateProcessor` 会自动检测运行环境：
+`TemplateProcessor` will automatically detect the running environment:
 
 ```typescript
-// 检测是否在浏览器扩展环境中
+// Detect if in a browser extension environment
 if (CSPSafeTemplateProcessor.isExtensionEnvironment()) {
-  // 使用CSP安全的处理器
+  // Use CSP-safe processor
   return CSPSafeTemplateProcessor.processContent(msg.content, context);
 } else {
-  // 使用完整的Handlebars功能
+  // Use full Handlebars functionality
   return Handlebars.compile(msg.content, { noEscape: true })(context);
 }
 ```
 
-### 3. 环境检测逻辑
+### 3. Environment Detection Logic
 
 ```typescript
 static isExtensionEnvironment(): boolean {
@@ -65,18 +65,18 @@ static isExtensionEnvironment(): boolean {
 }
 ```
 
-## 使用示例
+## Usage Example
 
-### 基本变量替换
+### Basic Variable Replacement
 
 ```typescript
 const content = 'Hello {{name}}, you are {{age}} years old.';
 const context = { name: 'Alice', age: '25' };
 const result = CSPSafeTemplateProcessor.processContent(content, context);
-// 结果: "Hello Alice, you are 25 years old."
+// Result: "Hello Alice, you are 25 years old."
 ```
 
-### 预定义模板变量
+### Predefined Template Variables
 
 ```typescript
 const content = 'Original: {{originalPrompt}}, Input: {{iterateInput}}';
@@ -85,77 +85,77 @@ const context = {
   iterateInput: 'Make it more dramatic'
 };
 const result = CSPSafeTemplateProcessor.processContent(content, context);
-// 结果: "Original: Write a story, Input: Make it more dramatic"
+// Result: "Original: Write a story, Input: Make it more dramatic"
 ```
 
-## 兼容性
+## Compatibility
 
-| 环境 | 模板引擎 | 功能支持 |
-|------|----------|----------|
-| 浏览器扩展 | CSPSafeTemplateProcessor | 基本变量替换 |
-| Web应用 | Handlebars | 完整功能 |
-| Desktop应用 | Handlebars | 完整功能 |
+| Environment     | Template Engine                | Feature Support        |
+|------------------|-------------------------------|-------------------------|
+| Browser Extension | CSPSafeTemplateProcessor       | Basic variable replacement |
+| Web Application   | Handlebars                    | Full functionality      |
+| Desktop Application| Handlebars                   | Full functionality      |
 
-## 测试
+## Testing
 
-相关测试文件：
+Related test files:
 - `packages/core/tests/unit/template/csp-safe-processor.test.ts`
 - `packages/core/tests/unit/template/extension-environment.test.ts`
 
-运行测试：
+Run tests:
 ```bash
 cd packages/core
 npm test -- csp-safe-processor.test.ts
 npm test -- extension-environment.test.ts
 ```
 
-## 注意事项
+## Notes
 
-1. **功能限制**：在浏览器扩展环境中，只支持基本的变量替换，不支持复杂的 Handlebars 功能
-2. **向后兼容**：其他环境仍然使用完整的 Handlebars 功能
-3. **警告提示**：当模板包含不支持的功能时，会在控制台显示警告
-4. **变量处理**：未定义的变量会被替换为空字符串
+1. **Feature Limitations**: In the browser extension environment, only basic variable replacement is supported; complex Handlebars features are not supported.
+2. **Backward Compatibility**: Other environments still use the full Handlebars functionality.
+3. **Warning Messages**: Warnings will be displayed in the console when templates contain unsupported features.
+4. **Variable Handling**: Undefined variables will be replaced with an empty string.
 
-## 相关文件
+## Related Files
 
-- `packages/core/src/services/template/csp-safe-processor.ts` - CSP安全处理器
-- `packages/core/src/services/template/processor.ts` - 主模板处理器（已修改）
-- `packages/extension/public/manifest.json` - 扩展清单文件（CSP配置）
+- `packages/core/src/services/template/csp-safe-processor.ts` - CSP-safe processor
+- `packages/core/src/services/template/processor.ts` - Main template processor (modified)
+- `packages/extension/public/manifest.json` - Extension manifest file (CSP configuration)
 
-## 🔄 技术迁移更新（2025-08-29）
+## 🔄 Technical Migration Update (2025-08-29)
 
-### Handlebars → Mustache 统一迁移
+### Unified Migration from Handlebars to Mustache
 
-**问题演进**: 原本的环境特定方案虽然解决了CSP问题，但维护了两套不同的模板处理逻辑，增加了系统复杂性。
+**Problem Evolution**: The original environment-specific solution addressed the CSP issue but maintained two different template processing logics, increasing system complexity.
 
-**最终解决方案**: 
-1. **统一采用Mustache.js**: 所有环境使用同一个模板引擎，Mustache原生支持CSP环境
-2. **移除环境检测**: 不再需要 `isExtensionEnvironment()` 判断逻辑
-3. **简化处理器**: 废弃 `CSPSafeTemplateProcessor`，统一使用 `Mustache.render()`
+**Final Solution**: 
+1. **Unified Use of Mustache.js**: All environments will use the same template engine, Mustache, which natively supports CSP environments.
+2. **Removal of Environment Detection**: The `isExtensionEnvironment()` detection logic is no longer needed.
+3. **Simplification of Processor**: The `CSPSafeTemplateProcessor` is deprecated, and `Mustache.render()` is used uniformly.
 
-**技术优势**:
-- ✅ **架构统一**: 单一代码路径，消除环境差异
-- ✅ **维护简化**: 无需维护两套模板处理逻辑
-- ✅ **原生CSP**: Mustache天然不使用eval，无CSP兼容问题
-- ✅ **功能一致**: 所有环境享有相同的模板功能
+**Technical Advantages**:
+- ✅ **Architecture Unification**: A single code path eliminates environmental differences.
+- ✅ **Maintenance Simplification**: No need to maintain two sets of template processing logic.
+- ✅ **Native CSP Support**: Mustache inherently does not use eval, avoiding CSP compatibility issues.
+- ✅ **Consistent Functionality**: All environments enjoy the same template features.
 
-**实现对比**:
+**Implementation Comparison**:
 ```typescript
-// 旧方案：环境判断
+// Old solution: environment check
 if (CSPSafeTemplateProcessor.isExtensionEnvironment()) {
   return CSPSafeTemplateProcessor.processContent(msg.content, context);
 } else {
   return Handlebars.compile(msg.content, { noEscape: true })(context);
 }
 
-// 新方案：统一处理
+// New solution: unified processing
 return Mustache.render(msg.content, context);
 ```
 
-**迁移结果**:
-- 📁 删除文件: `csp-safe-processor.ts`, `csp-safe-processor.test.ts`
-- 📝 更新依赖: `handlebars` → `mustache`
-- 🔧 简化处理: 移除所有环境检测逻辑
-- 📖 文档更新: 用户文档同步更新模板技术描述
+**Migration Results**:
+- 📁 Deleted files: `csp-safe-processor.ts`, `csp-safe-processor.test.ts`
+- 📝 Updated dependencies: `handlebars` → `mustache`
+- 🔧 Simplified processing: Removed all environment detection logic
+- 📖 Documentation updated: User documentation synchronized with template technology description
 
-这次迁移将CSP安全处理从"兼容性方案"升级为"原生支持方案"，是架构简化的重要里程碑。
+This migration upgrades CSP-safe processing from a "compatibility solution" to a "native support solution," marking an important milestone in architectural simplification.

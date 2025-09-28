@@ -1,49 +1,49 @@
-# 模态框组件开发经验
+# Modal Component Development Experience
 
-## 📋 概述
+## 📋 Overview
 
-在模板管理功能开发过程中积累的Vue模态框组件设计、实现和调试经验，包括渲染问题、事件处理和最佳实践。
+Experience accumulated during the development of the template management feature, including design, implementation, and debugging of Vue modal components, covering rendering issues, event handling, and best practices.
 
-## 🚨 Vue 模态框渲染问题
+## 🚨 Vue Modal Rendering Issues
 
-### 问题现象
-应用启动时，`TemplateManager.vue` 和 `ModelManager.vue` 等模态框组件会立即显示在页面上，并且无法通过点击关闭按钮或外部区域来关闭。
+### Problem Phenomenon
+When the application starts, modal components such as `TemplateManager.vue` and `ModelManager.vue` immediately appear on the page and cannot be closed by clicking the close button or the external area.
 
-### 根本原因
-组件的最外层元素（通常是带灰色蒙层的 `div`）没有使用 `v-if` 指令与控制其可见性的 `show` prop 绑定。因此，即使 `show` 的初始值为 `false`，该组件的 DOM 结构也已经被渲染到了页面上，导致蒙层和弹窗内容可见。点击关闭将 `show` 更新为 `false` 也无法移除已经渲染的 DOM，因此看起来"关不掉"。
+### Root Cause
+The outermost element of the component (usually a `div` with a gray overlay) is not bound to the `show` prop using the `v-if` directive to control its visibility. Therefore, even if the initial value of `show` is `false`, the DOM structure of the component has already been rendered on the page, making the overlay and popup content visible. Clicking close to update `show` to `false` does not remove the already rendered DOM, resulting in the appearance that it "cannot be closed."
 
-### 解决方案
-在模态框组件的最外层元素上添加 `v-if="show"` 指令。
+### Solution
+Add the `v-if="show"` directive to the outermost element of the modal component.
 
-### 示例代码
+### Example Code
 ```vue
 <template>
   <div
-    v-if="show"  <!-- 关键修复 -->
+    v-if="show"  <!-- Key Fix -->
     class="fixed inset-0 theme-mask z-[60] flex items-center justify-center overflow-y-auto"
     @click="close"
   >
-    <!-- ... 弹窗内容 ... -->
+    <!-- ... Popup content ... -->
   </div>
 </template>
 ```
 
-### 结论
-在创建可复用的模态框或弹窗组件时，必须确保组件的根元素或其容器的渲染与 `v-if` 或 `v-show` 指令绑定，以正确控制其在 DOM 中的存在和可见性。
+### Conclusion
+When creating reusable modal or popup components, it is essential to ensure that the rendering of the root element or its container is bound to the `v-if` or `v-show` directive to correctly control its presence and visibility in the DOM.
 
-## 🎯 事件处理最佳实践
+## 🎯 Best Practices for Event Handling
 
-### 问题描述
-在模态框组件中，仅实现 `@click="$emit('close')"` 的关闭事件处理方式不支持 `v-model:show` 双向绑定，导致父组件必须显式处理关闭逻辑，代码冗余且不符合 Vue 最佳实践。
+### Problem Description
+In the modal component, implementing only `@click="$emit('close')"` for the close event handling does not support `v-model:show` two-way binding, leading to the parent component needing to explicitly handle the close logic, resulting in redundant code that does not conform to Vue best practices.
 
-### 最佳实践方案
-实现统一的 `close` 方法，同时触发 `update:show` 和 `close` 事件，支持多种使用模式。
+### Best Practice Solution
+Implement a unified `close` method that simultaneously triggers `update:show` and `close` events, supporting multiple usage patterns.
 
-### 组件定义示例
+### Component Definition Example
 ```vue
 <template>
   <div v-if="show" @click="close">
-    <!-- 弹窗内容 -->
+    <!-- Popup content -->
     <button @click="close">×</button>
   </div>
 </template>
@@ -59,53 +59,53 @@ const props = defineProps({
 const emit = defineEmits(['update:show', 'close']);
 
 const close = () => {
-  emit('update:show', false); // 支持 v-model
-  emit('close');             // 向后兼容
+  emit('update:show', false); // Supports v-model
+  emit('close');             // Backward compatibility
 }
 </script>
 ```
 
-### 父组件使用方式
+### Parent Component Usage
 ```vue
-<!-- 推荐：使用 v-model 双向绑定 -->
+<!-- Recommended: Use v-model for two-way binding -->
 <ModelManagerUI v-model:show="isModalVisible" />
 
-<!-- 兼容：使用独立事件处理 -->
+<!-- Compatible: Use independent event handling -->
 <ModelManagerUI :show="isModalVisible" @close="handleClose" />
 ```
 
-### 优势
-1. **符合 Vue 的 `v-model` 规范**：通过触发 `update:show` 事件支持双向绑定
-2. **代码封装和可维护性**：关闭逻辑集中在一个方法中，便于扩展和维护
-3. **向后兼容**：同时支持 `v-model` 和传统的 `@close` 事件监听
-4. **语义清晰**：模板中的 `@click="close"` 比 `@click="$emit('close')"` 更直观表达意图
+### Advantages
+1. **Complies with Vue's `v-model` Specification**: Supports two-way binding by triggering the `update:show` event.
+2. **Code Encapsulation and Maintainability**: Closing logic is centralized in one method, making it easier to extend and maintain.
+3. **Backward Compatibility**: Supports both `v-model` and traditional `@close` event listening.
+4. **Clear Semantics**: `@click="close"` in the template expresses intent more intuitively than `@click="$emit('close')"`.
 
-## 🏆 模态框组件最佳实践范式
+## 🏆 Best Practice Paradigm for Modal Components
 
-### 目标
-创建一个可复用、功能完备、体验优秀且高度灵活的基础模态框组件。
+### Goal
+Create a reusable, fully functional, user-friendly, and highly flexible base modal component.
 
-### 核心范式来源
-`FullscreenDialog.vue` 和 `Modal.vue`
+### Core Paradigm Sources
+`FullscreenDialog.vue` and `Modal.vue`
 
-### 关键实现要点
+### Key Implementation Points
 
-#### 1. 标准化 `v-model`
-- **Prop**: 使用 `modelValue` 作为接收组件可见性状态的 prop
-- **Event**: 触发 `update:modelValue` 事件来响应状态变更
+#### 1. Standardized `v-model`
+- **Prop**: Use `modelValue` as the prop to receive the component's visibility state.
+- **Event**: Trigger the `update:modelValue` event to respond to state changes.
 
-#### 2. 健壮的关闭机制
-- **统一关闭方法**: 封装一个 `close` 方法，集中处理所有关闭逻辑 (`emit('update:modelValue', false)`)
-- **严谨的背景点击**: 使用 `event.target === event.currentTarget` 判断来确保只有直接点击背景遮罩时才关闭弹窗，防止点击内容区时意外关闭
-- **键盘可访问性**: 监听 `Escape` 键，为用户提供通过键盘关闭弹窗的快捷方式
+#### 2. Robust Closing Mechanism
+- **Unified Close Method**: Encapsulate a `close` method to handle all closing logic (`emit('update:modelValue', false)`).
+- **Strict Background Click Handling**: Use `event.target === event.currentTarget` to ensure the popup only closes when the background overlay is clicked directly, preventing accidental closure when clicking the content area.
+- **Keyboard Accessibility**: Listen for the `Escape` key to provide users with a shortcut to close the popup via the keyboard.
 
-#### 3. 通过插槽实现高度灵活性
-使用 `<slot name="title">`, `<slot></slot>` (默认插槽), 和 `<slot name="footer">` 来定义模态框的各个区域，使父组件可以完全自定义其内容和交互。
+#### 3. High Flexibility Through Slots
+Use `<slot name="title">`, `<slot></slot>` (default slot), and `<slot name="footer">` to define various areas of the modal, allowing the parent component to fully customize its content and interactions.
 
-#### 4. 平滑的过渡动画
-使用 Vue 的 `<Transition>` 组件包裹模态框的根元素和内容，为其出现和消失添加 CSS 动画，提升用户体验。
+#### 4. Smooth Transition Animations
+Wrap the modal's root element and content with Vue's `<Transition>` component to add CSS animations for its appearance and disappearance, enhancing the user experience.
 
-### 代码范例
+### Code Example
 ```vue
 <template>
   <Teleport to="body">
@@ -144,27 +144,27 @@ const handleBackdropClick = (event) => {
   }
 }
 
-// 监听ESC键
+// Listen for ESC key
 // onMounted / onUnmounted ...
 </script>
 ```
 
-## 💡 关键经验总结
+## 💡 Key Experience Summary
 
-1. **DOM 渲染控制**: 模态框组件必须使用 `v-if` 控制 DOM 的存在，而不仅仅是可见性
-2. **事件处理统一**: 实现统一的关闭方法，同时支持 `v-model` 和传统事件
-3. **用户体验**: 提供多种关闭方式（按钮、背景点击、ESC键）
-4. **组件复用**: 通过插槽实现高度灵活的内容定制
-5. **向后兼容**: 在引入新的API时保持对旧用法的兼容
+1. **DOM Rendering Control**: Modal components must use `v-if` to control the existence of the DOM, not just visibility.
+2. **Unified Event Handling**: Implement a unified close method that supports both `v-model` and traditional events.
+3. **User Experience**: Provide multiple closing methods (button, background click, ESC key).
+4. **Component Reusability**: Achieve high flexibility in content customization through slots.
+5. **Backward Compatibility**: Maintain compatibility with old usage when introducing new APIs.
 
-## 🔗 相关文档
+## 🔗 Related Documents
 
-- [模板管理功能概述](./README.md)
-- [组件标准化重构](../107-component-standardization/README.md)
-- [故障排查清单](./troubleshooting.md)
+- [Overview of Template Management Functionality](./README.md)
+- [Component Standardization Refactoring](../107-component-standardization/README.md)
+- [Troubleshooting Checklist](./troubleshooting.md)
 
 ---
 
-**文档类型**: 经验总结  
-**适用范围**: Vue 模态框组件开发  
-**最后更新**: 2025-07-01
+**Document Type**: Experience Summary  
+**Applicable Scope**: Vue Modal Component Development  
+**Last Updated**: 2025-07-01

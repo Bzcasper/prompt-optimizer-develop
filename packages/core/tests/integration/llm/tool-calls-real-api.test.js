@@ -3,6 +3,18 @@ import { expect, describe, it, beforeEach, beforeAll } from 'vitest';
 import dotenv from 'dotenv';
 import path from 'path';
 
+// Skip tool-calls real API tests when no provider API keys are present
+const HAVE_PROVIDER_KEYS = !!process.env.OPENAI_API_KEY || !!process.env.VITE_OPENAI_API_KEY ||
+  !!process.env.VITE_GEMINI_API_KEY || !!process.env.GEMINI_API_KEY ||
+  !!process.env.DEEPSEEK_API_KEY || !!process.env.VITE_DEEPSEEK_API_KEY ||
+  !!process.env.VITE_CUSTOM_API_KEY || !!process.env.CUSTOM_API_KEY;
+if (!HAVE_PROVIDER_KEYS) {
+  console.warn('Skipping tool-calls-real-api tests: no external LLM provider API keys found');
+  describe.skip('Tool Calls Real API Integration (skipped - no API keys)', () => {
+    it.skip('noop', () => {});
+  });
+}
+
 // 加载环境变量
 beforeAll(() => {
   dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });

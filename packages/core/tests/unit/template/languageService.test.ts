@@ -1,12 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TemplateLanguageService } from '../../../src/services/template/languageService';
-import { createMockStorage } from '../../mocks/mockStorage';
 import { PreferenceService } from '../../../src/services/preference/service';
 import { MemoryStorageProvider } from '../../../src/services/storage/memoryStorageProvider';
 
 describe('TemplateLanguageService', () => {
   let service: TemplateLanguageService;
-  let mockStorage: ReturnType<typeof createMockStorage>;
   let mockPreferenceService: PreferenceService;
 
   beforeEach(() => {
@@ -16,7 +14,6 @@ describe('TemplateLanguageService', () => {
       configurable: true
     });
 
-    mockStorage = createMockStorage();
     const memoryStorage = new MemoryStorageProvider();
     mockPreferenceService = new PreferenceService(memoryStorage);
     service = new TemplateLanguageService(mockPreferenceService);
@@ -28,7 +25,8 @@ describe('TemplateLanguageService', () => {
 
   describe('initialization', () => {
     it('should initialize with default language when no saved preference', async () => {
-      mockStorage.getItem.mockResolvedValue(null);
+      // Ensure preference service returns no saved value for this case
+      vi.spyOn(mockPreferenceService, 'get').mockResolvedValue(null);
 
       await service.initialize();
 

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LLMService } from '../../../src/services/llm/service';
 import { ModelManager } from '../../../src/services/model/manager';
 import { ToolDefinition, ToolCall, Message, StreamHandlers } from '../../../src/services/llm/types';
-import { createMockStorage } from '../../mocks/mockStorage';
+import { MemoryStorageProvider } from '../../../src/services/storage/memoryStorageProvider';
 
 describe('LLM Service Tool Calls', () => {
   let llmService: LLMService;
@@ -44,8 +44,8 @@ describe('LLM Service Tool Calls', () => {
   ];
 
   beforeEach(() => {
-    const mockStorage = createMockStorage();
-    modelManager = new ModelManager(mockStorage);
+    const memoryStorage = new MemoryStorageProvider();
+    modelManager = new ModelManager(memoryStorage);
     llmService = new LLMService(modelManager);
   });
 

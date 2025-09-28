@@ -114,3 +114,22 @@ export * from './services/context/constants'
 
 // 导出高级模块相关类型
 export * from './types/advanced'
+
+// 导出内容生成服务相关
+export { createContentGenerationService } from './services/content-generation/service'
+export { createContentGenerationServiceFactory } from './services/content-generation/factory'
+export { ElectronContentGenerationServiceProxy } from './services/content-generation/electron-proxy'
+export * from './services/content-generation/types'
+export * from './services/content-generation/errors'
+
+// 导出ADK模板编排器相关
+export { ADKTemplateOrchestrator, createADKTemplateOrchestrator } from './services/adk-template-orchestrator'
+export type { ADKTemplateExecutionRequest, ADKTemplateExecutionResult } from './services/adk-template-orchestrator'
+
+// 导出ADK集成相关
+export * from './services/google-adk'
+export * from './services/google-adk-agents'
+export * from './services/registry-orchestrator'
+
+// 导出代理注册服务相关
+export * from './services/agent-registry'

@@ -27,6 +27,14 @@ export default defineConfig({
             return 'background.js';
           }
           return `assets/[name].[ext]`;
+        },
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('element-plus')) return 'vendor-element-plus'
+            if (id.includes('naive-ui')) return 'vendor-naive-ui'
+            if (id.includes('markdown-it') || id.includes('highlight.js') || id.includes('dompurify')) return 'vendor-markdown'
+            if (id.includes('/vue')) return 'vendor-vue'
+          }
         }
       }
     },

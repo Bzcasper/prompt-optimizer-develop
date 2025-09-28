@@ -9,7 +9,7 @@ import { ALL_TEMPLATES } from './default-templates';
  */
 
 // 类型定义
-export type TemplateType = 'optimize' | 'iterate' | 'user-optimize' | 'content-creation' | 'video-creation' | 'youtube-shorts';
+export type TemplateType = 'optimize' | 'iterate' | 'user-optimize';
 export type Language = 'zh' | 'en';
 
 export interface StaticTemplateCollection {
@@ -61,10 +61,7 @@ export class StaticLoader {
       const byType: Record<TemplateType, Record<Language, Record<string, Template>>> = {
         'optimize': { zh: {}, en: {} },
         'iterate': { zh: {}, en: {} },
-        'user-optimize': { zh: {}, en: {} },
-        'content-creation': { zh: {}, en: {} },
-        'video-creation': { zh: {}, en: {} },
-        'youtube-shorts': { zh: {}, en: {} }
+        'user-optimize': { zh: {}, en: {} }
       };
 
       // 处理每个模板
@@ -99,10 +96,7 @@ export class StaticLoader {
         '英文': Object.keys(byLanguage.en).length,
         optimize: Object.keys(byType.optimize.zh).length + Object.keys(byType.optimize.en).length,
         iterate: Object.keys(byType.iterate.zh).length + Object.keys(byType.iterate.en).length,
-        'user-optimize': Object.keys(byType['user-optimize'].zh).length + Object.keys(byType['user-optimize'].en).length,
-        'content-creation': Object.keys(byType['content-creation'].zh).length + Object.keys(byType['content-creation'].en).length,
-        'video-creation': Object.keys(byType['video-creation'].zh).length + Object.keys(byType['video-creation'].en).length,
-        'youtube-shorts': Object.keys(byType['youtube-shorts'].zh).length + Object.keys(byType['youtube-shorts'].en).length
+        'user-optimize': Object.keys(byType['user-optimize'].zh).length + Object.keys(byType['user-optimize'].en).length
       });
 
       StaticLoader.templateCache = result;

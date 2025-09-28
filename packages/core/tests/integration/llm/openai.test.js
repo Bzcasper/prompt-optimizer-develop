@@ -3,6 +3,22 @@ import { expect, describe, it, beforeEach, beforeAll } from 'vitest';
 import dotenv from 'dotenv';
 import path from 'path';
 
+// Skip OpenAI-compatible integration tests when no compatible API key is present
+const openaiCompatibleKeys = [
+  'OPENAI_API_KEY', 'VITE_OPENAI_API_KEY',
+  'DEEPSEEK_API_KEY', 'VITE_DEEPSEEK_API_KEY',
+  'SILICONFLOW_API_KEY', 'VITE_SILICONFLOW_API_KEY',
+  'ZHIPU_API_KEY', 'VITE_ZHIPU_API_KEY',
+  'CUSTOM_API_KEY', 'VITE_CUSTOM_API_KEY'
+];
+const hasOpenaiCompatibleKey = openaiCompatibleKeys.some(k => !!process.env[k]);
+if (!hasOpenaiCompatibleKey) {
+  console.warn('Skipping OpenAI-compatible integration tests: no compatible API key found in environment');
+  describe.skip('OpenAI API 真实连接测试 (skipped - no API key)', () => {
+    it.skip('noop', () => {});
+  });
+}
+
 // 加载环境变量
 beforeAll(() => {
   dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });

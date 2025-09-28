@@ -1,0 +1,22 @@
+metadata:
+  name: orchestrator-agent
+  version: 0.1.0
+  author: bzcasper
+manifestVersion: '1.0'
+capabilities:
+  - project_management
+  - task_delegation
+  - strategic_planning
+intentPatterns:
+  - "start a new project for *"
+  - "analyze the results of *"
+  - "delegate task * to *"
+tools:
+  - task_planner:v1
+  - progress_tracker:v1
+modelPreset: strategic
+concurrency: 5
+promptsPath: ./prompt_templates/orchestrator/
+health:
+  probe: /health
+  interval_s: 60

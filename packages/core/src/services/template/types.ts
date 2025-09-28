@@ -12,6 +12,15 @@ export interface TemplateMetadata {
   description?: string;     // 描述（可选）
   templateType: 'optimize' | 'userOptimize' | 'iterate'; // 模板类型标识
   language?: 'zh' | 'en';   // 模板语言（可选，主要用于内置模板语言切换）
+  tags?: string[];          // 标签（可选）
+
+  // ADK Integration Fields
+  adkCompatible?: boolean;  // 标记是否与ADK兼容
+  supportedAgentTypes?: ('content-creation' | 'data-analysis' | 'code-generation')[]; // 支持的ADK代理类型
+  adkVersion?: string;      // ADK版本兼容性
+  complexity?: 'simple' | 'moderate' | 'complex' | 'advanced'; // 模板复杂度
+  estimatedCost?: number;   // 估算执行成本（可选）
+
   [key: string]: any;       // 允许任意额外字段
 }
 

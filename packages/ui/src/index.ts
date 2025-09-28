@@ -134,6 +134,10 @@ export {
     createCompareService,
     createContextRepo,
     ElectronContextRepoProxy,
+    createContentGenerationServiceFactory,
+    ElectronContentGenerationServiceProxy,
+    createADKTemplateOrchestrator,
+    createRegistryOrchestrator,
     isRunningInElectron,
     waitForElectronApi,
 } from '@prompt-optimizer/core'
@@ -154,7 +158,10 @@ export type {
     ContextRepo,
     ContextPackage,
     ContextBundle,
-    Template
+    Template,
+    IContentGenerationService,
+    ADKTemplateOrchestrator,
+    RegistryOrchestrator
 } from '@prompt-optimizer/core'
 
 // 导出新增的类型和服务

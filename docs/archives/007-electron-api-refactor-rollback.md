@@ -1,86 +1,86 @@
-# Electron API 重构与回滚经验记录
+# Electron API Refactoring and Rollback Experience Record
 
-## 📅 时间线
-- **2025-07-14**: 发现版本检查功能报错 "Failed to check versions"
-- **重构提交**: `12f6f49` - "feat(ui): 添加 Electron API Hook并重构更新管理"
-- **问题根源**: 过度抽象导致的架构复杂性和 bug
+## 📅 Timeline
+- **2025-07-14**: Discovered version check function error "Failed to check versions"
+- **Refactoring Commit**: `12f6f49` - "feat(ui): Add Electron API Hook and refactor update management"
+- **Root Cause**: Architectural complexity and bugs caused by excessive abstraction
 
-## 🚨 问题描述
+## 🚨 Problem Description
 
-### 症状
+### Symptoms
 ```
 useUpdater.ts:224 [useUpdater] Error checking all versions: Error: Failed to check versions
     at g (useUpdater.ts:128:15)
 ```
 
-### 主进程日志正常
+### Main Process Log Normal
 ```
 [DESKTOP] [2025-07-14 00:20:57] [info] Unified version check completed: { stable: '1.2.5', prerelease: '1.2.5' }
 ```
 
-### 前端收到的响应
+### Response Received by Frontend
 ```javascript
 {
   currentVersion: '1.2.0',
   stable: { hasUpdate: true, remoteVersion: '1.2.5', ... },
   prerelease: { hasUpdate: true, remoteVersion: '1.2.5', ... }
 }
-// 但是 response.success 是 undefined
+// But response.success is undefined
 ```
 
-## 🔍 根本原因分析
+## 🔍 Root Cause Analysis
 
-### 重构前（工作正常）
+### Before Refactoring (Working Normally)
 ```typescript
-// 简单直接
+// Simple and direct
 const results = await window.electronAPI!.updater.checkAllVersions()
 ```
 
-### 重构后（引入问题）
+### After Refactoring (Introduced Issues)
 ```typescript
-// 过度抽象
+// Excessive abstraction
 const { updater } = useElectronAPI()
 const response = await updater.checkAllVersions()
-if (!response.success) {  // response.success 是 undefined
+if (!response.success) {  // response.success is undefined
   throw new Error(response.error || 'Failed to check versions')
 }
 const results = response.data
 ```
 
-### 问题链条
-1. **useUpdater.ts** 调用 `getElectronAPI()` 而不是 `useElectronAPI()`
-2. **getElectronAPI()** 直接返回 `window.electronAPI`，绕过了包装器
-3. **preload.js** 返回 `result.data`（直接数据）
-4. **useElectronAPI.ts** 期望 `{success, data, error}` 格式
-5. **数据格式不匹配** 导致 `response.success` 为 `undefined`
+### Problem Chain
+1. **useUpdater.ts** calls `getElectronAPI()` instead of `useElectronAPI()`
+2. **getElectronAPI()** directly returns `window.electronAPI`, bypassing the wrapper
+3. **preload.js** returns `result.data` (direct data)
+4. **useElectronAPI.ts** expects `{success, data, error}` format
+5. **Data format mismatch** causes `response.success` to be `undefined`
 
-## 🎯 重构的初衷 vs 实际效果
+## 🎯 Original Intent of Refactoring vs Actual Effect
 
-### 初衷
-- 避免类型错误和 IDE 警告
-- 提供类型安全的 Electron API 访问
+### Original Intent
+- Avoid type errors and IDE warnings
+- Provide type-safe access to Electron API
 
-### 实际效果
-- 引入了过度复杂的抽象层
-- 增加了调试难度
-- 创造了新的 bug
-- 维护成本大幅增加
+### Actual Effect
+- Introduced excessively complex abstraction layers
+- Increased debugging difficulty
+- Created new bugs
+- Significantly raised maintenance costs
 
-## 🔄 回滚操作记录
+## 🔄 Rollback Operation Record
 
-### 1. 删除过度抽象文件
+### 1. Delete Excessive Abstraction File
 ```bash
 rm packages/ui/src/composables/useElectronAPI.ts
 ```
 
-### 2. 回滚 useUpdater.ts
-- 移除 `useElectronAPI` 导入
-- 将所有 `electronUpdater` 改为 `window.electronAPI.updater`
-- 将所有 `electronShell` 改为 `window.electronAPI.shell`
-- 将所有 `electronOn/electronOff` 改为 `window.electronAPI.on/off`
-- 移除复杂的响应格式检查
+### 2. Rollback useUpdater.ts
+- Removed `useElectronAPI` import
+- Changed all `electronUpdater` to `window.electronAPI.updater`
+- Changed all `electronShell` to `window.electronAPI.shell`
+- Changed all `electronOn/electronOff` to `window.electronAPI.on/off`
+- Removed complex response format checks
 
-### 3. 简化类型定义
+### 3. Simplify Type Definitions
 ```typescript
 // packages/ui/src/types/electron.d.ts
 interface UpdaterAPI {
@@ -98,7 +98,7 @@ interface ShellAPI {
 }
 ```
 
-### 4. 保持 preload.js 简单
+### 4. Keep preload.js Simple
 ```javascript
 checkAllVersions: async () => {
   const result = await withTimeout(
@@ -108,34 +108,34 @@ checkAllVersions: async () => {
   if (!result.success) {
     throw new Error(result.error);
   }
-  return result.data;  // 直接返回数据
+  return result.data;  // Directly return data
 }
 ```
 
-## 📚 经验教训
+## 📚 Lessons Learned
 
-### ❌ 过度工程化的问题
-1. **复杂度爆炸**: 为了解决简单问题引入复杂架构
-2. **调试困难**: 多层抽象使问题定位变得复杂
-3. **维护成本**: 需要维护额外的 Hook、类型定义、包装逻辑
-4. **新 bug 源**: 抽象层本身成为 bug 的来源
+### ❌ Problems of Over-Engineering
+1. **Complexity Explosion**: Introduced complex architecture to solve simple problems
+2. **Debugging Difficulty**: Multiple layers of abstraction made problem localization complex
+3. **Maintenance Costs**: Need to maintain additional hooks, type definitions, and wrapping logic
+4. **Source of New Bugs**: The abstraction layer itself became a source of bugs
 
-### ✅ 正确的解决方案
-1. **简单的类型定义**: 通过完善 `electron.d.ts` 解决 IDE 警告
-2. **直接 API 调用**: 保持代码简洁明了
-3. **最小化抽象**: 只在真正需要时才引入抽象
+### ✅ Correct Solutions
+1. **Simple Type Definitions**: Resolve IDE warnings by improving `electron.d.ts`
+2. **Direct API Calls**: Keep code simple and clear
+3. **Minimize Abstraction**: Introduce abstraction only when truly necessary
 
-### 🎯 设计原则
-1. **KISS 原则**: Keep It Simple, Stupid
-2. **YAGNI 原则**: You Aren't Gonna Need It
-3. **优先解决核心问题**: 类型安全 ≠ 复杂抽象
-4. **渐进式改进**: 从简单开始，必要时再抽象
+### 🎯 Design Principles
+1. **KISS Principle**: Keep It Simple, Stupid
+2. **YAGNI Principle**: You Aren't Gonna Need It
+3. **Prioritize Solving Core Issues**: Type safety ≠ complex abstraction
+4. **Incremental Improvement**: Start simple, abstract only when necessary
 
-## 🔧 最佳实践
+## 🔧 Best Practices
 
-### 解决 IDE 警告的正确方法
+### Correct Way to Address IDE Warnings
 ```typescript
-// ✅ 正确：完善类型定义
+// ✅ Correct: Improve type definitions
 declare global {
   interface Window {
     electronAPI: {
@@ -147,42 +147,42 @@ declare global {
   }
 }
 
-// ✅ 正确：直接使用
+// ✅ Correct: Direct usage
 const result = await window.electronAPI.updater.checkAllVersions()
 ```
 
-### 避免过度抽象
+### Avoid Excessive Abstraction
 ```typescript
-// ❌ 错误：不必要的包装
+// ❌ Incorrect: Unnecessary wrapping
 const { updater } = useElectronAPI()
 const response = await updater.checkAllVersions()
 const result = response.data
 
-// ✅ 正确：直接调用
+// ✅ Correct: Direct call
 const result = await window.electronAPI.updater.checkAllVersions()
 ```
 
-## 🎉 结果
+## 🎉 Results
 
-### 回滚后的优势
-- **代码行数减少**: 删除了 100+ 行的包装代码
-- **调试简化**: 问题直接定位到源头
-- **类型安全**: 通过类型定义实现，无运行时开销
-- **维护简单**: 减少了抽象层的维护负担
+### Advantages After Rollback
+- **Reduced Lines of Code**: Removed 100+ lines of wrapping code
+- **Simplified Debugging**: Problems directly localized to the source
+- **Type Safety**: Achieved through type definitions, with no runtime overhead
+- **Simplified Maintenance**: Reduced the burden of maintaining abstraction layers
 
-### 性能提升
-- **减少函数调用**: 直接 API 调用，无包装开销
-- **减少内存占用**: 无额外的包装对象
-- **提高可读性**: 代码意图更加明确
+### Performance Improvement
+- **Reduced Function Calls**: Direct API calls with no wrapping overhead
+- **Reduced Memory Usage**: No additional wrapping objects
+- **Improved Readability**: Code intent is clearer
 
-## 💡 未来指导原则
+## 💡 Future Guiding Principles
 
-1. **先解决问题，再考虑抽象**
-2. **类型安全通过类型定义实现，而非运行时包装**
-3. **保持 API 调用的直接性和透明性**
-4. **抽象必须有明确的价值，而非为了抽象而抽象**
-5. **重构前要充分评估复杂度收益比**
+1. **Solve problems first, then consider abstraction**
+2. **Type safety achieved through type definitions, not runtime wrapping**
+3. **Maintain directness and transparency in API calls**
+4. **Abstraction must have clear value, not just for the sake of abstraction**
+5. **Fully assess complexity-benefit ratio before refactoring**
 
 ---
 
-**教训**: 有时候最好的重构就是不重构。简单的问题用简单的方法解决。
+**Lesson**: Sometimes the best refactor is no refactor at all. Solve simple problems with simple methods.

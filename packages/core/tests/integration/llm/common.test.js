@@ -1,4 +1,4 @@
-import { 
+import {
   createLLMService,
   ModelManager,
   RequestConfigError,
@@ -6,7 +6,13 @@ import {
 import { expect, describe, it, beforeEach, beforeAll, vi } from 'vitest';
 import dotenv from 'dotenv';
 import path from 'path';
-import { createMockStorage } from '../../mocks/mockStorage';
+import { MemoryStorageProvider } from '../../../src/services/storage/memoryStorageProvider.ts';
+
+// Skip real-provider tests when required API keys are missing
+const HAVE_OPENAI_KEY = !!process.env.OPENAI_API_KEY || !!process.env.VITE_OPENAI_API_KEY;
+const HAVE_GEMINI_KEY = !!process.env.VITE_GEMINI_API_KEY || !!process.env.GEMINI_API_KEY;
+const HAVE_DEEPSEEK_KEY = !!process.env.VITE_DEEPSEEK_API_KEY || !!process.env.DEEPSEEK_API_KEY;
+const HAVE_ANY_LLM_KEYS = HAVE_OPENAI_KEY || HAVE_GEMINI_KEY || HAVE_DEEPSEEK_KEY;
 
 // 加载环境变量
 beforeAll(() => {
@@ -24,9 +30,12 @@ describe('LLM 服务通用测试', () => {
   let modelManager;
   let mockStorage;
 
-  beforeEach(() => {
-    mockStorage = createMockStorage();
-    mockStorage.getItem.mockResolvedValue(null);
+  beforeEach(async () => {
+    const mockStorage = new MemoryStorageProvider();
+    // Ensure storage is clean for each test run
+    if (typeof mockStorage.clearAll === 'function') {
+      await mockStorage.clearAll();
+    }
     
     modelManager = new ModelManager(mockStorage);
     llmService = createLLMService(modelManager);

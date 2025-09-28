@@ -175,7 +175,7 @@ export function useDebounceThrottle() {
   /**
    * 批处理执行 - 收集一段时间内的所有调用，然后批量执行
    */
-  const batchExecute = <T extends any[]>(
+  const batchExecute = <T>(
     fn: (batch: T[]) => void,
     delay: number = 100,
     key: string = 'default'

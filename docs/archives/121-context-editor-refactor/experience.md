@@ -1,164 +1,164 @@
-# Context Editor Refactor - 经验总结
+# Context Editor Refactor - Experience Summary
 
-## 重构经验与教训
+## Refactoring Experiences and Lessons
 
-### 成功实践
+### Successful Practices
 
-#### 1. 使用Spec工作流管理重构任务
-**优点**:
-- 结构化的任务分解，确保不遗漏关键步骤
-- 每个阶段都有明确的验收标准
-- 任务状态跟踪帮助了解进度
+#### 1. Using Spec Workflow to Manage Refactoring Tasks
+**Advantages**:
+- Structured task breakdown ensures no key steps are missed
+- Clear acceptance criteria for each phase
+- Task status tracking helps understand progress
 
-**具体应用**:
+**Specific Applications**:
 ```markdown
-3.3.1 ✅ 移除废弃组件文件
-4.2.1 ✅ 清理UI包导出声明
-4.2.2 ✅ 清理类型定义
-4.3.1 ✅ 清理测试代码
-4.3.2 ✅ 更新Web App中的无效props和事件
-4.4.1 ✅ 执行完整回归测试
-4.4.2 ✅ 更新相关文档
+3.3.1 ✅ Remove deprecated component files
+4.2.1 ✅ Clean up UI package export declarations
+4.2.2 ✅ Clean up type definitions
+4.3.1 ✅ Clean up test code
+4.3.2 ✅ Update invalid props and events in Web App
+4.4.1 ✅ Execute complete regression tests
+4.4.2 ✅ Update relevant documentation
 ```
 
-#### 2. 渐进式清理策略
-**策略**: 先文件→导出→测试→API
-**好处**: 每一步都可以独立验证，风险可控
+#### 2. Incremental Cleanup Strategy
+**Strategy**: File → Export → Test → API  
+**Benefits**: Each step can be independently verified, risks are manageable
 
-#### 3. 基于实际代码分析而非假设
-通过 `grep -n "props\."` 和 `grep -n "emit("` 分析组件真实使用情况，避免了错误的假设。
+#### 3. Based on Actual Code Analysis Rather Than Assumptions
+Analyzed the actual usage of components using `grep -n "props\."` and `grep -n "emit("`, avoiding incorrect assumptions.
 
-**发现**: 
-- 一些props虽然被传递，但在组件内部并未使用
-- Vue的命名转换机制使得kebab-case和camelCase都能正常工作
+**Findings**:
+- Some props were passed but not used within the component
+- Vue's naming conversion mechanism allows both kebab-case and camelCase to work properly
 
-#### 4. 功能性测试胜过单元测试
-使用Playwright浏览器自动化测试验证关键功能，比单纯的单元测试更能反映真实用户体验。
+#### 4. Functional Testing Over Unit Testing
+Using Playwright for browser automation testing to validate key functionalities better reflects the real user experience than mere unit tests.
 
-**测试覆盖**:
-- 高级模式切换
-- 变量管理器功能
-- ConversationManager组件交互
-- 状态持久化
+**Test Coverage**:
+- High-level mode switching
+- Variable manager functionality
+- ConversationManager component interactions
+- State persistence
 
-### 技术洞察
+### Technical Insights
 
-#### 1. Vue 3 Props处理机制
+#### 1. Vue 3 Props Handling Mechanism
 ```javascript
-// 这些写法都是有效的，Vue会自动转换
+// All these notations are valid, Vue will automatically convert
 :available-variables="data"     // kebab-case
 :availableVariables="data"      // camelCase
 @open-variable-manager="handle" // kebab-case
 @openVariableManager="handle"   // camelCase
 ```
 
-**教训**: 不要过度纠结命名约定，Vue的容错性很好，但保持一致性仍然重要。
+**Lesson**: Do not get overly hung up on naming conventions; Vue's fault tolerance is good, but maintaining consistency is still important.
 
-#### 2. 组件API设计原则
-**发现的问题**:
-- Props被传递但未使用，造成不必要的数据绑定
-- 一些默认值定义但从未调用
+#### 2. Component API Design Principles
+**Identified Issues**:
+- Props were passed but not used, causing unnecessary data bindings
+- Some default values were defined but never called
 
-**最佳实践**:
-- 定期审查组件props的实际使用情况
-- 避免"预防性编程"，不用的props不要传递
-- 使用TypeScript严格模式可以帮助发现未使用的props
+**Best Practices**:
+- Regularly review the actual usage of component props
+- Avoid "defensive programming"; do not pass unused props
+- Using TypeScript strict mode can help identify unused props
 
-#### 3. 测试策略的选择
-**单元测试问题**:
-- 137个UI测试失败，主要是测试框架兼容性问题
-- 测试代码维护成本高，经常需要随组件变更而更新
+#### 3. Choosing Testing Strategies
+**Unit Testing Issues**:
+- 137 UI tests failed, mainly due to compatibility issues with the testing framework
+- High maintenance cost for test code, often needing updates with component changes
 
-**功能测试优势**:
-- 更接近真实用户场景
-- 对重构变更不敏感
-- 能捕获集成层面的问题
+**Advantages of Functional Testing**:
+- Closer to real user scenarios
+- Insensitive to refactoring changes
+- Can capture integration-level issues
 
-### 工具和流程
+### Tools and Processes
 
-#### 1. 开发工具链表现
-- **Vite**: HMR工作稳定，开发体验优秀
-- **TypeScript**: 类型检查帮助发现问题
-- **pnpm**: 工作区管理效率高
-- **Playwright**: 浏览器自动化测试可靠性高
+#### 1. Development Toolchain Performance
+- **Vite**: HMR works stably, excellent development experience
+- **TypeScript**: Type checking helps identify issues
+- **pnpm**: High efficiency in workspace management
+- **Playwright**: High reliability in browser automation testing
 
-#### 2. 项目结构优势
+#### 2. Project Structure Advantages
 ```
 packages/
-├── core/     # 业务逻辑层
-├── ui/       # 组件库层  
-└── web/      # 应用层
+├── core/     # Business logic layer
+├── ui/       # Component library layer  
+└── web/      # Application layer
 ```
-这种分层结构使得组件清理的影响范围可控。
+This layered structure makes the impact scope of component cleanup manageable.
 
-### 避免的陷阱
+### Traps to Avoid
 
-#### 1. 过度优化
-**错误倾向**: 看到kebab-case就想改成camelCase
-**正确做法**: 如果现有代码工作正常，不要为了"完美"而引入不必要的变更
+#### 1. Over-Optimization
+**Error Tendency**: Wanting to change kebab-case to camelCase upon seeing it  
+**Correct Approach**: If existing code works fine, do not introduce unnecessary changes for "perfection"
 
-#### 2. 忽视向后兼容性
-**错误倾向**: 大规模重命名API
-**正确做法**: 利用框架的容错机制，保持现有接口稳定
+#### 2. Ignoring Backward Compatibility
+**Error Tendency**: Large-scale renaming of APIs  
+**Correct Approach**: Utilize the framework's fault tolerance mechanism to keep existing interfaces stable
 
-#### 3. 过分依赖单元测试
-**错误倾向**: 认为单元测试通过就说明功能正常
-**正确做法**: 结合功能测试验证实际用户场景
+#### 3. Over-Reliance on Unit Testing
+**Error Tendency**: Assuming that passing unit tests means functionality is normal  
+**Correct Approach**: Combine functional testing to validate actual user scenarios
 
-### 团队协作建议
+### Team Collaboration Recommendations
 
-#### 1. 沟通策略
-- 重构前充分说明目的和范围
-- 每个阶段完成后及时同步进度
-- 遇到意外情况及时讨论调整方案
+#### 1. Communication Strategy
+- Clearly explain the purpose and scope before refactoring
+- Timely sync progress after each phase is completed
+- Discuss and adjust plans promptly when unexpected situations arise
 
-#### 2. 文档记录
-- 记录重构的动机和目标
-- 详细记录技术决策的原因
-- 保留实施过程中的重要发现
+#### 2. Documentation Records
+- Document the motivations and goals for the refactor
+- Detail the reasons for technical decisions
+- Keep records of important discoveries during the implementation process
 
-#### 3. 风险控制
-- 每个步骤都要有回滚计划
-- 重要变更前要有充分的测试
-- 保持功能分支的生命周期较短
+#### 3. Risk Control
+- Each step must have a rollback plan
+- Ensure thorough testing before significant changes
+- Keep the lifecycle of functional branches short
 
-## 后续改进方向
+## Future Improvement Directions
 
-### 短期优化 (1-2周)
-1. **测试框架升级**: 解决UI包中的测试兼容性问题
-2. **类型检查加强**: 启用更严格的TypeScript检查规则
-3. **组件文档更新**: 更新组件使用文档以反映API变更
+### Short-term Optimizations (1-2 weeks)
+1. **Testing Framework Upgrade**: Resolve compatibility issues in the UI package
+2. **Strengthen Type Checking**: Enable stricter TypeScript checking rules
+3. **Component Documentation Update**: Update component usage documentation to reflect API changes
 
-### 中期规划 (1-2月)
-1. **组件职责重新划分**: 进一步评估其他组件的职责分离
-2. **Props设计规范**: 建立组件API设计的最佳实践
-3. **自动化重构工具**: 开发脚本辅助未来的类似重构
+### Mid-term Planning (1-2 months)
+1. **Reassess Component Responsibilities**: Further evaluate the separation of responsibilities for other components
+2. **Props Design Specifications**: Establish best practices for component API design
+3. **Automated Refactoring Tools**: Develop scripts to assist with future similar refactoring
 
-### 长期愿景 (3-6月)
-1. **组件库标准化**: 建立统一的组件设计和实现标准
-2. **测试策略优化**: 建立更高效的测试金字塔
-3. **架构演进**: 考虑组件层面的进一步解耦和模块化
+### Long-term Vision (3-6 months)
+1. **Component Library Standardization**: Establish unified standards for component design and implementation
+2. **Testing Strategy Optimization**: Build a more efficient testing pyramid
+3. **Architectural Evolution**: Consider further decoupling and modularization at the component level
 
-## 关键成功指标
+## Key Success Metrics
 
-✅ **功能完整性**: 所有核心功能正常工作
-✅ **性能稳定性**: 构建和运行时性能无下降  
-✅ **代码质量**: 移除了冗余代码，提升了可维护性
-✅ **开发体验**: 开发服务器稳定，HMR正常工作
-✅ **向后兼容性**: 无破坏性变更，现有功能完全保持
+✅ **Functional Integrity**: All core functionalities are working properly  
+✅ **Performance Stability**: No decline in build and runtime performance  
+✅ **Code Quality**: Redundant code has been removed, improving maintainability  
+✅ **Development Experience**: Development server is stable, HMR works properly  
+✅ **Backward Compatibility**: No breaking changes, existing functionalities are fully retained  
 
-## 总结
+## Summary
 
-这次重构是一次成功的"外科手术式"优化，在不影响用户功能的前提下，显著提升了代码的整洁度和可维护性。关键成功因素包括：
+This refactor was a successful "surgical" optimization that significantly improved the cleanliness and maintainability of the code without affecting user functionality. Key success factors include:
 
-1. **系统性的规划**: 使用spec工作流确保每个步骤都有明确目标
-2. **基于事实的决策**: 通过代码分析而非假设来判断哪些代码可以清理
-3. **渐进式的实施**: 每一步都可以独立验证，风险可控
-4. **充分的测试**: 功能测试确保了重构不会破坏用户体验
+1. **Systematic Planning**: Using the spec workflow to ensure each step has clear objectives
+2. **Fact-Based Decision Making**: Judging which code can be cleaned based on code analysis rather than assumptions
+3. **Incremental Implementation**: Each step can be independently verified, risks are manageable
+4. **Thorough Testing**: Functional testing ensures that the refactor does not disrupt user experience
 
-这次经验为后续的重构工作建立了良好的方法论和工具链基础。
+This experience has laid a solid methodological and toolchain foundation for future refactoring efforts.
 
 ---
-**重构性质**: 维护性重构，非功能性优化
-**风险等级**: 低风险，无用户功能影响
-**投入回报**: 高回报，显著提升代码质量
+**Refactor Nature**: Maintenance refactor, non-functional optimization  
+**Risk Level**: Low risk, no impact on user functionality  
+**Investment Return**: High return, significantly improved code quality

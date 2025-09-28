@@ -1,18 +1,18 @@
-# 技术实现详解
+# Technical Implementation Details
 
-## 🔧 架构设计
+## 🔧 Architecture Design
 
-### 核心设计理念
+### Core Design Philosophy
 
-#### 从集中式到分布式
-**原架构问题**:
-- DataManager承担过多职责（协调 + 具体实现）
-- 新增服务需要修改DataManager代码
-- 违反单一职责原则和开闭原则
+#### From Centralized to Distributed
+**Original Architecture Issues**:
+- DataManager bears too many responsibilities (coordination + concrete implementation)
+- Adding new services requires modifying DataManager code
+- Violates the Single Responsibility Principle and Open/Closed Principle
 
-**新架构设计**:
+**New Architecture Design**:
 ```typescript
-// 统一接口定义
+// Unified interface definition
 export interface IImportExportable {
   exportData(): Promise<any>;
   importData(data: any): Promise<void>;
@@ -20,7 +20,7 @@ export interface IImportExportable {
   validateData(data: any): Promise<boolean>;
 }
 
-// DataManager只负责协调
+// DataManager is only responsible for coordination
 class DataManager {
   async exportAllData(): Promise<string> {
     const services = [modelManager, templateManager, historyManager, preferenceService];
@@ -36,15 +36,15 @@ class DataManager {
 }
 ```
 
-#### 存储键双重用途解决方案
-**问题识别**:
-- 物理存储键：实际存储操作使用的键名
-- 逻辑JSON键：导入导出JSON中的键名
-- PreferenceService添加'pref:'前缀导致查找失败
+#### Dual Purpose of Storage Keys Solution
+**Issue Identification**:
+- Physical storage key: the key name used for actual storage operations
+- Logical JSON key: the key name in the import/export JSON
+- PreferenceService adding 'pref:' prefix leads to lookup failures
 
-**解决方案**:
+**Solution**:
 ```typescript
-// PreferenceService内部处理前缀转换
+// PreferenceService handles prefix conversion internally
 class PreferenceService {
   private readonly PREFIX = 'pref:';
   
@@ -52,7 +52,7 @@ class PreferenceService {
     const allData = await this.getAll();
     const exportData = {};
     
-    // 移除前缀，使用逻辑键名导出
+    // Remove prefix and use logical key names for export
     for (const [key, value] of Object.entries(allData)) {
       const logicalKey = key.startsWith(this.PREFIX) ? key.slice(this.PREFIX.length) : key;
       exportData[logicalKey] = value;
@@ -63,15 +63,15 @@ class PreferenceService {
 }
 ```
 
-### 接口设计原则
+### Interface Design Principles
 
-#### 异步优先
-所有接口方法都设计为异步，支持：
-- 网络请求（Electron IPC）
-- 文件操作（FileStorageProvider）
-- 数据验证（复杂验证逻辑）
+#### Asynchronous First
+All interface methods are designed to be asynchronous, supporting:
+- Network requests (Electron IPC)
+- File operations (FileStorageProvider)
+- Data validation (complex validation logic)
 
-#### 错误处理统一
+#### Unified Error Handling
 ```typescript
 export class ImportExportError extends Error {
   constructor(
@@ -85,89 +85,89 @@ export class ImportExportError extends Error {
 }
 ```
 
-## 🐛 问题诊断与解决
+## 🐛 Problem Diagnosis and Resolution
 
-### 问题1: 数据导出不完整
-**现象**: 用户导出JSON只有4个设置项，应该有8个
+### Problem 1: Incomplete Data Export
+**Phenomenon**: The user exports JSON with only 4 settings, while there should be 8.
 
-**诊断过程**:
-1. 检查DataManager导出逻辑 → 发现调用PreferenceService.getAll()
-2. 检查PreferenceService实现 → 发现添加了'pref:'前缀
-3. 检查存储键定义 → 发现UI和Core包重复定义
-4. 分析存储键用途 → 发现物理存储vs逻辑JSON的双重用途
+**Diagnosis Process**:
+1. Check DataManager export logic → Found a call to PreferenceService.getAll()
+2. Check PreferenceService implementation → Found 'pref:' prefix added
+3. Check storage key definitions → Found duplicate definitions in UI and Core packages
+4. Analyze storage key usage → Found dual purpose of physical storage vs logical JSON
 
-**解决方案**:
-- 在PreferenceService内部处理前缀转换
-- 统一存储键定义到Core包
-- 明确文档化存储键的双重用途
+**Solution**:
+- Handle prefix conversion within PreferenceService
+- Unify storage key definitions in the Core package
+- Clearly document the dual purpose of storage keys
 
-### 问题2: 循环依赖
-**现象**: 编译错误，模块间循环引用
+### Problem 2: Circular Dependency
+**Phenomenon**: Compilation error, circular references between modules.
 
-**解决方案**:
-- 创建独立的interfaces/import-export.ts文件
-- 将接口定义从具体实现中分离
-- 使用依赖注入而非直接引用
+**Solution**:
+- Create a separate interfaces/import-export.ts file
+- Separate interface definitions from concrete implementations
+- Use dependency injection instead of direct references
 
-### 问题3: Electron IPC序列化
-**现象**: Vue reactive对象无法通过IPC传输
+### Problem 3: Electron IPC Serialization
+**Phenomenon**: Vue reactive objects cannot be transmitted via IPC.
 
-**解决方案**:
+**Solution**:
 ```typescript
-// 在proxy类中进行序列化
+// Perform serialization in the proxy class
 async exportData(): Promise<any> {
   const result = await window.electronAPI.modelManager.exportData();
-  return JSON.parse(JSON.stringify(result)); // 深度序列化
+  return JSON.parse(JSON.stringify(result)); // Deep serialization
 }
 ```
 
-## 📝 实施步骤
+## 📝 Implementation Steps
 
-### 第一阶段: 接口设计
-1. 创建IImportExportable接口定义
-2. 设计ImportExportError错误类
-3. 定义统一的数据格式规范
+### Phase One: Interface Design
+1. Create IImportExportable interface definition
+2. Design ImportExportError error class
+3. Define a unified data format specification
 
-### 第二阶段: 服务改造
-1. **ModelManager**: 实现模型数据的导入导出
-2. **TemplateManager**: 实现模板数据的导入导出
-3. **HistoryManager**: 实现历史记录的导入导出
-4. **PreferenceService**: 实现用户设置的导入导出
+### Phase Two: Service Refactoring
+1. **ModelManager**: Implement import/export of model data
+2. **TemplateManager**: Implement import/export of template data
+3. **HistoryManager**: Implement import/export of history records
+4. **PreferenceService**: Implement import/export of user settings
 
-### 第三阶段: DataManager重构
-1. 移除具体实现逻辑（-308行代码）
-2. 改为协调者模式，调用各服务接口
-3. 保持对外API接口不变
+### Phase Three: DataManager Refactoring
+1. Remove concrete implementation logic (-308 lines of code)
+2. Change to coordinator pattern, calling each service interface
+3. Keep external API interface unchanged
 
-### 第四阶段: Electron更新
-1. 更新main.js IPC处理逻辑
-2. 更新preload.js API暴露
-3. 更新所有service proxy类
+### Phase Four: Electron Update
+1. Update main.js IPC handling logic
+2. Update preload.js API exposure
+3. Update all service proxy classes
 
-### 第五阶段: 测试完善
-1. 为每个服务创建import-export测试
-2. 创建集成测试验证整体流程
-3. 建立AI自动化测试框架
+### Phase Five: Testing Improvement
+1. Create import-export tests for each service
+2. Create integration tests to validate the overall process
+3. Establish an AI automation testing framework
 
-## 🔍 调试过程
+## 🔍 Debugging Process
 
-### 存储键问题调试
+### Storage Key Issue Debugging
 ```bash
-# 1. 检查导出数据
+# 1. Check exported data
 console.log(await dataManager.exportAllData());
 
-# 2. 检查PreferenceService数据
+# 2. Check PreferenceService data
 console.log(await preferenceService.getAll());
 
-# 3. 检查存储层数据
+# 3. Check storage layer data
 console.log(await storageProvider.getAll());
 
-# 4. 对比逻辑键名和物理键名
+# 4. Compare logical key names and physical key names
 ```
 
-### 接口实现验证
+### Interface Implementation Verification
 ```typescript
-// 验证所有服务都实现了接口
+// Verify that all services implement the interface
 const services = [modelManager, templateManager, historyManager, preferenceService];
 for (const service of services) {
   console.assert(typeof service.exportData === 'function');
@@ -177,93 +177,93 @@ for (const service of services) {
 }
 ```
 
-## 🧪 测试验证
+## 🧪 Testing Validation
 
-### 单元测试
-每个服务的import-export.test.ts文件包含：
-- 导出功能测试
-- 导入功能测试
-- 数据验证测试
-- 错误处理测试
+### Unit Tests
+Each service's import-export.test.ts file includes:
+- Export functionality tests
+- Import functionality tests
+- Data validation tests
+- Error handling tests
 
-### 集成测试
-data/import-export-integration.test.ts验证：
-- 完整导入导出流程
-- 多服务协调工作
-- 数据一致性检查
+### Integration Tests
+data/import-export-integration.test.ts validates:
+- Complete import/export process
+- Multi-service coordination
+- Data consistency checks
 
-### MCP浏览器测试
-使用Playwright自动化测试：
-- 导出按钮功能
-- 文件下载验证
-- 导入文件上传
-- 数据应用验证
-- 用户界面交互
+### MCP Browser Testing
+Using Playwright for automated testing:
+- Export button functionality
+- File download validation
+- Import file upload
+- Data application validation
+- User interface interaction
 
-### AI自动化测试框架
-创建storage-key-consistency测试套件：
-- test-001: 数据导出完整性验证
-- test-002: 旧版本数据导入兼容性
-- test-003: 代码一致性检查
+### AI Automation Testing Framework
+Create a storage-key-consistency test suite:
+- test-001: Data export integrity validation
+- test-002: Compatibility of importing old version data
+- test-003: Code consistency check
 
-## 🔄 架构演进
+## 🔄 Architecture Evolution
 
-### 重构前架构
+### Pre-refactor Architecture
 ```
-DataManager (375行)
-├── 协调各服务
-├── 实现具体导入导出逻辑
-├── 处理数据格式转换
-└── 错误处理和验证
+DataManager (375 lines)
+├── Coordinates various services
+├── Implements specific import/export logic
+├── Handles data format conversion
+└── Error handling and validation
 ```
 
-### 重构后架构
+### Post-refactor Architecture
 ```
-DataManager (67行) - 只负责协调
+DataManager (67 lines) - Only responsible for coordination
 ├── ModelManager.exportData()
 ├── TemplateManager.exportData()
 ├── HistoryManager.exportData()
 └── PreferenceService.exportData()
 
-IImportExportable接口
-├── 统一的方法签名
-├── 异步操作支持
-└── 错误处理规范
+IImportExportable Interface
+├── Unified method signatures
+├── Asynchronous operation support
+└── Error handling specifications
 ```
 
-### 关键改进点
-1. **代码精简**: DataManager减少82%代码量
-2. **职责分离**: 每个服务自管理导入导出
-3. **扩展性**: 新增服务只需实现接口
-4. **维护性**: 修改某个服务不影响其他服务
-5. **测试性**: 每个服务可独立测试
+### Key Improvements
+1. **Code Reduction**: DataManager reduces code volume by 82%
+2. **Separation of Responsibilities**: Each service self-manages import/export
+3. **Extensibility**: New services only need to implement the interface
+4. **Maintainability**: Modifying one service does not affect others
+5. **Testability**: Each service can be tested independently
 
-## 📈 性能影响
+## 📈 Performance Impact
 
-### 正面影响
-- **代码执行效率**: 减少不必要的中间层处理
-- **内存使用**: 避免大量数据在DataManager中聚合
-- **并发性**: 各服务可并行处理导入导出
+### Positive Impacts
+- **Code Execution Efficiency**: Reduces unnecessary intermediate layer processing
+- **Memory Usage**: Avoids aggregation of large data in DataManager
+- **Concurrency**: Each service can process import/export in parallel
 
-### 注意事项
-- **IPC调用**: Electron环境下增加了IPC调用次数
-- **序列化开销**: 需要JSON序列化处理Vue reactive对象
+### Considerations
+- **IPC Calls**: Increased IPC call frequency in Electron environment
+- **Serialization Overhead**: Requires JSON serialization for Vue reactive objects
 
-## 🔮 未来扩展
+## 🔮 Future Expansion
 
-### 新服务接入
-只需实现IImportExportable接口：
+### New Service Integration
+Just implement the IImportExportable interface:
 ```typescript
 class NewService implements IImportExportable {
-  async exportData(): Promise<any> { /* 实现 */ }
-  async importData(data: any): Promise<void> { /* 实现 */ }
+  async exportData(): Promise<any> { /* Implementation */ }
+  async importData(data: any): Promise<void> { /* Implementation */ }
   async getDataType(): Promise<string> { return 'newServiceData'; }
-  async validateData(data: any): Promise<boolean> { /* 实现 */ }
+  async validateData(data: any): Promise<boolean> { /* Implementation */ }
 }
 ```
 
-### 功能增强
-- 增量导入导出
-- 数据压缩
-- 加密支持
-- 版本迁移
+### Feature Enhancements
+- Incremental import/export
+- Data compression
+- Encryption support
+- Version migration

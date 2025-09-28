@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { ModelManager, HistoryManager } from '../../src'
 import { LocalStorageProvider } from '../../src/services/storage/localStorageProvider'
-import { createMockStorage } from '../mocks/mockStorage'
+import { MemoryStorageProvider } from '../../src/services/storage/memoryStorageProvider'
 
 /**
  * Mock测试 vs 真实调用测试对比
@@ -19,8 +19,8 @@ describe('Mock vs Real Implementation Tests', () => {
     realModelManager = new ModelManager(realStorage)
     realHistoryManager = new HistoryManager(realStorage)
 
-    // Mock实现 - 使用Mock Storage
-    const mockStorage = createMockStorage()
+    // Mock implementation replaced with an in-memory real storage provider for better fidelity in tests
+    const mockStorage = new MemoryStorageProvider()
     mockModelManager = new ModelManager(mockStorage)
     mockHistoryManager = new HistoryManager(mockStorage)
   })

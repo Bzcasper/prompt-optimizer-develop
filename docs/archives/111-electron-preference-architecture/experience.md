@@ -1,59 +1,59 @@
-# 开发经验总结
+# Development Experience Summary
 
-## 🎯 核心经验
+## 🎯 Core Experience
 
-### 1. Electron API初始化时序管理
-**经验**: Electron环境下，preload脚本的API暴露和渲染进程的组件初始化存在时序竞争
+### 1. Electron API Initialization Timing Management
+**Experience**: In the Electron environment, there is a timing competition between the API exposure in the preload script and the initialization of components in the rendering process.
 
-**最佳实践**:
+**Best Practice**:
 ```typescript
-// ❌ 错误做法：直接访问API
+// ❌ Incorrect approach: Directly accessing the API
 window.electronAPI.preference.get(key, defaultValue)
 
-// ✅ 正确做法：先检查再访问
+// ✅ Correct approach: Check first before accessing
 if (isElectronApiReady()) {
   await window.electronAPI.preference.get(key, defaultValue)
 } else {
   await waitForElectronApi()
-  // 然后再访问
+  // Then access
 }
 ```
 
-**适用场景**: 所有Electron应用的服务初始化
+**Applicable Scenarios**: Initialization of services in all Electron applications.
 
-### 2. Vue组件初始化与服务依赖
-**经验**: Vue的onMounted钩子可能在服务完全就绪前触发，导致竞态条件
+### 2. Vue Component Initialization and Service Dependencies
+**Experience**: The Vue `onMounted` hook may trigger before the services are fully ready, leading to race conditions.
 
-**解决方案**:
-- 使用异步初始化模式
-- 在服务层实现延迟加载
-- 添加服务就绪状态检查
+**Solution**:
+- Use asynchronous initialization patterns.
+- Implement lazy loading in the service layer.
+- Add service readiness state checks.
 
-**避免方式**: 不要在组件挂载时立即调用可能未就绪的服务
+**Avoidance Method**: Do not immediately call potentially unready services when the component is mounted.
 
-### 3. API路径标准化
-**经验**: preload.js暴露的API路径必须与代码访问路径完全一致
+### 3. API Path Normalization
+**Experience**: The API paths exposed by `preload.js` must exactly match the code access paths.
 
-**标准模式**:
+**Standard Pattern**:
 ```typescript
 // preload.js
 contextBridge.exposeInMainWorld('electronAPI', {
   preference: { /* API methods */ }
 })
 
-// 代码访问
+// Code access
 window.electronAPI.preference.get()
 ```
 
-**常见错误**: 
-- preload暴露在`electronAPI`下，代码访问`api`
-- API结构不一致导致undefined访问
+**Common Errors**: 
+- Exposing under `electronAPI` in preload, but accessing `api` in the code.
+- Inconsistent API structure leading to undefined access.
 
-## 🛠️ 技术实现经验
+## 🛠️ Technical Implementation Experience
 
-### 1. 环境检测最佳实践
+### 1. Environment Detection Best Practices
 ```typescript
-// 多层检测确保API完整可用
+// Multi-layer checks to ensure API is fully available
 export function isElectronApiReady(): boolean {
   const window_any = window as any;
   const hasElectronAPI = typeof window_any.electronAPI !== 'undefined';
@@ -63,22 +63,22 @@ export function isElectronApiReady(): boolean {
 }
 ```
 
-**关键点**:
-- 不仅检测环境，还要检测具体API可用性
-- 使用类型安全的检测方式
-- 提供详细的调试日志
+**Key Points**:
+- Not only check the environment but also the specific API availability.
+- Use type-safe detection methods.
+- Provide detailed debugging logs.
 
-### 2. 异步等待模式
+### 2. Asynchronous Waiting Pattern
 ```typescript
 export function waitForElectronApi(timeout = 5000): Promise<boolean> {
   return new Promise((resolve) => {
-    // 立即检查，避免不必要的等待
+    // Check immediately to avoid unnecessary waiting
     if (isElectronApiReady()) {
       resolve(true);
       return;
     }
     
-    // 轮询检查 + 超时保护
+    // Polling check + timeout protection
     const startTime = Date.now();
     const checkInterval = setInterval(() => {
       if (isElectronApiReady()) {
@@ -93,13 +93,13 @@ export function waitForElectronApi(timeout = 5000): Promise<boolean> {
 }
 ```
 
-**设计要点**:
-- 快速路径：已就绪时立即返回
-- 合理间隔：50ms平衡性能和响应性
-- 超时保护：防止无限等待
-- 清理资源：及时清理定时器
+**Design Points**:
+- Fast path: Return immediately if ready.
+- Reasonable interval: 50ms balances performance and responsiveness.
+- Timeout protection: Prevents infinite waiting.
+- Resource cleanup: Timely clearing of timers.
 
-### 3. 代理服务保护模式
+### 3. Proxy Service Protection Pattern
 ```typescript
 class ElectronPreferenceServiceProxy {
   private ensureApiAvailable() {
@@ -109,49 +109,49 @@ class ElectronPreferenceServiceProxy {
   }
 
   async get<T>(key: string, defaultValue: T): Promise<T> {
-    this.ensureApiAvailable(); // 每次调用前检查
+    this.ensureApiAvailable(); // Check before each call
     return window.electronAPI.preference.get(key, defaultValue);
   }
 }
 ```
 
-**设计原则**:
-- 防御式编程：每次调用前都检查
-- 明确错误信息：便于问题排查
-- 统一检查逻辑：避免重复代码
+**Design Principles**:
+- Defensive programming: Check before each call.
+- Clear error messages: Facilitate problem diagnosis.
+- Unified check logic: Avoid duplicate code.
 
-## 🚫 避坑指南
+## 🚫 Pitfall Guide
 
-### 1. 常见错误模式
+### 1. Common Error Patterns
 
-#### 错误1: 假设API立即可用
+#### Error 1: Assuming API is Immediately Available
 ```typescript
-// ❌ 危险：假设API已就绪
+// ❌ Dangerous: Assuming API is ready
 export function useTemplateManager() {
   const services = inject('services')
-  // 这里可能在API就绪前就被调用
+  // This may be called before the API is ready
   services.preferenceService.get('template-selection', null)
 }
 ```
 
-#### 错误2: 不一致的API路径
+#### Error 2: Inconsistent API Paths
 ```typescript
-// ❌ 错误：路径不匹配
+// ❌ Error: Path mismatch
 // preload.js: window.electronAPI.preference
-// 代码访问: window.api.preference
+// Code access: window.api.preference
 ```
 
-#### 错误3: 缺少超时保护
+#### Error 3: Lack of Timeout Protection
 ```typescript
-// ❌ 危险：可能无限等待
+// ❌ Dangerous: May wait indefinitely
 while (!isApiReady()) {
-  await sleep(100) // 没有超时机制
+  await sleep(100) // No timeout mechanism
 }
 ```
 
-### 2. 调试技巧
+### 2. Debugging Techniques
 
-#### 添加详细日志
+#### Add Detailed Logs
 ```typescript
 console.log('[isElectronApiReady] API readiness check:', {
   hasElectronAPI,
@@ -159,66 +159,66 @@ console.log('[isElectronApiReady] API readiness check:', {
 });
 ```
 
-#### 使用断点调试
-- 在API检测函数设置断点
-- 检查window对象的实际结构
-- 验证API暴露的完整性
+#### Use Breakpoint Debugging
+- Set breakpoints in the API detection function.
+- Inspect the actual structure of the window object.
+- Validate the completeness of API exposure.
 
-#### 时序分析
-- 记录每个初始化步骤的时间戳
-- 分析组件挂载和API就绪的时序关系
+#### Timing Analysis
+- Record timestamps for each initialization step.
+- Analyze the timing relationship between component mounting and API readiness.
 
-## 🔄 架构设计经验
+## 🔄 Architectural Design Experience
 
-### 1. 服务层抽象
-**经验**: 通过服务层抽象，UI组件不需要知道底层存储实现
+### 1. Service Layer Abstraction
+**Experience**: By abstracting through the service layer, UI components do not need to know the underlying storage implementation.
 
-**好处**:
-- 环境无关：同一套UI代码在Web/Electron下都能运行
-- 易于测试：可以轻松mock服务层
-- 职责分离：UI专注展示，服务层处理数据
+**Benefits**:
+- Environment agnostic: The same UI code runs in both Web and Electron.
+- Easy to test: Can easily mock the service layer.
+- Separation of concerns: UI focuses on presentation, while the service layer handles data.
 
-### 2. 代理模式应用
-**经验**: 在Electron环境下使用代理模式封装IPC通信
+### 2. Proxy Pattern Application
+**Experience**: Use the proxy pattern to encapsulate IPC communication in the Electron environment.
 
-**优势**:
-- 接口统一：代理服务实现相同接口
-- 错误隔离：代理层处理通信错误
-- 透明切换：上层代码无需感知环境差异
+**Advantages**:
+- Unified interface: Proxy services implement the same interface.
+- Error isolation: The proxy layer handles communication errors.
+- Transparent switching: Upper-level code does not need to be aware of environmental differences.
 
-### 3. 依赖注入模式
-**经验**: 使用依赖注入管理服务实例
+### 3. Dependency Injection Pattern
+**Experience**: Use dependency injection to manage service instances.
 
-**实现方式**:
+**Implementation**:
 ```typescript
-// 环境适配的服务创建
+// Environment-adaptive service creation
 if (isRunningInElectron()) {
   preferenceService = new ElectronPreferenceServiceProxy()
 } else {
   preferenceService = createPreferenceService(storageProvider)
 }
 
-// 统一注入
+// Unified injection
 provide('services', { preferenceService, ... })
 ```
 
-## 📊 性能优化经验
+## 📊 Performance Optimization Experience
 
-### 1. 初始化性能
-- **延迟加载**: 只在需要时初始化服务
-- **并行初始化**: 无依赖的服务可以并行初始化
-- **缓存检测结果**: 避免重复的环境检测
+### 1. Initialization Performance
+- **Lazy Loading**: Initialize services only when needed.
+- **Parallel Initialization**: Services without dependencies can be initialized in parallel.
+- **Cache Detection Results**: Avoid repeated environment checks.
 
-### 2. 运行时性能
-- **批量操作**: 合并多个配置读写操作
-- **异步处理**: 使用Promise避免阻塞UI
-- **错误恢复**: 优雅处理API调用失败
+### 2. Runtime Performance
+- **Batch Operations**: Combine multiple configuration read/write operations.
+- **Asynchronous Processing**: Use Promises to avoid blocking the UI.
+- **Error Recovery**: Gracefully handle API call failures.
 
-## 🧪 测试策略经验
+## 🧪 Testing Strategy Experience
 
-### 1. 环境模拟
+### 1. Environment Simulation
 ```typescript
-// Mock Electron环境
+// Mock Electron environment
 Object.defineProperty(window, 'electronAPI', {
   value: {
     preference: {
@@ -229,28 +229,28 @@ Object.defineProperty(window, 'electronAPI', {
 })
 ```
 
-### 2. 时序测试
-- 测试API就绪前的访问行为
-- 测试超时场景的处理
-- 测试并发初始化的安全性
+### 2. Timing Tests
+- Test access behavior before API readiness.
+- Test handling of timeout scenarios.
+- Test safety of concurrent initialization.
 
-### 3. 集成测试
-- 端到端测试完整的初始化流程
-- 验证不同环境下的行为一致性
-- 测试错误恢复机制
+### 3. Integration Testing
+- End-to-end testing of the complete initialization process.
+- Verify consistency of behavior across different environments.
+- Test error recovery mechanisms.
 
-## 🔗 相关资源
+## 🔗 Related Resources
 
-### 文档链接
-- [Electron Context Bridge文档](https://www.electronjs.org/docs/api/context-bridge)
+### Documentation Links
+- [Electron Context Bridge Documentation](https://www.electronjs.org/docs/api/context-bridge)
 - [Vue 3 Composition API](https://vuejs.org/guide/extras/composition-api-faq.html)
 
-### 代码示例
-- 完整实现见: `packages/core/src/services/preference/`
-- 测试用例见: `packages/core/tests/`
+### Code Examples
+- Complete implementation can be found at: `packages/core/src/services/preference/`
+- Test cases can be found at: `packages/core/tests/`
 
 ---
 
-**总结日期**: 2025-01-01  
-**适用版本**: Electron 37.x, Vue 3.x  
-**经验等级**: 生产环境验证 
+**Summary Date**: 2025-01-01  
+**Applicable Version**: Electron 37.x, Vue 3.x  
+**Experience Level**: Production Environment Verified

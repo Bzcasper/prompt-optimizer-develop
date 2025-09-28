@@ -1,101 +1,101 @@
-# AI开发工作流程 v5.0
+# AI Development Workflow v5.0
 
-简化的3核心流程架构，专注于任务的完整生命周期管理。
+Simplified 3-core process architecture, focused on complete task lifecycle management.
 
-## 🎯 核心理念
+## 🎯 Core Concepts
 
-**3个核心工作流程**：
-1. **任务初始化** - 设置新任务，分析需求，制定计划
-2. **任务执行** - 迭代开发，更新进度，记录发现  
-3. **任务归档** - 整理成果，创建文档，重置环境
+**3 Core Workflows**:
+1. **Task Initialization** - Set up new tasks, analyze requirements, formulate plans
+2. **Task Execution** - Iterative development, update progress, record discoveries
+3. **Task Archiving** - Organize results, create documentation, reset environment
 
-**关键原则**：
-- 保持workspace简洁，只处理当前任务
-- 及时反馈，使用mcp-feedback-enhanced工具主动沟通
-- 完整记录，为后续开发提供参考
+**Key Principles**:
+- Keep workspace clean, only handle current tasks
+- Provide timely feedback, use mcp-feedback-enhanced tool for active communication
+- Complete records, provide reference for subsequent development
 
-## 📋 工作流程选择指南
+## 📋 Workflow Selection Guide
 
-### 何时使用工作流程1：任务初始化
-**触发条件**：
-- 开始新的功能开发
-- 开始重大重构工作
-- workspace为空或为模板状态
-- 用户提出新的开发需求
+### When to use Workflow 1: Task Initialization
+**Trigger Conditions**:
+- Start new feature development
+- Start major refactoring work
+- workspace is empty or in template state
+- User proposes new development requirements
 
-**文档**：[1-task-initialization.md](./1-task-initialization.md)
+**Documentation**: [1-task-initialization.md](./1-task-initialization.md)
 
-### 何时使用工作流程2：任务执行
-**触发条件**：
-- 任务已经初始化，正在开发过程中
-- 需要记录开发进展
-- 遇到技术问题需要记录
-- 任务状态发生变化
+### When to use Workflow 2: Task Execution
+**Trigger Conditions**:
+- Task has been initialized, in development process
+- Need to record development progress
+- Encounter technical issues that need recording
+- Task status changes
 
-**文档**：[2-task-execution.md](./2-task-execution.md)
+**Documentation**: [2-task-execution.md](./2-task-execution.md)
 
-### 何时使用工作流程3：任务归档
-**触发条件**：
-- 任务基本完成，需要整理
-- workspace内容过多，需要清理
-- 重要经验需要永久保存
-- 准备开始新的重大任务
+### When to use Workflow 3: Task Archiving
+**Trigger Conditions**:
+- Task basically completed, needs organization
+- workspace content is excessive, needs cleanup
+- Important experience needs permanent preservation
+- Preparing to start new major tasks
 
-**文档**：[3-task-archiving.md](./3-task-archiving.md)
+**Documentation**: [3-task-archiving.md](./3-task-archiving.md)
 
-## 🤖 AI助手使用规范
+## 🤖 AI Assistant Usage Standards
 
-### 必须使用反馈工具
-每个工作流程都要求AI助手在关键节点使用`mcp-feedback-enhanced`工具：
-- **任务开始时** - 确认理解和计划
-- **关键里程碑** - 汇报进展并获取反馈
-- **遇到问题时** - 寻求指导和确认
-- **任务完成时** - 确认结果和下一步
+### Must Use Feedback Tool
+Each workflow requires AI assistant to use `mcp-feedback-enhanced` tool at key nodes:
+- **At task start** - Confirm understanding and plans
+- **At key milestones** - Report progress and obtain feedback
+- **When encountering problems** - Seek guidance and confirmation
+- **At task completion** - Confirm results and next steps
 
-### 反馈时机要求
-- **不要等到最后才反馈** - 在过程中主动沟通
-- **重要决策前必须反馈** - 获得用户确认再继续
-- **发现问题立即反馈** - 不要继续错误的方向
+### Feedback Timing Requirements
+- **Don't wait until the end to provide feedback** - Actively communicate during the process
+- **Must provide feedback before important decisions** - Obtain user confirmation before continuing
+- **Provide immediate feedback when problems are discovered** - Don't continue in wrong directions
 
-### 反馈内容要求
-- **简洁明确** - 用1-2句话说明当前状态和需要确认的内容
-- **提供选择** - 给出具体的方案选项供用户选择
-- **包含上下文** - 说明为什么需要这个反馈
+### Feedback Content Requirements
+- **Concise and clear** - Use 1-2 sentences to explain current status and content needing confirmation
+- **Provide options** - Give specific solution options for user selection
+- **Include context** - Explain why this feedback is needed
 
-## 🔧 常用工具命令
+## 🔧 Common Tool Commands
 
-### Workspace重置
+### Workspace Reset
 ```batch
 del docs\workspace\*.md
 copy docs\workspace-template\*.md docs\workspace\
 ren docs\workspace\scratchpad-template.md scratchpad.md
-ren docs\workspace\todo-template.md todo.md  
+ren docs\workspace\todo-template.md todo.md
 ren docs\workspace\experience-template.md experience.md
 ```
 
-### 创建新归档
+### Create New Archive
 ```batch
 mkdir "docs\archives\[编号]-[功能名称]"
 ```
 
-### 检查workspace状态
-应该只有3个文件，且内容为模板格式：
-- `scratchpad.md` - 包含 `[任务名称]` 等占位符
-- `todo.md` - 包含 `[任务描述]` 等占位符  
-- `experience.md` - 包含 `[经验描述]` 等占位符
+### Check workspace Status
+Should only have 3 files, and content is in template format:
+- `scratchpad.md` - Contains placeholders like `[任务名称]`
+- `todo.md` - Contains placeholders like `[任务描述]`
+- `experience.md` - Contains placeholders like `[经验描述]`
 
-## 📚 相关文档
+## 📚 Related Documentation
 
-- [quick-reference.md](./quick-reference.md) - 快速参考卡片
-- [ai-development-workflow-v4.0-backup.mdc](./ai-development-workflow-v4.0-backup.mdc) - 历史版本备份
+- [quick-reference.md](./quick-reference.md) - Quick reference cards
+- [ai-development-workflow-v4.0-backup.mdc](./ai-development-workflow-v4.0-backup.mdc) - Historical version backup
 
-## 📊 版本信息
+## 📊 Version Information
 
-- **当前版本**: v5.0
-- **更新时间**: 2025-01-01
-- **主要改进**: 简化为3核心流程，强化反馈机制，去除复杂度分级
-- **向后兼容**: v4.0备份文件保留在同目录
+- **Current Version**: v5.0
+- **Update Time**: 2025-01-01
+- **Main Improvements**: Simplified to 3 core processes, strengthened feedback mechanism, removed complexity classification
+- **Backward Compatibility**: v4.0 backup files retained in the same directory
 
 ---
 
-**核心原则**: 简单、及时、完整 
+**Core Principles**: Simple, timely, complete

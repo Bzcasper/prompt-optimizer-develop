@@ -1,185 +1,185 @@
-# 上下文编辑器重构 - 需求文档
+# Context Editor Refactoring - Requirement Document
 
-## 介绍
+## Introduction
 
-本规范定义了基于"主面板轻量管理 + 全屏编辑器深度管理"分工模式的上下文编辑器架构重构需求。通过分析ConversationManager.vue.backup和ConversationMessageEditor.vue的现有功能实现，确定需要保留的核心功能并重新分配到合适的组件中。
+This specification defines the requirements for the refactoring of the context editor architecture based on the "lightweight management of the main panel + deep management of the full-screen editor" division of labor model. By analyzing the existing functionality implementations in ConversationManager.vue.backup and ConversationMessageEditor.vue, we identify the core functionalities that need to be retained and reassign them to appropriate components.
 
-重构目标：
-1. 移除ConversationMessageEditor和ConversationSection组件
-2. 简化ConversationManager，保留轻量管理功能
-3. 增强ContextEditor，承载所有复杂功能
-4. 实现双向绑定的数据同步
+Refactoring Goals:
+1. Remove the ConversationMessageEditor and ConversationSection components.
+2. Simplify the ConversationManager, retaining lightweight management functions.
+3. Enhance the ContextEditor to host all complex functionalities.
+4. Implement bidirectional data synchronization.
 
-## 与产品愿景的一致性
+## Consistency with Product Vision
 
-此重构支持提供直观AI提示词优化工具的核心产品愿景：
-- 主界面保持简洁，专注核心工作流
-- 复杂功能集中在专门界面，提供完整体验
-- 数据实时同步，减少操作复杂度
+This refactoring supports the core product vision of providing an intuitive AI prompt optimization tool:
+- The main interface remains simple, focusing on core workflows.
+- Complex functionalities are centralized in a dedicated interface, providing a complete experience.
+- Data is synchronized in real-time, reducing operational complexity.
 
-## 功能分析和分配
+## Functionality Analysis and Allocation
 
-### 从ConversationManager.vue.backup学到的功能
-**已有功能：**
-- ✅ 紧凑型头部标题和统计信息
-- ✅ 变量统计（已用/缺失）和工具统计
-- ✅ 快速模板下拉菜单
-- ✅ 导入导出功能（带格式支持）
-- ✅ 同步到测试功能（已移除需求）
-- ✅ 折叠展开功能
-- ✅ 使用ConversationMessageEditor进行列表展示
-- ✅ 集成的添加消息功能
+### Features Learned from ConversationManager.vue.backup
+**Existing Features:**
+- ✅ Compact header title and statistics
+- ✅ Variable statistics (used/missing) and tool statistics
+- ✅ Quick template dropdown menu
+- ✅ Import/export functionality (with format support)
+- ✅ Sync to test functionality (requirement removed)
+- ✅ Collapse/expand functionality
+- ✅ List display using ConversationMessageEditor
+- ✅ Integrated add message functionality
 
-**需要重新分配：**
-- 模板功能 → 移至ContextEditor
-- 导入导出功能 → 移至ContextEditor
-- 基础统计和编辑 → 保留在ConversationManager
+**To be Reallocated:**
+- Template functionality → Move to ContextEditor
+- Import/export functionality → Move to ContextEditor
+- Basic statistics and editing → Retain in ConversationManager
 
-### 从ConversationMessageEditor.vue学到的功能
-**已有功能：**
-- ✅ 紧凑行式布局
-- ✅ 消息头部信息（序号、角色、变量统计）
-- ✅ 预览切换功能
-- ✅ 移动和删除操作
-- ✅ 全屏编辑模态框
-- ✅ 动态行数计算
-- ✅ 变量检测和缺失提示
-- ✅ 变量高亮预览
+### Features Learned from ConversationMessageEditor.vue
+**Existing Features:**
+- ✅ Compact row layout
+- ✅ Message header information (index, role, variable statistics)
+- ✅ Preview toggle functionality
+- ✅ Move and delete operations
+- ✅ Full-screen editing modal
+- ✅ Dynamic row count calculation
+- ✅ Variable detection and missing prompts
+- ✅ Variable highlight preview
 
-**需要整合：**
-- 基础编辑功能 → 整合到ConversationManager内联编辑
-- 全屏编辑模态框 → 移除（由ContextEditor替代）
-- 预览功能 → 移至ContextEditor
+**To be Integrated:**
+- Basic editing functionality → Integrate into inline editing of ConversationManager
+- Full-screen editing modal → Remove (replaced by ContextEditor)
+- Preview functionality → Move to ContextEditor
 
-### 当前ContextEditor已有的功能
-**已有功能：**
-- ✅ 模态框界面
-- ✅ 标签页架构（消息编辑/工具管理）
-- ✅ 完整的消息编辑功能
-- ✅ 变量预览和替换
-- ✅ 统计信息显示
-- ✅ 可访问性支持
+### Existing Features of ContextEditor
+**Existing Features:**
+- ✅ Modal interface
+- ✅ Tabbed architecture (message editing/tool management)
+- ✅ Complete message editing functionality
+- ✅ Variable preview and replacement
+- ✅ Statistics display
+- ✅ Accessibility support
 
-**缺失但需要添加：**
-- ❌ 导入导出功能
-- ❌ 模板选择和应用
+**Missing but Needs to be Added:**
+- ❌ Import/export functionality
+- ❌ Template selection and application
 
-## 需求
+## Requirements
 
-### 需求1：移除冗余组件
+### Requirement 1: Remove Redundant Components
 
-**用户故事：** 作为开发者，我希望移除冗余组件，这样代码库更简洁易维护。
+**User Story:** As a developer, I want to remove redundant components so that the codebase is cleaner and easier to maintain.
 
-#### 验收标准
+#### Acceptance Criteria
 
-1. 当完成重构后，系统应该不再包含ConversationMessageEditor组件
-2. 当完成重构后，系统应该不再包含ConversationSection组件
-3. 当检查导入导出时，系统应该不再导出这些移除的组件
-4. 当检查使用时，所有对这些组件的引用都应该被替换
+1. After the refactoring is completed, the system should no longer include the ConversationMessageEditor component.
+2. After the refactoring is completed, the system should no longer include the ConversationSection component.
+3. When checking import/export, the system should no longer export these removed components.
+4. When checking usage, all references to these components should be replaced.
 
-### 需求2：ConversationManager轻量化改造
+### Requirement 2: Lightweight Transformation of ConversationManager
 
-**用户故事：** 作为用户，我希望主面板简洁高效，提供基础的消息管理功能。
+**User Story:** As a user, I want the main panel to be simple and efficient, providing basic message management functionality.
 
-#### 验收标准
+#### Acceptance Criteria
 
-1. 当查看标题区域时，ConversationManager应该显示紧凑的标题、消息数、变量数、缺失变量数统计
-2. 当有消息时，ConversationManager应该显示简洁的消息列表，包含角色和内容预览
-3. 当编辑消息时，ConversationManager应该提供内联的角色选择和文本输入
-4. 当管理消息时，ConversationManager应该支持添加、删除、重新排序
-5. 当空间不足时，ConversationManager应该支持折叠功能
-6. 当需要高级功能时，ConversationManager应该提供"打开编辑器"按钮
+1. When viewing the header area, the ConversationManager should display a compact title, message count, variable count, and missing variable count statistics.
+2. When there are messages, the ConversationManager should display a concise message list, including role and content previews.
+3. When editing messages, the ConversationManager should provide inline role selection and text input.
+4. When managing messages, the ConversationManager should support adding, deleting, and reordering.
+5. When space is insufficient, the ConversationManager should support collapsing functionality.
+6. When advanced features are needed, the ConversationManager should provide an "Open Editor" button.
 
-### 需求3：移除重复的复杂功能
+### Requirement 3: Remove Duplicate Complex Functions
 
-**用户故事：** 作为用户，我希望复杂功能不在主面板出现，避免界面混乱。
+**User Story:** As a user, I want complex functions not to appear on the main panel to avoid interface clutter.
 
-#### 验收标准
+#### Acceptance Criteria
 
-1. 当完成重构后，ConversationManager应该不包含快速模板下拉菜单
-2. 当完成重构后，ConversationManager应该不包含导入导出按钮
-3. 当完成重构后，ConversationManager应该不包含同步到测试功能
-4. 当需要这些功能时，用户应该通过打开ContextEditor来访问
+1. After the refactoring is completed, the ConversationManager should not contain a quick template dropdown menu.
+2. After the refactoring is completed, the ConversationManager should not contain import/export buttons.
+3. After the refactoring is completed, the ConversationManager should not contain sync to test functionality.
+4. When these functions are needed, users should access them by opening the ContextEditor.
 
-### 需求4：ContextEditor功能增强
+### Requirement 4: Enhance ContextEditor Functionality
 
-**用户故事：** 作为用户，我希望在ContextEditor中获得所有复杂的上下文管理功能。
+**User Story:** As a user, I want to access all complex context management functionalities in the ContextEditor.
 
-#### 验收标准
+#### Acceptance Criteria
 
-1. 当打开ContextEditor时，系统应该保持现有的标签页架构（消息编辑/工具管理）
-2. 当需要模板时，ContextEditor应该提供完整的模板选择、预览和应用功能
-3. 当需要导入导出时，ContextEditor应该提供多格式支持的导入导出功能
-4. 当编辑消息时，ContextEditor应该提供完整的编辑、预览、变量高亮功能
-5. 当处理变量时，ContextEditor应该集成变量管理功能
+1. When opening the ContextEditor, the system should maintain the existing tabbed architecture (message editing/tool management).
+2. When templates are needed, the ContextEditor should provide complete template selection, preview, and application functionality.
+3. When import/export is needed, the ContextEditor should provide multi-format support for import/export functionality.
+4. When editing messages, the ContextEditor should provide complete editing, preview, and variable highlight functionalities.
+5. When handling variables, the ContextEditor should integrate variable management functionalities.
 
-### 需求5：双向绑定数据同步
+### Requirement 5: Bidirectional Data Synchronization
 
-**用户故事：** 作为用户，我希望ConversationManager和ContextEditor之间数据实时同步，无需手动保存。
+**User Story:** As a user, I want real-time data synchronization between the ConversationManager and ContextEditor without manual saving.
 
-#### 验收标准
+#### Acceptance Criteria
 
-1. 当在ConversationManager修改消息时，如果ContextEditor同时打开，应该立即看到变化
-2. 当在ContextEditor修改消息时，ConversationManager应该立即反映变化
-3. 当在ContextEditor导入数据时，ConversationManager应该立即显示新数据
-4. 当关闭ContextEditor时，不需要保存确认，所有修改都已实时生效
-5. 当组件通信时，应该通过共享的响应式数据状态，而非事件传递
+1. When modifying messages in the ConversationManager, if the ContextEditor is open simultaneously, changes should be seen immediately.
+2. When modifying messages in the ContextEditor, the ConversationManager should reflect changes immediately.
+3. When importing data in the ContextEditor, the ConversationManager should display new data immediately.
+4. When closing the ContextEditor, no save confirmation is needed; all changes should have taken effect in real-time.
+5. When components communicate, they should do so through shared reactive data states, rather than event passing.
 
-### 需求6：变量管理集成优化
+### Requirement 6: Variable Management Integration Optimization
 
-**用户故事：** 作为用户，我希望变量功能在两个组件中合理分工。
+**User Story:** As a user, I want the variable functionality to be reasonably divided between the two components.
 
-#### 验收标准
+#### Acceptance Criteria
 
-1. 当在ConversationManager中时，系统应该显示变量统计和缺失变量警告
-2. 当点击缺失变量时，ConversationManager应该发出createVariable事件
-3. 当需要深度变量管理时，用户应该在ContextEditor中进行批量操作
-4. 当变量更新时，两个组件都应该自动刷新相关统计和显示
+1. When in the ConversationManager, the system should display variable statistics and missing variable warnings.
+2. When clicking on a missing variable, the ConversationManager should emit a createVariable event.
+3. When deep variable management is needed, users should perform batch operations in the ContextEditor.
+4. When variables are updated, both components should automatically refresh relevant statistics and displays.
 
-### 需求7：保持现有成熟功能
+### Requirement 7: Maintain Existing Mature Functions
 
-**用户故事：** 作为用户，我希望重构不会丢失现有的成熟功能。
+**User Story:** As a user, I want to ensure that the refactoring does not lose existing mature functionalities.
 
-#### 验收标准
+#### Acceptance Criteria
 
-1. 当查看ContextEditor时，系统应该保持现有的可访问性支持
-2. 当使用响应式功能时，系统应该保持现有的多设备适配
-3. 当进行性能优化时，系统应该保持现有的渲染性能
-4. 当处理用户交互时，系统应该保持现有的键盘导航和快捷键支持
+1. When viewing the ContextEditor, the system should maintain existing accessibility support.
+2. When using responsive functionalities, the system should maintain existing multi-device compatibility.
+3. When performing performance optimizations, the system should maintain existing rendering performance.
+4. When handling user interactions, the system should maintain existing keyboard navigation and shortcut support.
 
-## 技术实现要点
+## Technical Implementation Highlights
 
-### ConversationManager简化重点
-- 移除模板、导入导出、同步功能的UI元素
-- 保留统计信息显示和基础消息管理
-- 集成ConversationMessageEditor的基础编辑功能到内联编辑
-- 保持折叠、打开高级编辑器等导航功能
+### Simplification Focus of ConversationManager
+- Remove UI elements for templates, import/export, and sync functionalities.
+- Retain statistics display and basic message management.
+- Integrate basic editing functionalities of ConversationMessageEditor into inline editing.
+- Maintain navigation functionalities such as collapsing and opening the advanced editor.
 
-### ContextEditor增强重点  
-- 添加从ConversationManager.backup移植的模板选择功能
-- 添加从ConversationManager.backup移植的导入导出功能
-- 保持现有的标签页架构和编辑功能
-- 确保与ConversationManager的数据双向绑定
+### Enhancement Focus of ContextEditor  
+- Add template selection functionality migrated from ConversationManager.backup.
+- Add import/export functionality migrated from ConversationManager.backup.
+- Maintain existing tabbed architecture and editing functionalities.
+- Ensure bidirectional data binding with ConversationManager.
 
-### 数据绑定架构
-- 使用Vue的响应式系统实现共享状态
-- 两个组件操作同一数据源
-- 通过v-model和computed实现双向同步
-- 避免复杂的事件传递和数据拷贝
+### Data Binding Architecture
+- Use Vue's reactive system to implement shared state.
+- Both components operate on the same data source.
+- Implement bidirectional synchronization through v-model and computed properties.
+- Avoid complex event passing and data copying.
 
-## 组件API设计
+## Component API Design
 
 ### ConversationManager Props
 ```typescript
 interface ConversationManagerProps {
-  // 双向绑定数据
+  // Bidirectional bound data
   messages: ConversationMessage[]
   availableVariables?: Record<string, string>
   
-  // 功能函数
+  // Functional functions
   scanVariables?: (content: string) => string[]
   
-  // UI控制
+  // UI control
   size?: 'small' | 'medium' | 'large'
   collapsible?: boolean
   readonly?: boolean
@@ -197,30 +197,30 @@ interface ConversationManagerEmits {
 }
 ```
 
-### ContextEditor增强功能
-- 保持现有Props和Emits结构
-- 添加模板管理相关方法
-- 添加导入导出相关方法
-- 确保与ConversationManager的数据绑定
+### Enhanced Features of ContextEditor
+- Maintain existing Props and Emits structure.
+- Add methods related to template management.
+- Add methods related to import/export functionalities.
+- Ensure data binding with ConversationManager.
 
-## 非功能性需求
+## Non-Functional Requirements
 
-### 代码质量
-- 清晰的组件职责分工
-- 最小化组件间依赖
-- 保持现有的代码质量标准
+### Code Quality
+- Clear division of component responsibilities.
+- Minimize dependencies between components.
+- Maintain existing code quality standards.
 
-### 性能要求
-- 保持现有的渲染性能
-- 使用Vue响应式系统的性能优化
-- 避免不必要的重渲染
+### Performance Requirements
+- Maintain existing rendering performance.
+- Optimize performance using Vue's reactive system.
+- Avoid unnecessary re-renders.
 
-### 用户体验
-- 保持现有的交互体验
-- 数据同步要及时自然
-- 界面切换要流畅
+### User Experience
+- Maintain existing interaction experience.
+- Data synchronization should be timely and natural.
+- Interface transitions should be smooth.
 
-### 兼容性
-- 保持现有的浏览器兼容性
-- 保持现有的可访问性支持
-- 保持现有的响应式设计
+### Compatibility
+- Maintain existing browser compatibility.
+- Maintain existing accessibility support.
+- Maintain existing responsive design.

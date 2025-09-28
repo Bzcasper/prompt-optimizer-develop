@@ -135,4 +135,50 @@ describe('TemplateProcessor (Simplified)', () => {
       });
     });
   });
+
+  describe('processConversationMessages', () => {
+    it('should replace multiple variables in a single message', () => {
+      const messages = [
+        { role: 'user', content: 'Hello {{name}}, welcome to {{place}}.' }
+      ];
+      const variables = { name: 'Jules', place: 'the Tortuga' };
+      const result = TemplateProcessor.processConversationMessages(messages, variables);
+      expect(result).toEqual([
+        { role: 'user', content: 'Hello Jules, welcome to the Tortuga.' }
+      ]);
+    });
+
+    it('should handle basic mustache conditionals', () => {
+      const messages = [
+        { role: 'user', content: '{{#person}}Hello {{name}}{{/person}}' }
+      ];
+      const variables = { person: { name: 'Jules' }, name: 'Jules' };
+      const result = TemplateProcessor.processConversationMessages(messages, variables);
+      expect(result).toEqual([
+        { role: 'user', content: 'Hello Jules' }
+      ]);
+    });
+
+    it('should handle basic mustache conditionals when false', () => {
+        const messages = [
+            { role: 'user', content: '{{#person}}Hello {{name}}{{/person}}' }
+        ];
+        const variables = { person: false, name: 'Jules' };
+        const result = TemplateProcessor.processConversationMessages(messages, variables);
+        expect(result).toEqual([
+            { role: 'user', content: '' }
+        ]);
+    });
+
+    it('should replace missing variables with an empty string', () => {
+        const messages = [
+            { role: 'user', content: 'Hello {{name}}, welcome to {{place}}.' }
+        ];
+        const variables = { name: 'Jules' };
+        const result = TemplateProcessor.processConversationMessages(messages, variables);
+        expect(result).toEqual([
+            { role: 'user', content: 'Hello Jules, welcome to .' }
+        ]);
+    });
+  });
 }); 

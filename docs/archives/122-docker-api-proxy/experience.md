@@ -1,239 +1,239 @@
-# 开发经验总结
+# Development Experience Summary
 
-## 🎯 核心经验
+## 🎯 Core Experience
 
-### 架构设计经验
-1. **简化优先原则**
-   - 在受信环境中，优先选择简单可维护的方案
-   - 避免过度工程化，nginx本地转发比动态代理更可靠
-   - 职责分离：nginx负责转发，Node.js负责业务逻辑
+### Architecture Design Experience
+1. **Simplicity First Principle**
+   - In trusted environments, prioritize simple and maintainable solutions.
+   - Avoid over-engineering; local forwarding with nginx is more reliable than dynamic proxies.
+   - Separation of responsibilities: nginx handles forwarding, Node.js handles business logic.
 
-2. **零依赖实现价值**
-   - 提高安全性：减少供应链攻击风险
-   - 提高可维护性：只依赖Node.js内置模块
-   - 提高稳定性：避免第三方库的版本冲突
+2. **Zero Dependency Value Realization**
+   - Enhance security: reduce the risk of supply chain attacks.
+   - Improve maintainability: rely only on Node.js built-in modules.
+   - Increase stability: avoid version conflicts of third-party libraries.
 
-3. **渐进式开发方法**
-   - 先实现基础功能，再添加高级特性
-   - 每个阶段都有明确的验证标准
-   - 及时测试，避免问题积累
+3. **Incremental Development Method**
+   - Implement basic functionality first, then add advanced features.
+   - Each phase has clear validation criteria.
+   - Test promptly to avoid problem accumulation.
 
-## 🛠️ 技术实现经验
+## 🛠️ Technical Implementation Experience
 
-### 流式响应处理
-1. **nginx配置关键点**
+### Stream Response Handling
+1. **Key nginx Configuration Points**
    ```nginx
    proxy_buffering off;
    proxy_request_buffering off;
    add_header X-Accel-Buffering no always;
    ```
-   - 必须关闭所有缓冲，确保实时透传
-   - `X-Accel-Buffering no`是关键配置
+   - Must disable all buffering to ensure real-time passthrough.
+   - `X-Accel-Buffering no` is the key configuration.
 
-2. **Node.js流处理**
+2. **Node.js Stream Handling**
    ```javascript
    const stream = Readable.fromWeb(upstreamRes.body);
    stream.pipe(res);
    ```
-   - 使用`Readable.fromWeb()`正确处理Web Streams
-   - 直接pipe到响应，避免内存积累
+   - Use `Readable.fromWeb()` to correctly handle Web Streams.
+   - Directly pipe to the response to avoid memory accumulation.
 
-### 错误处理最佳实践
-1. **智能错误分类**
-   - 超时：504 Gateway Timeout
-   - DNS解析失败：502 Bad Gateway
-   - 连接被拒绝：502 Bad Gateway
-   - 其他错误：500 Internal Server Error
+### Error Handling Best Practices
+1. **Intelligent Error Classification**
+   - Timeout: 504 Gateway Timeout
+   - DNS resolution failure: 502 Bad Gateway
+   - Connection refused: 502 Bad Gateway
+   - Other errors: 500 Internal Server Error
 
-2. **用户友好错误消息**
-   - 避免技术术语，使用通俗易懂的描述
-   - 提供可能的解决建议
-   - 保持错误消息的一致性
+2. **User-Friendly Error Messages**
+   - Avoid technical jargon; use simple and understandable descriptions.
+   - Provide possible solutions.
+   - Maintain consistency in error messages.
 
-3. **请求追踪系统**
-   - 为每个请求生成唯一ID
-   - 在日志中关联请求ID和错误
-   - 便于问题排查和性能监控
+3. **Request Tracking System**
+   - Generate a unique ID for each request.
+   - Associate request ID with errors in logs.
+   - Facilitate problem troubleshooting and performance monitoring.
 
-### 超时策略设计
-1. **差异化超时**
-   - 流式请求：5分钟（LLM生成需要时间）
-   - 普通请求：2分钟（快速失败）
-   - 支持环境变量配置
+### Timeout Strategy Design
+1. **Differentiated Timeouts**
+   - Streaming requests: 5 minutes (LLM generation takes time).
+   - Regular requests: 2 minutes (quick failure).
+   - Support environment variable configuration.
 
-2. **超时处理**
-   - 及时清理定时器，避免内存泄漏
-   - 返回明确的超时错误码
-   - 记录超时事件用于监控
+2. **Timeout Handling**
+   - Clean up timers promptly to avoid memory leaks.
+   - Return clear timeout error codes.
+   - Log timeout events for monitoring.
 
-## 🚫 避坑指南
+## 🚫 Pitfall Guide
 
-### 常见错误
-1. **CORS头重复设置**
-   - 问题：nginx和Node.js同时设置CORS头
-   - 解决：统一由Node.js处理，nginx不设置
-   - 教训：明确职责分工，避免重复配置
+### Common Mistakes
+1. **Duplicate CORS Header Settings**
+   - Issue: CORS headers set by both nginx and Node.js.
+   - Solution: Handle uniformly in Node.js, do not set in nginx.
+   - Lesson: Clarify responsibilities to avoid duplicate configurations.
 
-2. **流式响应缓冲**
-   - 问题：nginx默认缓冲导致流式响应延迟
-   - 解决：关闭所有相关缓冲配置
-   - 教训：流式响应需要特殊配置
+2. **Streaming Response Buffering**
+   - Issue: Default buffering in nginx causes delays in streaming responses.
+   - Solution: Disable all related buffering configurations.
+   - Lesson: Streaming responses require special configurations.
 
-3. **HEAD请求处理**
-   - 问题：HEAD请求不应该有响应体
-   - 解决：特殊处理HEAD请求，只返回头部
-   - 教训：严格遵循HTTP规范
+3. **HEAD Request Handling**
+   - Issue: HEAD requests should not have a response body.
+   - Solution: Specially handle HEAD requests to return only headers.
+   - Lesson: Strictly follow HTTP specifications.
 
-4. **超时时间设置**
-   - 问题：统一超时不适合所有场景
-   - 解决：根据请求类型差异化设置
-   - 教训：考虑实际使用场景的差异
+4. **Timeout Settings**
+   - Issue: Uniform timeout is not suitable for all scenarios.
+   - Solution: Differentiate settings based on request types.
+   - Lesson: Consider the differences in actual usage scenarios.
 
-### 设计陷阱
-1. **过度安全防护**
-   - 在受信环境中，过度的安全措施可能影响功能
-   - 应该根据实际部署环境选择合适的安全级别
-   - 可以预留安全增强的扩展点
+### Design Traps
+1. **Overly Secure Protections**
+   - In trusted environments, excessive security measures may hinder functionality.
+   - Choose an appropriate security level based on the actual deployment environment.
+   - Leave room for security enhancements.
 
-2. **复杂配置追求**
-   - nginx动态代理虽然功能强大，但配置复杂
-   - 简单的本地转发更可靠、易维护
-   - 选择方案时要考虑维护成本
+2. **Pursuit of Complex Configurations**
+   - While nginx dynamic proxies are powerful, they are complex to configure.
+   - Simple local forwarding is more reliable and easier to maintain.
+   - Consider maintenance costs when choosing a solution.
 
-3. **依赖管理**
-   - 外部依赖增加了复杂性和风险
-   - 在可能的情况下，优先使用内置功能
-   - 每个依赖都要考虑其必要性
+3. **Dependency Management**
+   - External dependencies increase complexity and risk.
+   - Prefer built-in functionalities whenever possible.
+   - Evaluate the necessity of each dependency.
 
-## 🔄 架构设计经验
+## 🔄 Architecture Design Experience
 
-### 方案选择思路
-1. **需求分析**
-   - 功能需求：支持普通和流式请求
-   - 性能需求：低延迟、高并发
-   - 维护需求：简单配置、易于调试
+### Solution Selection Thought Process
+1. **Requirement Analysis**
+   - Functional requirements: support for regular and streaming requests.
+   - Performance requirements: low latency, high concurrency.
+   - Maintenance requirements: simple configuration, easy debugging.
 
-2. **方案对比**
-   - nginx动态代理：功能强大但配置复杂
-   - nginx本地转发：简单可靠，易于维护
-   - 选择标准：在满足需求的前提下，选择最简单的方案
+2. **Solution Comparison**
+   - nginx dynamic proxy: powerful but complex to configure.
+   - nginx local forwarding: simple, reliable, and easy to maintain.
+   - Selection criteria: choose the simplest solution that meets requirements.
 
-3. **架构演进**
-   - 从复杂到简单的演进过程
-   - 通过实践验证方案的可行性
-   - 及时调整架构设计
+3. **Architecture Evolution**
+   - An evolution process from complexity to simplicity.
+   - Validate the feasibility of solutions through practice.
+   - Adjust architecture design in a timely manner.
 
-### 集成策略
-1. **前端集成**
-   - 复用现有的环境检测模式
-   - 保持与Vercel代理一致的用户体验
-   - 使用视觉区分（颜色主题）
+### Integration Strategy
+1. **Frontend Integration**
+   - Reuse existing environment detection patterns.
+   - Maintain a user experience consistent with Vercel proxy.
+   - Use visual differentiation (color themes).
 
-2. **后端集成**
-   - 在LLM服务中添加Docker代理支持
-   - 保持接口的一致性
-   - 完善类型定义
+2. **Backend Integration**
+   - Add Docker proxy support in LLM services.
+   - Maintain interface consistency.
+   - Improve type definitions.
 
-3. **构建集成**
-   - 确保所有包都能正确构建
-   - TypeScript类型检查通过
-   - 及时验证集成效果
+3. **Build Integration**
+   - Ensure all packages build correctly.
+   - Pass TypeScript type checks.
+   - Validate integration effects promptly.
 
-## 🎯 可复用经验
+## 🎯 Reusable Experience
 
-### 代理服务实现模式
-1. **零依赖HTTP代理**
-   - 使用Node.js内置http模块
-   - 正确处理各种HTTP方法
-   - 实现完整的错误处理
+### Proxy Service Implementation Model
+1. **Zero Dependency HTTP Proxy**
+   - Use Node.js built-in http module.
+   - Correctly handle various HTTP methods.
+   - Implement complete error handling.
 
-2. **流式数据透传**
-   - 使用`Readable.fromWeb()`处理Web Streams
-   - 配置nginx关闭缓冲
-   - 实现实时数据传输
+2. **Streaming Data Passthrough**
+   - Use `Readable.fromWeb()` to handle Web Streams.
+   - Configure nginx to disable buffering.
+   - Achieve real-time data transmission.
 
-3. **请求追踪系统**
-   - 生成唯一请求ID
-   - 记录完整的请求生命周期
-   - 便于问题排查和性能监控
+3. **Request Tracking System**
+   - Generate a unique request ID.
+   - Record the complete request lifecycle.
+   - Facilitate problem troubleshooting and performance monitoring.
 
-### 环境集成模式
-1. **Docker服务集成**
-   - 使用supervisord管理多个进程
-   - 配置nginx转发到内部服务
-   - 实现服务间的协调
+### Environment Integration Model
+1. **Docker Service Integration**
+   - Use supervisord to manage multiple processes.
+   - Configure nginx to forward to internal services.
+   - Achieve coordination between services.
 
-2. **前端环境检测**
-   - 实现可用性检测接口
-   - 缓存检测结果避免重复请求
-   - 根据环境动态显示功能
+2. **Frontend Environment Detection**
+   - Implement availability detection interfaces.
+   - Cache detection results to avoid repeated requests.
+   - Dynamically display features based on the environment.
 
-3. **配置管理**
-   - 支持环境变量配置
-   - 提供合理的默认值
-   - 实现配置的持久化
+3. **Configuration Management**
+   - Support environment variable configuration.
+   - Provide reasonable default values.
+   - Implement configuration persistence.
 
-## 📊 性能优化经验
+## 📊 Performance Optimization Experience
 
-### 关键优化点
-1. **减少延迟**
-   - 使用本地转发避免DNS解析
-   - 关闭不必要的缓冲
-   - 实现快速错误处理
+### Key Optimization Points
+1. **Reduce Latency**
+   - Use local forwarding to avoid DNS resolution.
+   - Disable unnecessary buffering.
+   - Implement quick error handling.
 
-2. **资源管理**
-   - 及时清理定时器和连接
-   - 避免内存泄漏
-   - 监控资源使用情况
+2. **Resource Management**
+   - Clean up timers and connections promptly.
+   - Avoid memory leaks.
+   - Monitor resource usage.
 
-3. **并发处理**
-   - Node.js天然支持高并发
-   - 避免阻塞操作
-   - 实现合理的超时策略
+3. **Concurrent Processing**
+   - Node.js inherently supports high concurrency.
+   - Avoid blocking operations.
+   - Implement reasonable timeout strategies.
 
-### 监控和调试
-1. **日志设计**
-   - 记录关键信息：时间戳、请求ID、IP、耗时
-   - 使用结构化日志格式
-   - 区分不同级别的日志
+### Monitoring and Debugging
+1. **Log Design**
+   - Record key information: timestamp, request ID, IP, duration.
+   - Use structured log formats.
+   - Differentiate logs by severity levels.
 
-2. **错误追踪**
-   - 为每个错误分配唯一ID
-   - 记录错误的完整上下文
-   - 实现错误的分类和统计
+2. **Error Tracking**
+   - Assign a unique ID to each error.
+   - Record the complete context of errors.
+   - Implement error classification and statistics.
 
-3. **性能监控**
-   - 记录响应时间分布
-   - 监控错误率变化
-   - 跟踪资源使用情况
+3. **Performance Monitoring**
+   - Record response time distribution.
+   - Monitor changes in error rates.
+   - Track resource usage.
 
-## 🚀 后续改进方向
+## 🚀 Future Improvement Directions
 
-### 可选增强功能
-1. **安全增强**
-   - URL白名单验证
-   - 请求频率限制
-   - 请求大小限制
+### Optional Enhancement Features
+1. **Security Enhancements**
+   - URL whitelist validation.
+   - Request rate limiting.
+   - Request size limiting.
 
-2. **监控增强**
-   - 集成专业监控工具
-   - 实现告警机制
-   - 提供监控仪表板
+2. **Monitoring Enhancements**
+   - Integrate professional monitoring tools.
+   - Implement alert mechanisms.
+   - Provide monitoring dashboards.
 
-3. **性能优化**
-   - 连接池管理
-   - 缓存策略优化
-   - 负载均衡支持
+3. **Performance Optimization**
+   - Connection pool management.
+   - Cache strategy optimization.
+   - Load balancing support.
 
-### 架构演进
-1. **微服务化**
-   - 将代理服务独立部署
-   - 实现服务发现机制
-   - 支持水平扩展
+### Architecture Evolution
+1. **Microservices**
+   - Independently deploy proxy services.
+   - Implement service discovery mechanisms.
+   - Support horizontal scaling.
 
-2. **配置中心**
-   - 集中管理配置
-   - 支持动态配置更新
-   - 实现配置版本管理
+2. **Configuration Center**
+   - Centralize configuration management.
+   - Support dynamic configuration updates.
+   - Implement configuration version management.
 
-这些经验为类似的代理服务开发提供了完整的参考，特别是在Docker环境下的API代理实现。
+These experiences provide a comprehensive reference for similar proxy service development, especially for API proxy implementations in Docker environments.

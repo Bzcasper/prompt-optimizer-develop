@@ -1027,9 +1027,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, shallowRef, nextTick, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { 
-  NModal, NTabs, NTabPane, NCard, NButton, NSpace, NTag, NList, NListItem, 
-  NEmpty, NScrollbar, NInput, NSelect, NText, NDropdown, NGrid, NGridItem, NAlert,
+import {
+  NModal, NTabs, NTabPane, NCard, NButton, NSpace, NTag, NList, NListItem,
+  NEmpty, NScrollbar, NInput, NSelect, NText, NGrid, NGridItem, NAlert,
   NDataTable, type DataTableColumns
 } from 'naive-ui'
 import { useResponsive } from '../composables/useResponsive'
@@ -1037,8 +1037,7 @@ import { usePerformanceMonitor } from '../composables/usePerformanceMonitor'
 import { useDebounceThrottle } from '../composables/useDebounceThrottle'
 import { useAccessibility } from '../composables/useAccessibility'
 import { useContextEditor } from '../composables/useContextEditor'
-import { quickTemplateManager } from '../data/quickTemplates'
-import type { QuickTemplateDefinition } from '../data/quickTemplates'
+import { quickTemplateManager, type QuickTemplateDefinition } from '../data/quickTemplates'
 import type { ContextEditorProps, ContextEditorEvents } from '../types/components'
 import type { ContextEditorState, ConversationMessage, ToolDefinition } from '@prompt-optimizer/core'
 import { PREDEFINED_VARIABLES } from '../types/variable'
@@ -1068,7 +1067,6 @@ const {
   modalWidth,
   buttonSize: responsiveButtonSize,
   inputSize: responsiveInputSize,
-  shouldUseVerticalLayout,
   isMobile
 } = useResponsive()
 
@@ -1750,15 +1748,6 @@ const addVariable = () => {
   }
 }
 
-const addVariableOverride = (name: string, currentValue: string) => {
-  variableEditState.value = {
-    show: true,
-    isEditing: false,
-    editingName: '',
-    name,
-    value: currentValue
-  }
-}
 
 const editVariable = (name: string) => {
   const value = localState.value.variables[name] || ''
@@ -2115,14 +2104,6 @@ const getImportPlaceholder = () => {
   }
 }
 
-// 复制变量占位符到剪贴板
-const copyVariableToClipboard = async (name: string) => {
-  try {
-    await navigator.clipboard.writeText(`{{${name}}}`)
-  } catch (e) {
-    console.warn('Failed to copy variable placeholder', e)
-  }
-}
 </script>
 
 <style scoped>

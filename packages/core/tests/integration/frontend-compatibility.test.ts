@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ModelManager, HistoryManager } from '../../src'
-import { createMockStorage } from '../mocks/mockStorage'
+import { MemoryStorageProvider } from '../../src/services/storage/memoryStorageProvider'
 
 /**
  * 前端兼容性测试 - 验证异步化后的API是否与前端调用方式兼容
@@ -10,9 +10,9 @@ describe('Frontend Compatibility Tests', () => {
   let historyManager: HistoryManager
 
   beforeEach(() => {
-    const mockStorage = createMockStorage()
-    modelManager = new ModelManager(mockStorage)
-    historyManager = new HistoryManager(mockStorage)
+    const memoryStorage = new MemoryStorageProvider()
+    modelManager = new ModelManager(memoryStorage)
+    historyManager = new HistoryManager(memoryStorage)
   })
 
   describe('ModelManager API 兼容性', () => {

@@ -1,33 +1,33 @@
-# 103-desktop-architecture - 桌面端架构
+# 103-desktop-architecture - Desktop Architecture
 
-## 概述
-桌面端（Electron）架构的设计和重构，确保与Web端架构的一致性。
+## Overview
+The design and refactoring of the desktop (Electron) architecture ensures consistency with the web architecture.
 
-## 时间线
-- 开始时间：2024-12-30
-- 完成时间：进行中
-- 状态：🔄 进行中
+## Timeline
+- Start Date: 2024-12-30
+- Completion Date: In Progress
+- Status: 🔄 In Progress
 
-## 相关开发者
-- 主要开发者：项目团队
-- 代码审查：项目团队
+## Related Developers
+- Lead Developer: Project Team
+- Code Review: Project Team
 
-## 文档清单
-- [x] `refactor-plan.md` - 桌面端架构重构计划
-- [ ] `experience.md` - 架构设计和实现经验
+## Document List
+- [x] `refactor-plan.md` - Desktop Architecture Refactoring Plan
+- [ ] `experience.md` - Architecture Design and Implementation Experience
 
-## 相关代码变更
-- 影响包：@prompt-optimizer/desktop（如果存在）
-- 主要变更：
-  - Electron架构设计
-  - 与Web端架构对齐
-  - 进程间通信优化
+## Related Code Changes
+- Affected Package: @prompt-optimizer/desktop (if applicable)
+- Major Changes:
+  - Electron architecture design
+  - Alignment with web architecture
+  - Inter-process communication optimization
 
-## 后续影响
-- 提供桌面端应用支持
-- 统一多平台架构模式
-- 改善用户体验
+## Subsequent Impact
+- Provide support for desktop applications
+- Unify multi-platform architecture patterns
+- Improve user experience
 
-## 相关功能点
-- 前置依赖：102-web-architecture-refactor
-- 后续功能：104-test-panel-refactor
+## Related Features
+- Prerequisite Dependency: 102-web-architecture-refactor
+- Subsequent Feature: 104-test-panel-refactor

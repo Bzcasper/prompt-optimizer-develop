@@ -11,21 +11,58 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const paths = [
-  // 1. 当前工作目录
+// Determine if running from global installation
+const isGlobal = !__dirname.includes('node_modules') || __dirname.includes('global') || __dirname.includes('.npm-global');
+
+const paths = [];
+
+// 1. Current working directory (most important for global CLI)
+paths.push(
   resolve(process.cwd(), '.env.local'),
-  resolve(process.cwd(), '.env'),
+  resolve(process.cwd(), '.env')
+);
+
+// 2. If running from project context (not global), check project-relative paths
+if (!isGlobal) {
+  // Project root directory (from mcp-server directory向上一级)
+  paths.push(
+    resolve(process.cwd(), '../.env.local'),
+    resolve(process.cwd(), '../.env')
+  );
   
-  // 2. 项目根目录（从 mcp-server 目录向上一级）
-  resolve(process.cwd(), '../.env.local'),
-  resolve(process.cwd(), '../.env'),
+  // From mcp-server directory向上查找
+  paths.push(
+    resolve(__dirname, '../.env.local'),
+    resolve(__dirname, '../.env'),
+    resolve(__dirname, '../../.env.local'),
+    resolve(__dirname, '../../.env')
+  );
+} else {
+  // 3. For global installation, check user's home directory
+  const homeDir = process.env.HOME || process.env.USERPROFILE;
+  if (homeDir) {
+    paths.push(
+      resolve(homeDir, '.prompt-optimizer.env'),
+      resolve(homeDir, '.prompt-optimizer.env.local'),
+      resolve(homeDir, '.config', 'prompt-optimizer', '.env'),
+      resolve(homeDir, '.config', 'prompt-optimizer', '.env.local')
+    );
+  }
   
-  // 3. 从 mcp-server 目录向上查找
-  resolve(__dirname, '../.env.local'),
-  resolve(__dirname, '../.env'),
-  resolve(__dirname, '../../.env.local'),
-  resolve(__dirname, '../../.env')
-];
+  // 4. Check common global config locations
+  if (process.platform === 'win32') {
+    paths.push(
+      resolve(process.env.APPDATA || '', 'prompt-optimizer', '.env'),
+      resolve(process.env.APPDATA || '', 'prompt-optimizer', '.env.local')
+    );
+  } else {
+    paths.push(
+      resolve(process.env.HOME || '', '.config', 'prompt-optimizer', '.env'),
+      resolve(process.env.HOME || '', '.config', 'prompt-optimizer', '.env.local'),
+      resolve('/etc', 'prompt-optimizer', '.env')
+    );
+  }
+}
 
 // 静默加载环境变量
 paths.forEach(path => {
@@ -36,4 +73,5 @@ paths.forEach(path => {
   }
 });
 
-console.log('Environment variables loaded for MCP server');
+const envSource = isGlobal ? 'global installation' : 'local project';
+console.log(`Environment variables loaded for MCP server (${envSource})`);

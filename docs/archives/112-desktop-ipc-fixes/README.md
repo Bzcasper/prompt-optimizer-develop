@@ -1,31 +1,31 @@
-# 112-Desktop IPC修复
+# 112-Desktop IPC Fix
 
-## 📋 概述
+## 📋 Overview
 
-解决Desktop版本中的IPC相关问题，包括语言切换功能异常、IPC调用链不完整等问题。
+Address IPC-related issues in the Desktop version, including abnormal language switching functionality and incomplete IPC call chains.
 
-## 🎯 主要问题
+## 🎯 Main Issues
 
-### 1. 语言切换按钮显示异常
-- **问题**: 显示"Object Promise"而不是正确的语言名称
-- **原因**: 异步接口被当作同步值使用
-- **解决**: 统一异步接口设计，完善IPC调用链
+### 1. Abnormal Display of Language Switch Button
+- **Issue**: Displays "Object Promise" instead of the correct language name
+- **Cause**: Asynchronous interface used as a synchronous value
+- **Solution**: Standardize asynchronous interface design and improve IPC call chain
 
-### 2. IPC架构不完整
-- **问题**: 代理类方法缺失，IPC链路不完整
-- **原因**: 接口定义与实现不一致
-- **解决**: 建立完整的IPC开发流程和检查清单
+### 2. Incomplete IPC Architecture
+- **Issue**: Missing proxy class methods, incomplete IPC link
+- **Cause**: Inconsistency between interface definition and implementation
+- **Solution**: Establish a complete IPC development process and checklist
 
-## 📁 文档结构
+## 📁 Document Structure
 
-- **language-switch-fix.md** - 语言切换功能修复详情
-- **ipc-architecture-analysis.md** - IPC架构分析和最佳实践
-- **desktop-development-experience.md** - Desktop开发经验总结
+- **language-switch-fix.md** - Details of the language switch functionality fix
+- **ipc-architecture-analysis.md** - IPC architecture analysis and best practices
+- **desktop-development-experience.md** - Summary of Desktop development experiences
 
-## 🔗 相关文档
+## 🔗 Related Documents
 
-- [115-IPC序列化修复](../115-ipc-serialization-fixes/) - Vue响应式对象序列化问题的解决方案
+- [115-IPC Serialization Fixes](../115-ipc-serialization-fixes/) - Solutions for Vue reactive object serialization issues
 
-## 💡 核心价值
+## 💡 Core Value
 
-本目录专注于Desktop环境下的IPC架构问题，为建立完整的跨进程通信机制提供了经验和最佳实践。这些经验为后续的序列化优化（115）奠定了基础。
+This directory focuses on IPC architecture issues in the Desktop environment, providing experience and best practices for establishing a complete inter-process communication mechanism. These experiences lay the foundation for subsequent serialization optimizations (115).
