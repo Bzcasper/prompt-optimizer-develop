@@ -295,7 +295,7 @@ const isCollapsed = ref(false)
 const batchStateUpdate = batchExecute((updates: Array<() => void>) => {
   updates.forEach(update => update())
   recordUpdate()
-}, 16) // 使用16ms批处理，匹配60fps
+}, 16, 'conversation-manager-batch-update')
 
 // 计算属性
 const buttonSize = computed(() => {
@@ -488,7 +488,7 @@ const handleMessageUpdate = debounce((index: number, message: ConversationMessag
   emit('update:messages', newMessages)
   emit('messageChange', index, message, 'update')
   recordUpdate()
-}, 150) // 降低到150ms，平衡用户体验和性能
+}, 150, false, 'message-update')
 
 const handleMoveMessage = (fromIndex: number, direction: number) => {
   const toIndex = fromIndex + direction
