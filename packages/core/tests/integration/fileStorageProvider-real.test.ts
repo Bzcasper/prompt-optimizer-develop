@@ -39,7 +39,7 @@ describe('FileStorageProvider - Real File System Integration', () => {
       await provider.setItem('test-key', 'test-value');
       
       // 等待延迟写入完成
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await provider.flush();
       
       // 验证文件被创建
       await expect(fs.access(storageFile)).resolves.toBeUndefined();

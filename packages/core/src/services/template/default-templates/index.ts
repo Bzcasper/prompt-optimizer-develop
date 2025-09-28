@@ -23,6 +23,18 @@ import { user_prompt_basic_en } from './user-optimize/user-prompt-basic_en';
 import { user_prompt_planning } from './user-optimize/user-prompt-planning';
 import { user_prompt_planning_en } from './user-optimize/user-prompt-planning_en';
 
+import { template as blog_post } from './content-creation/blog-post';
+import { template as blog_post_en } from './content-creation/blog-post_en';
+
+import { template as youtube_script } from './video-creation/youtube-script';
+import { template as youtube_script_en } from './video-creation/youtube-script_en';
+
+import { template as blog_post_outline } from './content-creation/blog-post-outline';
+import { template as blog_post_outline_en } from './content-creation/blog-post-outline_en';
+
+import { template as blog_post_workflow } from './chained/blog-post-workflow';
+import { template as blog_post_workflow_en } from './chained/blog-post-workflow_en';
+
 // 简单的模板集合 - 模板自身已包含完整信息（id、name、language、type等）
 export const ALL_TEMPLATES = {
   general_optimize,
@@ -40,4 +52,12 @@ export const ALL_TEMPLATES = {
   user_prompt_basic_en,
   user_prompt_planning,
   user_prompt_planning_en,
+  blog_post,
+  blog_post_en,
+  youtube_script,
+  youtube_script_en,
+  blog_post_outline,
+  blog_post_outline_en,
+  blog_post_workflow,
+  blog_post_workflow_en,
 };

@@ -13,13 +13,11 @@ import { ImportExportError } from '../../interfaces/import-export';
  * 提示词管理器实现
  */
 export class TemplateManager implements ITemplateManager {
-  private readonly staticLoader: StaticLoader;
-
   constructor(
     private storageProvider: IStorageProvider,
-    private languageService: ITemplateLanguageService
+    private languageService: ITemplateLanguageService,
+    private staticLoader: StaticLoader,
   ) {
-    this.staticLoader = new StaticLoader();
   }
 
   private validateTemplateSchema(template: Partial<Template>): void {
@@ -441,6 +439,8 @@ export class TemplateManager implements ITemplateManager {
   }
 }
 
+import { staticLoader } from './static-loader';
+
 /**
  * 创建模板管理器的工厂函数
  * @param storageProvider 存储提供器实例
@@ -451,5 +451,5 @@ export function createTemplateManager(
   storageProvider: IStorageProvider,
   languageService: ITemplateLanguageService
 ): TemplateManager {
-  return new TemplateManager(storageProvider, languageService);
+  return new TemplateManager(storageProvider, languageService, staticLoader);
 }
