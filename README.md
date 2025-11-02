@@ -272,6 +272,42 @@ docker compose -f docker-compose.multi-agent.yml up --build -d
 
 </details>
 
+### 8. Multi-Agent Docker Compose Deployment
+<details>
+<summary>Click to view Multi-Agent Docker Compose deployment steps</summary>
+
+For advanced users who want to run a multi-agent system, a separate Docker Compose file is provided. This setup includes an agent orchestrator, two agent runners (a task agent and a tool agent), and a monitoring service.
+
+**Prerequisites:**
+
+1.  **Create a `.env.multi-agent` file:**
+    Copy the example file and fill in your details:
+    ```bash
+    cp env.multi-agent.example .env.multi-agent
+    ```
+    **Important:** You must fill in the required API keys and other secrets in this file for the services to work correctly.
+
+2.  **Create `agents` and `tools` directories:**
+    These directories are mounted as volumes for the agent services.
+    ```bash
+    mkdir -p agents tools
+    ```
+
+**Running the services:**
+
+```bash
+docker compose -f docker-compose.multi-agent.yml up --build -d
+```
+
+**Services:**
+
+*   `agent-orchestrator`: Manages and coordinates the other agents.
+*   `agent-runner-task`: An agent dedicated to performing specific tasks.
+*   `agent-runner-tool`: An agent specialized in using tools.
+*   `monitor`: A Prometheus node exporter for monitoring.
+
+</details>
+
 ## ⚙️ API Key Configuration
 
 <details>

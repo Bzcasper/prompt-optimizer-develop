@@ -1,91 +1,91 @@
-# Electron IPC 最佳实践
+# Electron IPC Best Practices
 
-## 问题背景
+## Problem Background
 
-在Electron应用中，Vue的响应式对象不能直接通过IPC（进程间通信）传递，会导致"An object could not be cloned"错误。这是因为Vue的响应式对象包含了不可序列化的代理包装器。
+In an Electron application, Vue's reactive objects cannot be directly passed through IPC (Inter-Process Communication), which will cause an "An object could not be cloned" error. This is because Vue's reactive objects contain non-serializable proxy wrappers.
 
-## 核心原则
+## Core Principles
 
-### 1. ElectronProxy层自动处理序列化
+### 1. The ElectronProxy Layer Automatically Handles Serialization
 
-✅ **现在的做法**：
+✅ **Current Practice**:
 ```javascript
-// 可以直接传递Vue响应式对象，ElectronProxy会自动序列化
+// You can directly pass a Vue reactive object, and ElectronProxy will automatically serialize it
 await modelManager.addModel(newModel.value.key, {
   name: newModel.value.name,
-  llmParams: newModel.value.llmParams // ElectronProxy会自动清理响应式包装
+  llmParams: newModel.value.llmParams // ElectronProxy will automatically clean up the reactive wrapper
 })
 ```
 
-**架构优势**：
-- Vue组件无需关心序列化细节
-- 所有序列化逻辑集中在ElectronProxy层
-- 自动保护，不易遗漏
-- 代码更简洁，开发体验更好
+**Architectural Advantages**:
+- Vue components do not need to care about serialization details
+- All serialization logic is centralized in the ElectronProxy layer
+- Automatic protection, not easy to miss
+- The code is cleaner and the development experience is better
 
-### 2. 自动序列化处理
+### 2. Automatic Serialization Handling
 
-**ElectronProxy层自动处理序列化**：
-- 所有ElectronProxy类已经内置了序列化处理
-- Vue组件无需手动调用序列化函数
-- 直接传递Vue响应式对象即可，代理层会自动清理
+**The ElectronProxy layer automatically handles serialization**:
+- All ElectronProxy classes have built-in serialization handling
+- Vue components do not need to manually call serialization functions
+- You can directly pass a Vue reactive object, and the proxy layer will automatically clean it up
 
-**技术实现**：
-- 使用 `packages/core/src/utils/ipc-serialization.ts` 中的 `safeSerializeForIPC` 函数
-- 在每个需要的ElectronProxy方法中自动调用序列化
-- 确保100%的IPC兼容性
+**Technical Implementation**:
+- Use the `safeSerializeForIPC` function in `packages/core/src/utils/ipc-serialization.ts`
+- Automatically call serialization in every required ElectronProxy method
+- Ensure 100% IPC compatibility
 
-### 3. 识别问题的方法
+### 3. How to Identify the Problem
 
-当你看到以下错误时，说明存在IPC序列化问题：
+When you see the following errors, it means there is an IPC serialization problem:
 - `An object could not be cloned`
 - `DataCloneError`
 - `Failed to execute 'postMessage'`
 
-## 常见问题场景
+## Common Problem Scenarios
 
-### 1. 模型管理
+### 1. Model Management
 ```javascript
-// ✅ 现在可以直接传递Vue响应式对象
+// ✅ You can now directly pass a Vue reactive object
 await modelManager.addModel(key, {
-  llmParams: formData.value.llmParams // ElectronProxy会自动序列化
+  llmParams: formData.value.llmParams // ElectronProxy will automatically serialize it
 })
 ```
 
-### 2. 历史记录
+### 2. History
 ```javascript
-// ✅ 现在可以直接传递Vue响应式对象
+// ✅ You can now directly pass a Vue reactive object
 await historyManager.createNewChain({
-  metadata: { mode: optimizationMode.value } // ElectronProxy会自动序列化
+  metadata: { mode: optimizationMode.value } // ElectronProxy will automatically serialize it
 })
 ```
 
-### 3. 模板管理
+### 3. Template Management
 ```javascript
-// ✅ 现在可以直接传递Vue响应式对象
+// ✅ You can now directly pass a Vue reactive object
 await templateManager.saveTemplate({
-  content: form.value.messages // ElectronProxy会自动序列化
+  content: form.value.messages // ElectronProxy will automatically serialize it
 })
 ```
 
-## 开发检查清单
+## Development Checklist
 
-现在开发更简单了，只需要检查：
+Development is now simpler, you just need to check:
 
-- [ ] 在desktop环境下是否测试过？
-- [ ] 是否有直接的IPC调用绕过了ElectronProxy？
-- [ ] 新增的ElectronProxy方法是否包含了序列化处理？
+- [ ] Have you tested in the desktop environment?
+- [ ] Are there any direct IPC calls that bypass ElectronProxy?
+- [ ] Does the new ElectronProxy method include serialization handling?
 
-## 调试技巧
+## Debugging Tips
 
-### 1. 检查对象类型
+### 1. Check the Object Type
 ```javascript
 console.log('Object type:', Object.prototype.toString.call(obj))
 console.log('Is reactive:', obj.__v_isReactive)
 console.log('Is ref:', obj.__v_isRef)
 ```
 
-### 2. 测试序列化
+### 2. Test Serialization
 ```javascript
 try {
   JSON.stringify(obj)
@@ -95,69 +95,69 @@ try {
 }
 ```
 
-### 3. 使用开发工具
-在Chrome DevTools中，响应式对象会显示为 `Proxy` 类型。
+### 3. Use Developer Tools
+In Chrome DevTools, reactive objects will be displayed as `Proxy` type.
 
-## 架构建议
+## Architectural Recommendations
 
-### 1. ElectronProxy层统一处理
-序列化处理已经移到ElectronProxy层，Vue组件可以直接调用：
+### 1. Centralized Handling in the ElectronProxy Layer
+Serialization handling has been moved to the ElectronProxy layer, and Vue components can call it directly:
 
 ```javascript
-// 在组件方法中 - 现在更简单了
+// In the component method - now it's simpler
 const handleSave = async () => {
-  await service.save(formData.value) // 直接传递，无需手动序列化
+  await service.save(formData.value) // Pass it directly, no need to manually serialize
 }
 ```
 
-### 2. 新增ElectronProxy方法的规范
-当添加新的ElectronProxy方法时，对复杂对象参数进行序列化：
+### 2. Specification for Adding New ElectronProxy Methods
+When adding a new ElectronProxy method, serialize complex object parameters:
 
 ```typescript
 async newMethod(complexObject: SomeType): Promise<ResultType> {
-  // 对复杂对象参数进行序列化
+  // Serialize complex object parameters
   const safeObject = safeSerializeForIPC(complexObject);
   return this.electronAPI.someService.newMethod(safeObject);
 }
 ```
 
-### 3. 类型安全
-ElectronProxy的接口应该接受Vue响应式对象，内部自动处理：
+### 3. Type Safety
+The interface of ElectronProxy should accept Vue reactive objects and handle them automatically internally:
 
 ```typescript
 interface IModelManager {
   addModel(key: string, config: ModelConfig | Ref<ModelConfig>): Promise<void>
-  // 接口层面支持响应式对象，实现层面自动序列化
+  // The interface layer supports reactive objects, and the implementation layer automatically serializes them
 }
 ```
 
-## 性能考虑
+## Performance Considerations
 
-- ElectronProxy层使用 `JSON.parse(JSON.stringify())` 确保100%兼容性
-- 序列化只在IPC边界发生，不影响Vue组件性能
-- 避免在渲染循环中进行频繁的服务调用
-- 对于大型对象，考虑分批处理或使用更细粒度的数据传递
+- The ElectronProxy layer uses `JSON.parse(JSON.stringify())` to ensure 100% compatibility
+- Serialization only occurs at the IPC boundary and does not affect the performance of Vue components
+- Avoid frequent service calls in the rendering loop
+- For large objects, consider batch processing or using more fine-grained data transfer
 
-## 测试策略
+## Testing Strategy
 
-1. **单元测试**：确保序列化函数正确处理各种数据类型
-2. **集成测试**：在desktop环境下测试所有IPC调用
-3. **回归测试**：每次修改涉及IPC的代码后，都要在desktop环境下测试
+1. **Unit Testing**: Ensure that the serialization function correctly handles various data types
+2. **Integration Testing**: Test all IPC calls in the desktop environment
+3. **Regression Testing**: Test in the desktop environment every time the code involving IPC is modified
 
-## 总结
+## Conclusion
 
-现在的架构已经大大简化了Electron IPC的使用：
+The current architecture has greatly simplified the use of Electron IPC:
 
-1. **Vue组件层**：直接传递响应式对象，无需关心序列化
-2. **ElectronProxy层**：自动处理序列化，确保IPC兼容性
-3. **Main进程层**：双重保护，处理边缘情况
-4. **开发体验**：更简洁的代码，更少的出错机会
+1. **Vue Component Layer**: Directly pass reactive objects without worrying about serialization
+2. **ElectronProxy Layer**: Automatically handles serialization to ensure IPC compatibility
+3. **Main Process Layer**: Double protection to handle edge cases
+4. **Development Experience**: Cleaner code, fewer opportunities for errors
 
-记住：**现在可以放心地传递Vue响应式对象，架构会自动处理！**
+Remember: **You can now safely pass Vue reactive objects, and the architecture will handle it automatically!**
 
-## 📚 相关文档
+## 📚 Related Documents
 
-- [112-Desktop IPC修复](../archives/112-desktop-ipc-fixes/) - IPC架构分析和语言切换修复
-- [115-IPC序列化修复](../archives/115-ipc-serialization-fixes/) - Vue响应式对象序列化解决方案
-- [ElectronProxy层序列化](../archives/115-ipc-serialization-fixes/proxy-layer-serialization.md) - 技术实现细节
-- [架构演进记录](../archives/115-ipc-serialization-fixes/architecture-evolution.md) - 从手动到自动的演进过程
+- [112-Desktop IPC Fixes](../archives/112-desktop-ipc-fixes/) - IPC architecture analysis and language switching fixes
+- [115-IPC Serialization Fixes](../archives/115-ipc-serialization-fixes/) - Vue reactive object serialization solution
+- [ElectronProxy Layer Serialization](../archives/115-ipc-serialization-fixes/proxy-layer-serialization.md) - Technical implementation details
+- [Architecture Evolution Record](../archives/115-ipc-serialization-fixes/architecture-evolution.md) - The evolution process from manual to automatic

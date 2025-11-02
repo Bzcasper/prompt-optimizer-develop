@@ -1,147 +1,147 @@
-# 开发任务清单
+# Development Task List
 
-按功能模块和优先级组织的开发任务列表。
+A list of development tasks organized by functional modules and priorities.
 
-## 🚨 高优先级任务
+## 🚨 High Priority Tasks
 
-### 高级功能性能优化 (来自123归档)
-**目标**: 优化高级变量管理和工具调用功能的性能
-**来源**: 123-advanced-features-implementation归档
+### Advanced Feature Performance Optimization (from archive 123)
+**Goal**: Optimize the performance of advanced variable management and tool calling functions
+**Source**: 123-advanced-features-implementation archive
 
-#### 1. 性能优化 - 中优先级
-- [ ] 大量变量时的渲染性能优化 - 影响用户体验 - 2-3小时
-- [ ] 变量扫描缓存机制 - 避免重复正则匹配 - 1-2小时
-- [ ] 组件懒加载优化 - 高级模式组件按需加载 - 1小时
+#### 1. Performance Optimization - Medium Priority
+- [ ] Rendering performance optimization with a large number of variables - affects user experience - 2-3 hours
+- [ ] Variable scanning cache mechanism - avoid repeated regular expression matching - 1-2 hours
+- [ ] Component lazy loading optimization - load advanced mode components on demand - 1 hour
 
-#### 2. 工具调用功能增强 - 中优先级  
-- [ ] 工具调用结果展示UI优化 - 提升可视化体验 - 2-3小时
-- [ ] 更多内置工具模板 - 提升开箱即用体验 - 2-3小时
-- [ ] 工具调用错误处理增强 - 提升稳定性 - 1-2小时
+#### 2. Tool Calling Function Enhancement - Medium Priority
+- [ ] UI optimization for tool call result display - improve visualization experience - 2-3 hours
+- [ ] More built-in tool templates - improve out-of-the-box experience - 2-3 hours
+- [ ] Enhanced error handling for tool calls - improve stability - 1-2 hours
 
-#### 3. 边缘情况处理 - 低优先级
-- [ ] 特殊字符和超长文本处理 - 1-2小时
-- [ ] 存储数据损坏的恢复机制 - 1小时
-- [ ] 更完善的变量名验证逻辑 - 30分钟
+#### 3. Edge Case Handling - Low Priority
+- [ ] Handling of special characters and ultra-long text - 1-2 hours
+- [ ] Recovery mechanism for corrupted stored data - 1 hour
+- [ ] More complete variable name validation logic - 30 minutes
 
-### 导入导出架构后续优化 (来自117归档)
-**目标**: 完善导入导出架构的细节优化
-**来源**: 117-import-export-architecture-refactor归档
+### Subsequent Optimization of Import/Export Architecture (from archive 117)
+**Goal**: Complete the detailed optimization of the import/export architecture
+**Source**: 117-import-export-architecture-refactor archive
 
-#### 1. 代码质量提升
-- [ ] 添加ESLint规则检测存储键魔法字符串 - 低影响 - 1小时
-- [ ] 创建TypeScript类型约束存储键使用 - 低影响 - 30分钟
+#### 1. Code Quality Improvement
+- [ ] Add ESLint rule to detect magic strings for storage keys - low impact - 1 hour
+- [ ] Create TypeScript type constraints for storage key usage - low impact - 30 minutes
 
-#### 2. 测试体系完善
-- [ ] AI测试系统测试项补充 - 低优先级 - 1小时
-- [ ] 存储键架构重构后续优化 - 中优先级 - 1-2小时
+#### 2. Test System Improvement
+- [ ] Supplement test items for the AI test system - low priority - 1 hour
+- [ ] Subsequent optimization of storage key architecture refactoring - medium priority - 1-2 hours
 
-### 版本更新系统后续优化 (来自118归档)
-**目标**: 完善版本更新系统的细节优化
-**来源**: 118-desktop-auto-update-system归档
+### Subsequent Optimization of Version Update System (from archive 118)
+**Goal**: Complete the detailed optimization of the version update system
+**Source**: 118-desktop-auto-update-system archive
 
-#### 1. 后端忽略版本存储结构修复 - 高优先级
-- [ ] 修改存储结构从单一字符串改为对象结构 - 2-3小时
-- [ ] 更新 `PREFERENCE_KEYS` 常量定义
-- [ ] 修改 `update-available` 事件处理逻辑
-- [ ] 修改 `UPDATE_IGNORE_VERSION` IPC处理器
-- [ ] 添加向后兼容性处理（迁移旧数据）
+#### 1. Fix Backend Ignored Version Storage Structure - High Priority
+- [ ] Modify the storage structure from a single string to an object structure - 2-3 hours
+- [ ] Update the `PREFERENCE_KEYS` constant definition
+- [ ] Modify the `update-available` event handling logic
+- [ ] Modify the `UPDATE_IGNORE_VERSION` IPC handler
+- [ ] Add backward compatibility handling (migrate old data)
 
-#### 2. 前端忽略版本状态管理修复 - 高优先级
-- [ ] 修改 `ignoreUpdate` 函数支持版本类型参数 - 1-2小时
-- [ ] 添加对应状态重置逻辑
-- [ ] 修改 `handleIgnoreStableUpdate` 和 `handleIgnorePrereleaseUpdate`
-- [ ] 确保 `hasUpdate` 状态正确重新计算
+#### 2. Fix Frontend Ignored Version State Management - High Priority
+- [ ] Modify the `ignoreUpdate` function to support version type parameters - 1-2 hours
+- [ ] Add corresponding state reset logic
+- [ ] Modify `handleIgnoreStableUpdate` and `handleIgnorePrereleaseUpdate`
+- [ ] Ensure the `hasUpdate` state is correctly recalculated
 
-#### 3. UI逻辑优化 - 中优先级
-- [ ] 创建 `calculateHasUpdate` 函数，根据用户偏好计算更新状态 - 1小时
-- [ ] 忽略按钮显示条件优化，只在真正有更新时显示 - 30分钟
-- [ ] 异常处理保护，确保设置修改有完整的异常保护 - 30分钟
+#### 3. UI Logic Optimization - Medium Priority
+- [ ] Create a `calculateHasUpdate` function to calculate the update status based on user preferences - 1 hour
+- [ ] Optimize the display condition of the ignore button to only show when there is a real update - 30 minutes
+- [ ] Add exception handling protection to ensure that setting modifications have complete exception protection - 30 minutes
 
-### MCP Server 模块后续优化 (来自120归档)
-**目标**: 完善 MCP Server 模块的生产就绪性
-**来源**: 120-mcp-server-module归档
+### Subsequent Optimization of MCP Server Module (from archive 120)
+**Goal**: Complete the production readiness of the MCP Server module
+**Source**: 120-mcp-server-module archive
 
-#### 1. 集成测试 - 中优先级
-- [ ] 测试与 Claude Desktop 的集成 - 需要真实环境 - 2-3小时
-- [ ] 验证在不同 MCP 客户端中的兼容性 - 1-2小时
+#### 1. Integration Testing - Medium Priority
+- [ ] Test integration with Claude Desktop - requires a real environment - 2-3 hours
+- [ ] Verify compatibility with different MCP clients - 1-2 hours
 
-#### 2. 系统完善 - 中优先级
-- [ ] 完善错误处理和日志系统 - 提升用户体验 - 2-3小时
-- [ ] 编写使用文档和部署指南 - 便于其他开发者使用 - 2-3小时
-- [ ] 性能优化和稳定性测试 - 生产就绪 - 2-4小时
+#### 2. System Improvement - Medium Priority
+- [ ] Improve the error handling and logging system - improve user experience - 2-3 hours
+- [ ] Write usage documentation and deployment guides - for other developers to use - 2-3 hours
+- [ ] Performance optimization and stability testing - production ready - 2-4 hours
 
-### Desktop端功能稳定性修复
-**目标**: 修复Desktop环境下的剩余bug，提升用户体验
+### Desktop Function Stability Fixes
+**Goal**: Fix remaining bugs in the Desktop environment to improve user experience
 
-#### 1. UI组件问题修复
-- [ ] 修复TemplateSelect组件缺少"optimizationMode" prop的警告
-- [ ] 检查并修复其他组件的必需prop问题
-- [ ] 验证所有Desktop功能的正常运行
+#### 1. UI Component Bug Fixes
+- [ ] Fix the warning that the TemplateSelect component is missing the "optimizationMode" prop
+- [ ] Check and fix other required prop issues for components
+- [ ] Verify the normal operation of all Desktop functions
 
-#### 2. 功能完整性验证
-- [ ] 测试模板管理功能在Desktop环境下的完整性
-- [ ] 测试模型配置功能的稳定性
-- [ ] 验证历史记录功能的正确性
-- [ ] 检查主题切换和语言切换功能
+#### 2. Functional Integrity Verification
+- [ ] Test the integrity of the template management function in the Desktop environment
+- [ ] Test the stability of the model configuration function
+- [ ] Verify the correctness of the history function
+- [ ] Check the theme switching and language switching functions
 
-#### 3. 错误处理改进
-- [ ] 添加更友好的错误提示界面
-- [ ] 改进错误恢复机制
-- [ ] 完善日志记录系统
-- [ ] 验证历史记录功能的正确性
-- [ ] 检查主题切换和语言切换功能
+#### 3. Error Handling Improvement
+- [ ] Add a more friendly error prompt interface
+- [ ] Improve the error recovery mechanism
+- [ ] Improve the logging system
+- [ ] Verify the correctness of the history function
+- [ ] Check the theme switching and language switching functions
 
-#### 3. 错误处理改进
-- [ ] 添加更友好的错误提示界面
-- [ ] 改进错误恢复机制
-- [ ] 完善日志记录系统
+#### 3. Error Handling Improvement
+- [ ] Add a more friendly error prompt interface
+- [ ] Improve the error recovery mechanism
+- [ ] Improve the logging system
 
-### 组件标准化重构
-**目标**: 统一所有模态框/弹窗类组件的行为和API
+### Component Standardization Refactoring
+**Goal**: Unify the behavior and API of all modal/popup components
 
-#### 1. 标准化Prop为 `modelValue`
-- [ ] `DataManager.vue` - 将 `show` prop 改为 `modelValue`
-- [ ] `HistoryDrawer.vue` - 将 `show` prop 改为 `modelValue`
-- [ ] `ModelManager.vue` - 将 `show` prop 改为 `modelValue`
-- [ ] `TemplateManager.vue` - 将 `show` prop 改为 `modelValue`
-- [ ] `App.vue` - 更新所有组件调用，将 `v-model:show` 改为 `v-model`
+#### 1. Standardize Prop to `modelValue`
+- [ ] `DataManager.vue` - Change the `show` prop to `modelValue`
+- [ ] `HistoryDrawer.vue` - Change the `show` prop to `modelValue`
+- [ ] `ModelManager.vue` - Change the `show` prop to `modelValue`
+- [ ] `TemplateManager.vue` - Change the `show` prop to `modelValue`
+- [ ] `App.vue` - Update all component calls, change `v-model:show` to `v-model`
 
-#### 2. 补全 `Escape` 键支持
-- [ ] `ModelManager.vue` - 添加ESC键关闭功能
-- [ ] `TemplateManager.vue` - 添加ESC键关闭功能
-- [ ] `Modal.vue` - 添加ESC键关闭功能（基础组件）
+#### 2. Complete `Escape` Key Support
+- [ ] `ModelManager.vue` - Add ESC key to close function
+- [ ] `TemplateManager.vue` - Add ESC key to close function
+- [ ] `Modal.vue` - Add ESC key to close function (base component)
 
-#### 3. 修复关键Bug
-- [ ] `ModelManager.vue` - 添加 `v-if="show"` 指令修复启动显示问题
-- [ ] 解决 TypeScript 类型错误
-- [ ] 为相关对象创建明确的 TypeScript 接口
+#### 3. Fix Key Bugs
+- [ ] `ModelManager.vue` - Add `v-if="show"` directive to fix the startup display problem
+- [ ] Resolve TypeScript type errors
+- [ ] Create explicit TypeScript interfaces for related objects
 
-### Web架构完善
-**目标**: 完成Composable架构重构的剩余工作
+### Web Architecture Improvement
+**Goal**: Complete the remaining work of the Composable architecture refactoring
 
-- [ ] 解决 App.vue 中的类型错误
-- [ ] 深入研究 `DataManager` 类型定义和实现
-- [ ] 调整 `AppServices` 接口或服务实现
-- [ ] 添加错误处理UI界面
+- [ ] Resolve type errors in App.vue
+- [ ] In-depth study of `DataManager` type definition and implementation
+- [ ] Adjust the `AppServices` interface or service implementation
+- [ ] Add error handling UI interface
 
-## 🔧 中优先级任务
+## 🔧 Medium Priority Tasks
 
-### MCP Server 模块后续工作 (来自120归档)
-**目标**: 完善MCP Server模块的功能和稳定性
-**来源**: 120-mcp-server-module归档
+### Subsequent Work on MCP Server Module (from archive 120)
+**Goal**: Improve the functionality and stability of the MCP Server module
+**Source**: 120-mcp-server-module archive
 
-#### 1. 集成测试
-- [ ] 测试与 Claude Desktop 的集成 - 中优先级 - 2小时
-- [ ] 测试与 MCP Inspector 的兼容性 - 中优先级 - 1小时
+#### 1. Integration Testing
+- [ ] Test integration with Claude Desktop - medium priority - 2 hours
+- [ ] Test compatibility with MCP Inspector - medium priority - 1 hour
 
-#### 2. 功能完善
-- [ ] 完善错误处理和日志系统 - 高优先级 - 3小时
-- [ ] 添加更详细的调试信息输出 - 中优先级 - 1小时
+#### 2. Functional Improvement
+- [ ] Improve the error handling and logging system - high priority - 3 hours
+- [ ] Add more detailed debug information output - medium priority - 1 hour
 
-#### 3. 文档完善
-- [ ] 编写使用文档和部署指南 - 高优先级 - 3小时
-- [ ] 创建详细的API文档 - 中优先级 - 2小时
+#### 3. Documentation Improvement
+- [ ] Write usage documentation and deployment guides - high priority - 3 hours
+- [ ] Create detailed API documentation - medium priority - 2 hours
 
-#### 4. 性能优化
-- [ ] 性能优化和稳定性测试 - 中优先级 - 3小时
-- [ ] 内存使用优化 - 低优先级 - 2小时
+#### 4. Performance Optimization
+- [ ] Performance optimization and stability testing - medium priority - 3 hours
+- [ ] Memory usage optimization - low priority - 2 hours
