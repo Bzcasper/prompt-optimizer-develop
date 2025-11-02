@@ -1,175 +1,101 @@
-# 桌面应用环境变量配置指南
+# Desktop App Environment Variable Configuration Guide
 
-## 概述
-本文档说明如何通过环境变量配置桌面应用的构建和运行时行为。
+## Environment Variable Loading Order
 
-## 🔧 构建时配置（electron-builder）
+The desktop application loads environment variables in the following order:
 
-### 自动更新仓库配置
+1.  **`.env.local` in the project root directory** (Recommended) - Consistent with the testing environment
+2.  **`.env` in the desktop app directory** - Desktop app-specific configuration
+3.  **System environment variables** - Manually set environment variables
 
-#### 生产环境构建
-- 默认使用 `package.json` 中的配置：`linshenkx/prompt-optimizer`
-- GitHub 工作流会自动检测当前仓库并更新配置
-- 支持 fork 仓库的自动构建（无需额外配置）
-- 使用 `GH_TOKEN_FOR_UPDATER` 发布到 GitHub Releases
+## Recommended Configuration Methods
 
-#### 开发环境测试
-对于本地开发时测试自动更新功能：
+### Method 1: Use .env.local in the project root directory (Recommended)
 
-1. **修改 `dev-app-update.yml`**：
-   ```yaml
-   provider: github
-   owner: your-username
-   repo: your-repo-name
-   private: false  # 或 true（如果是私有仓库）
-   ```
-
-2. **设置环境变量**（如果需要访问私有仓库的 Release）：
-   ```bash
-   export GITHUB_TOKEN=your_github_token
-   ```
-
-3. **启动开发模式**：
-   ```bash
-   pnpm run dev
-   ```
-
-### 配置说明
-- `package.json`: 生产环境构建配置
-- `dev-app-update.yml`: 开发环境测试配置
-- `main.js` 中已配置 `autoUpdater.forceDevUpdateConfig = true`
-
-### GitHub Token 说明
-- **生产环境**：使用 `GH_TOKEN_FOR_UPDATER`（需要在 GitHub Secrets 中配置）
-- **用途**：仅用于发布到 GitHub Releases，只支持公开仓库
-
-## ⚡ 运行时配置（应用启动）
-
-### API 密钥配置
-应用启动时需要设置以下环境变量：
+Add the following to the `prompt-optimizer/.env.local` file in the project root directory:
 
 ```bash
 # OpenAI
-export VITE_OPENAI_API_KEY=your_openai_key
+VITE_OPENAI_API_KEY=your_openai_key_here
 
-# 其他 AI 服务
-export VITE_GEMINI_API_KEY=your_gemini_key
-export VITE_DEEPSEEK_API_KEY=your_deepseek_key
-export VITE_SILICONFLOW_API_KEY=your_siliconflow_key
-export VITE_ZHIPU_API_KEY=your_zhipu_key
+# Google Gemini
+VITE_GEMINI_API_KEY=your_gemini_key_here
 
-# 自定义 API
-export VITE_CUSTOM_API_KEY=your_custom_key
-export VITE_CUSTOM_API_BASE_URL=https://api.example.com
-export VITE_CUSTOM_API_MODEL=custom-model-name
+# DeepSeek
+VITE_DEEPSEEK_API_KEY=your_deepseek_key_here
+
+# SiliconFlow
+VITE_SILICONFLOW_API_KEY=your_siliconflow_key_here
+
+# Zhipu AI
+VITE_ZHIPU_API_KEY=your_zhipu_key_here
+
+# Custom API
+VITE_CUSTOM_API_KEY=your_custom_key_here
+VITE_CUSTOM_API_BASE_URL=your_custom_base_url
+VITE_CUSTOM_API_MODEL=your_custom_model
 ```
 
-### 动态更新源配置
-应用支持运行时动态切换更新源：
+**Advantages**:
+-   Share the same configuration with the web version and testing environment
+-   Only need to maintain one configuration file
+-   Automatically excluded by `.gitignore`, so keys won't be leaked
 
+### Method 2: Desktop app-specific configuration
+
+Add the same environment variables to the `packages/desktop/.env` file.
+
+**Advantages**:
+-   Independent configuration for the desktop app
+-   Can use different API keys than the web version
+
+### Method 3: System environment variables
+
+For Windows users:
+```cmd
+set VITE_OPENAI_API_KEY=your_openai_key_here
+set VITE_GEMINI_API_KEY=your_gemini_key_here
+npm start
+```
+
+For macOS/Linux users:
 ```bash
-# GitHub 仓库配置
-export GITHUB_REPOSITORY=owner/repo
-# 或者分别设置
-export DEV_REPO_OWNER=owner
-export DEV_REPO_NAME=repo
-
-# GitHub Token（私有仓库需要）
-export GH_TOKEN=your_github_token
-export GITHUB_TOKEN=your_github_token  # 备用
+export VITE_OPENAI_API_KEY=your_openai_key_here
+export VITE_GEMINI_API_KEY=your_gemini_key_here
+npm start
 ```
 
-## 🎯 实际使用示例
+## Verifying the Configuration
 
-### 场景1：开发者 Fork 项目
-```bash
-# 1. 设置构建时配置
-export REPO_OWNER=myusername
-export REPO_NAME=my-prompt-optimizer
-export REPO_PRIVATE=false
+When the desktop app starts, the main process console will display:
 
-# 2. 构建应用
-pnpm run build
-
-# 3. 设置运行时配置
-export GITHUB_REPOSITORY=myusername/my-prompt-optimizer
-export VITE_OPENAI_API_KEY=sk-...
-
-# 4. 运行应用
-./dist/PromptOptimizer-1.2.0-win-x64.exe
+```
+[Main Process] .env.local file loaded from project root
+[Main Process] .env file loaded from desktop directory
+[Main Process] Checking environment variables...
+[Main
+[Main Process] Found VITE_OPENAI_API_KEY: sk-1234567...
+[Main Process] Found VITE_GEMINI_API_KEY: AIzaSyA...
 ```
 
-### 场景2：自定义公开仓库部署
-```bash
-# 1. 设置构建时配置
-export REPO_OWNER=company
-export REPO_NAME=public-prompt-optimizer
+If you see `Missing VITE_XXX_API_KEY`, it means the corresponding environment variable is not set.
 
-# 2. 构建应用
-pnpm run build
+## FAQ
 
-# 3. 设置运行时配置
-export GITHUB_REPOSITORY=company/public-prompt-optimizer
-export VITE_OPENAI_API_KEY=sk-...
+### Q: Is my .env.local file valid?
+A: **Yes!** The desktop application now automatically loads the `.env.local` file from the project root directory.
 
-# 4. 运行应用
-./dist/PromptOptimizer-1.2.0-win-x64.exe
-```
+### Q: Why does the UI show an API key, but the connection test fails?
+A: This is because the UI process and the main process environments are isolated. Make sure:
+1.  The environment variables are set correctly in the `.env.local` file
+2.  Restart the desktop app to reload the environment variables
+3.  Check the main process console to confirm that the environment variables are read correctly
 
-## 🔍 配置验证
+### Q: Can I use multiple configuration methods at the same time?
+A: Yes. `dotenv` will merge the configurations in the order they are loaded, and later loaded variables will not overwrite existing ones.
 
-### 构建时验证
-构建完成后，检查生成的 `app-update.yml` 文件：
-```yaml
-# 应该包含正确的仓库信息
-provider: github
-owner: your-username
-repo: your-repo-name
-private: false
-```
+## Security Reminder
 
-### 运行时验证
-启动应用后，查看控制台日志：
-```
-[Updater] Using custom repository configuration: {
-  owner: 'your-username',
-  repo: 'your-repo-name',
-  private: false,
-  source: 'environment variables'
-}
-```
-
-## ⚠️ 注意事项
-
-1. **构建时 vs 运行时**：
-   - `REPO_*` 变量影响构建时的 `app-update.yml` 生成
-   - `GITHUB_*` 变量影响运行时的动态配置
-
-2. **优先级**：
-   - 运行时配置优先于构建时配置
-   - 环境变量优先于默认值
-
-3. **仓库要求**：
-   - 只支持公开仓库
-   - 不支持私有仓库
-
-4. **兼容性**：
-   - 如果不设置环境变量，使用默认的 `linshenkx/prompt-optimizer`
-   - 向后兼容现有的构建流程
-
-## 🐛 故障排除
-
-### 构建时问题
-- 确保环境变量在构建前已设置
-- 检查 `app-update.yml` 文件内容
-- 验证仓库名称格式正确
-
-### 运行时问题
-- 检查应用启动日志
-- 确认仓库存在且为公开仓库
-- 验证仓库名称格式正确
-
----
-
-**更新时间**: 2025-01-12  
-**版本**: v1.2.0+ 
+-   Never commit files containing API keys to the Git repository
+-   `.env.local` is already excluded in `.gitignore`
+-   If you use an `.env` file, please add it to `.gitignore` manually

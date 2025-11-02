@@ -1,45 +1,45 @@
-# 用户文档
+# User Documentation
 
-欢迎使用Prompt Optimizer！这里包含了所有面向最终用户的文档。
+Welcome to Prompt Optimizer! This section contains all the documentation for end-users.
 
-## 📖 用户手册
+## 📖 User Manuals
 
-### 桌面版
-- [桌面用户手册](./desktop-user-manual.md) - 桌面版完整使用指南
+### Desktop Edition
+- [Desktop User Manual](./desktop-user-manual.md) - Complete user guide for the desktop edition.
 
-### Web版
-- Web用户指南（待创建） - Web版使用说明
+### Web Edition
+- Web User Guide (to be created) - Instructions for using the web edition.
 
-### 模型配置
-- [多自定义模型配置指南](./multi-custom-models.md) - 配置无限数量自定义模型的完整指南
-- [Multiple Custom Models Guide (English)](./multi-custom-models_en.md) - Complete guide for configuring unlimited custom models
+### Model Configuration
+- [Multiple Custom Models Guide](./multi-custom-models.md) - Complete guide for configuring an unlimited number of custom models.
+- [Multiple Custom Models Guide (English)](./multi-custom-models_en.md) - Complete guide for configuring unlimited custom models.
 
-### MCP 服务器
-- [MCP 服务器用户指南](./mcp-server.md) - MCP 服务器部署和使用完整指南
-- [MCP Server User Guide (English)](./mcp-server_en.md) - Complete MCP server deployment and usage guide
+### MCP Server
+- [MCP Server User Guide](./mcp-server.md) - Complete guide for deploying and using the MCP server.
+- [MCP Server User Guide (English)](./mcp-server_en.md) - Complete MCP server deployment and usage guide.
 
-## 🚀 部署指南
+## 🚀 Deployment Guides
 
-### 自部署
-- [Vercel部署指南（中文）](./deployment/vercel.md) - 在Vercel上部署Web版
-- [Vercel部署指南（英文）](./deployment/vercel_en.md) - Vercel deployment guide (English)
+### Self-Deployment
+- [Vercel Deployment Guide (Chinese)](./deployment/vercel.md) - Deploy the web edition on Vercel.
+- [Vercel Deployment Guide (English)](./deployment/vercel_en.md) - Vercel deployment guide (English).
 
-## ❓ 常见问题
+## ❓ Frequently Asked Questions
 
-- 常见问题解答（待创建） - 用户常遇到的问题和解决方案
+- FAQ (to be created) - Common problems and solutions for users.
 
-## 📞 获取帮助
+## 📞 Getting Help
 
-如果您在使用过程中遇到问题：
+If you encounter problems during use:
 
-1. 首先查看相关的用户手册
-2. 查看常见问题解答
-3. 在项目仓库提交Issue
-4. 联系开发团队
+1. First, check the relevant user manuals.
+2. Check the FAQ.
+3. Submit an issue in the project repository.
+4. Contact the development team.
 
-## 📝 反馈建议
+## 📝 Feedback and Suggestions
 
-我们欢迎您的反馈和建议：
-- 功能建议
-- 使用体验反馈
-- 文档改进建议
+We welcome your feedback and suggestions:
+- Feature suggestions
+- User experience feedback
+- Documentation improvement suggestions

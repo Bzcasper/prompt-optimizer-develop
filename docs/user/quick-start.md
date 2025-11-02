@@ -1,144 +1,144 @@
-# 快速上手指南
+# Quick Start Guide
 
-## 🚀 欢迎使用提示词优化器
+## 🚀 Welcome to the Prompt Optimizer
 
-提示词优化器是一个智能工具，帮助您将普通的提示词优化为更专业、更有效的版本。
+The Prompt Optimizer is an intelligent tool that helps you optimize ordinary prompts into more professional and effective versions.
 
-## ⚡ 5分钟快速开始
+## ⚡ 5-Minute Quick Start
 
-### 1. 配置AI模型
-1. 点击右上角的 **⚙️ 模型管理** 按钮
-2. 输入您的API密钥（OpenAI、Claude或Gemini）
-3. 点击 **测试连接** 确保配置正确
-4. 点击 **保存** 完成配置
+### 1. Configure the AI Model
+1. Click the **⚙️ Model Management** button in the upper right corner
+2. Enter your API key (OpenAI, Claude, or Gemini)
+3. Click **Test Connection** to ensure the configuration is correct
+4. Click **Save** to complete the configuration
 
-### 2. 开始优化提示词
-1. 在左侧输入框中输入您的原始提示词
-2. 选择优化模式（系统提示词优化/用户提示词优化）
-3. 选择合适的优化模板
-4. 点击 **开始优化** 按钮
-5. 等待AI生成优化结果
+### 2. Start Optimizing Prompts
+1. Enter your original prompt in the left input box
+2. Select the optimization mode (System Prompt Optimization / User Prompt Optimization)
+3. Select a suitable optimization template
+4. Click the **Start Optimization** button
+5. Wait for the AI to generate the optimization results
 
-### 3. 查看和使用结果
-1. 在右侧查看优化后的提示词
-2. 阅读推理过程了解优化原理
-3. 点击 **复制** 按钮复制结果
-4. 如需改进，使用 **继续优化** 功能
+### 3. View and Use the Results
+1. View the optimized prompt on the right
+2. Read the reasoning process to understand the optimization principles
+3. Click the **Copy** button to copy the results
+4. If improvements are needed, use the **Continue Optimization** feature
 
-## 🎯 主要功能
+## 🎯 Main Features
 
-### 📝 提示词优化
-- **智能优化** - AI自动改进您的提示词
-- **多种模板** - 提供不同场景的优化模板
-- **迭代改进** - 可以多次优化直到满意
-- **版本管理** - 保存和切换不同版本
+### 📝 Prompt Optimization
+- **Intelligent Optimization** - AI automatically improves your prompts
+- **Multiple Templates** - Provides optimization templates for different scenarios
+- **Iterative Improvement** - Can be optimized multiple times until satisfied
+- **Version Management** - Save and switch between different versions
 
-### 🤖 模型管理
-- **多模型支持** - 支持OpenAI、Claude、Gemini等
-- **连接测试** - 确保API配置正确
-- **智能切换** - 根据需要选择最适合的模型
+### 🤖 Model Management
+- **Multi-model Support** - Supports OpenAI, Claude, Gemini, etc.
+- **Connection Test** - Ensure the API configuration is correct
+- **Intelligent Switching** - Select the most suitable model as needed
 
-### 📚 模板管理
-- **丰富模板** - 内置多种优化模板
-- **自定义模板** - 创建您自己的优化模板
-- **分类管理** - 按类型组织模板
+### 📚 Template Management
+- **Rich Templates** - Built-in multiple optimization templates
+- **Custom Templates** - Create your own optimization templates
+- **Category Management** - Organize templates by type
 
-### 📜 历史记录
-- **自动保存** - 所有优化记录自动保存
-- **快速重用** - 一键重用历史优化结果
-- **搜索功能** - 快速找到需要的历史记录
+### 📜 History
+- **Auto Save** - All optimization records are automatically saved
+- **Quick Reuse** - Reuse historical optimization results with one click
+- **Search Function** - Quickly find the required historical records
 
-### 💾 数据管理
-- **导出备份** - 导出所有数据到本地
-- **导入恢复** - 从备份文件恢复数据
-- **数据清理** - 清除不需要的数据
+### 💾 Data Management
+- **Export Backup** - Export all data to local
+- **Import Restore** - Restore data from a backup file
+- **Data Cleanup** - Clear unnecessary data
 
-## 💡 使用技巧
+## 💡 Usage Tips
 
-### 写好原始提示词
-- **明确目标** - 清楚说明您想要AI做什么
-- **提供背景** - 给出必要的上下文信息
-- **具体描述** - 避免模糊和抽象的表达
+### Write Good Original Prompts
+- **Clear Objectives** - Clearly state what you want the AI to do
+- **Provide Context** - Give necessary background information
+- **Specific Descriptions** - Avoid vague and abstract expressions
 
-### 选择合适的模板
-- **通用优化** - 适合大多数场景的基础优化
-- **专业领域** - 针对特定领域的专业优化
-- **创意写作** - 适合创意和文学创作的优化
+### Choose the Right Template
+- **General Optimization** - Basic optimization suitable for most scenarios
+- **Professional Fields** - Professional optimization for specific fields
+- **Creative Writing** - Optimization suitable for creative and literary creation
 
-### 有效使用迭代优化
-- **明确改进方向** - 具体说明需要改进的方面
-- **逐步完善** - 每次迭代专注一个改进点
-- **保存版本** - 保留满意的中间版本
+### Use Iterative Optimization Effectively
+- **Clear Improvement Direction** - Specify the aspects that need improvement
+- **Gradual Improvement** - Focus on one improvement point per iteration
+- **Save Versions** - Keep satisfactory intermediate versions
 
-## ⚙️ 个性化设置
+## ⚙️ Personalized Settings
 
-### 界面设置
-- **主题切换** - 点击右上角切换日间/夜间模式
-- **语言切换** - 支持中文/英文界面
-- **布局调整** - 界面自适应不同屏幕尺寸
+### Interface Settings
+- **Theme Switching** - Click in the upper right corner to switch between day/night mode
+- **Language Switching** - Supports Chinese/English interface
+- **Layout Adjustment** - The interface is adaptive to different screen sizes
 
-### 使用偏好
-- **默认模型** - 设置常用的AI模型
-- **常用模板** - 收藏经常使用的模板
-- **历史管理** - 定期清理不需要的历史记录
+### Usage Preferences
+- **Default Model** - Set the commonly used AI model
+- **Common Templates** - Bookmark frequently used templates
+- **History Management** - Regularly clean up unnecessary historical records
 
-## ❓ 常见问题
+## ❓ Frequently Asked Questions
 
-### Q: API密钥在哪里获取？
-**A:** 
-- **OpenAI**: 访问 platform.openai.com 注册并获取API密钥
-- **Claude**: 访问 console.anthropic.com 获取API密钥
-- **Gemini**: 访问 ai.google.dev 获取API密钥
+### Q: Where can I get an API key?
+**A:**
+- **OpenAI**: Visit platform.openai.com to register and get an API key
+- **Claude**: Visit console.anthropic.com to get an API key
+- **Gemini**: Visit ai.google.dev to get an API key
 
-### Q: 优化失败怎么办？
-**A:** 
-1. 检查网络连接是否正常
-2. 确认API密钥是否有效且有足够额度
-3. 尝试使用不同的模型
-4. 简化原始提示词内容
+### Q: What should I do if the optimization fails?
+**A:**
+1. Check if the network connection is normal
+2. Confirm that the API key is valid and has sufficient quota
+3. Try using a different model
+4. Simplify the content of the original prompt
 
-### Q: 如何提高优化质量？
-**A:** 
-1. 提供更详细的原始提示词
-2. 选择更适合的优化模板
-3. 使用迭代优化功能进行改进
-4. 尝试不同的AI模型
+### Q: How to improve the quality of optimization?
+**A:**
+1. Provide a more detailed original prompt
+2. Choose a more suitable optimization template
+3. Use the iterative optimization function for improvement
+4. Try different AI models
 
-### Q: 数据安全吗？
-**A:** 
-- 所有数据存储在您的本地浏览器中
-- 不会上传到我们的服务器
-- 您可以随时导出或删除数据
-- API调用直接连接到AI服务商
+### Q: Is the data secure?
+**A:**
+- All data is stored in your local browser
+- It will not be uploaded to our servers
+- You can export or delete data at any time
+- API calls are directly connected to the AI service provider
 
-## 🔧 故障排除
+## 🔧 Troubleshooting
 
-### 界面问题
-- **页面无法加载** - 刷新浏览器或清除缓存
-- **按钮无响应** - 检查浏览器是否支持现代Web标准
-- **显示异常** - 尝试调整浏览器缩放比例
+### Interface Issues
+- **Page cannot be loaded** - Refresh the browser or clear the cache
+- **Button not responding** - Check if the browser supports modern web standards
+- **Display abnormalities** - Try adjusting the browser zoom level
 
-### 功能问题
-- **优化超时** - 检查网络连接，尝试重新优化
-- **结果不显示** - 等待更长时间或刷新页面
-- **历史记录丢失** - 检查浏览器是否允许本地存储
+### Functional Issues
+- **Optimization timeout** - Check the network connection and try to re-optimize
+- **Results not displayed** - Wait longer or refresh the page
+- **History lost** - Check if the browser allows local storage
 
-### 性能问题
-- **运行缓慢** - 关闭其他浏览器标签页释放内存
-- **内存占用高** - 定期清理历史记录和缓存
-- **响应延迟** - 检查网络速度和API服务状态
+### Performance Issues
+- **Slow running** - Close other browser tabs to free up memory
+- **High memory usage** - Regularly clean up history and cache
+- **Response delay** - Check the network speed and API service status
 
-## 📞 获取帮助
+## 📞 Get Help
 
-如果您遇到问题或有改进建议：
+If you encounter problems or have suggestions for improvement:
 
-1. **查看文档** - 详细功能说明请参考用户手册
-2. **检查设置** - 确认配置是否正确
-3. **重试操作** - 很多问题可以通过重试解决
-4. **反馈问题** - 记录具体的错误信息和操作步骤
+1. **Check the documentation** - Please refer to the user manual for detailed functional descriptions
+2. **Check the settings** - Confirm that the configuration is correct
+3. **Retry the operation** - Many problems can be solved by retrying
+4. **Feedback the problem** - Record specific error messages and operating steps
 
-## 🎉 开始使用
+## 🎉 Get Started
 
-现在您已经了解了基本使用方法，开始体验智能提示词优化的强大功能吧！
+Now that you have learned the basic usage, start experiencing the powerful functions of intelligent prompt optimization!
 
-记住：好的提示词是与AI有效沟通的关键，让我们的工具帮助您创建更专业、更有效的提示词。
+Remember: A good prompt is the key to effective communication with AI, let our tools help you create more professional and effective prompts.
